@@ -1,13 +1,13 @@
 allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'groovy'
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
     group = 'com.vmware.studio'
     version = '1.0'
 }
 
 subprojects{
-    apply plugin: 'idea'
-    apply plugin: 'groovy'
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
     repositories{
         mavenCentral()
     }

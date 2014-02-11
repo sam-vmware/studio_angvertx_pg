@@ -1,6 +1,4 @@
 dependencies {
-    def vertxLibDir="/home/samueldoyle/Projects/GitHub/Vertx/vertx/current/lib"
-    compile fileTree(dir: vertxLibDir, includes: ['*.jar'])
     /*
     Add your module jar dependencies here
     E.g.
@@ -8,6 +6,9 @@ dependencies {
     testCompile "com.foo:foo-lib:1.0.1" - for test time deps
     provided "com.foo:foo-lib:1.0.1" - if you DON'T want it to be packaged in the module zip
     */
+    compile 'org.codehaus.groovy:groovy-all:2.2.1'
+    compile 'io.vertx:lang-groovy:2.0.0-final'
+    compile fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar'])
 }
 
 sourceSets {
