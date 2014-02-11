@@ -1,1 +1,4 @@
-include 'web-ui', 'vertx-mods', 'vertx-mods:web-server'
+include 'vami-mods', 'vami-mods:system-service'
+include 'vertx-mods', 'vertx-mods:web-server'
+include 'web-ui'
+

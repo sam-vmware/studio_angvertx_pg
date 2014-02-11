@@ -6,9 +6,17 @@ allprojects {
     version = '1.0'
 }
 
-subprojects{
-    repositories{
+subprojects {
+    ext.GLOBAL_CONF = [
+        vertx: [
+            libDir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib"
+        ]
+    ]
+    repositories {
         mavenCentral()
+    }
+    dependencies {
+        //compile fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar'])
     }
 }
 
