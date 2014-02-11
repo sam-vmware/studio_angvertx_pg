@@ -9,7 +9,7 @@ def authManagerConf = [
 
 def mongoPersistorConf = [
         host   : 'localhost',
-        port   : 9999,
+        port   : 27017,
         db_name: 'studio_db'
 ]
 
