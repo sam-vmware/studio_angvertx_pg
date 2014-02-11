@@ -1,1 +1,1 @@
-include 'server','web-ui'
+include 'vertx-mods','web-ui'
