@@ -31,6 +31,6 @@ class SystemService extends Verticle {
     ]
 
     def start() {
-        container.log.info "!!!! Hello From SystemService !!!!"
+        container.logger.info  "!!!! Dude Whatup From SystemService !!!!"
     }
 }

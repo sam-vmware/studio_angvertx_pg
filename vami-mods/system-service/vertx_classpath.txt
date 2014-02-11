@@ -1,4 +1,2 @@
 src/main/resources
-src/main/groovy
-src/main/groovy/com/vmware/studio/vamimods/system
 build/classes/main

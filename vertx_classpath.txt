@@ -1,5 +1,7 @@
-src/main/resources
-bin
-out/production/web-server
-out/test/web-server
-build/deps
+# system-service
+vami-mods/system-service/src/main/resources
+vami-mods/system-service/build/classes/main
+
+# web-server
+vertx-mods/web-server/src/main/resources
+vertx-mods/web-server/build/classes/main
