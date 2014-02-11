@@ -10,7 +10,7 @@
 
   // Compiled Groovy verticle - note that they must be prefixed with 'groovy:' to distinguish them from compiled Java verticles
   //"main":"groovy:com.mycompany.myproject.GroovyPingVerticle",
-  "main":"groovy:com.vmware.studio.provagent.ProvagentVerticle",
+  "main":"com.vmware.studio.vertxmods.webserver.App",
 
   // Groovy *script* verticle
   //"main": "GroovyVerticle.groovy",
