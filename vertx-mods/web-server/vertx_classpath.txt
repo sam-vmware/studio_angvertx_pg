@@ -1,3 +1,4 @@
 src/main/resources
 src/main/groovy
-build/classes
+src/main/groovy/com/vmware/studio/vertxmods/webserver
+build/classes/main

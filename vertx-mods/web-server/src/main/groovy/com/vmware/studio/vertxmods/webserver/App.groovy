@@ -18,9 +18,12 @@ class App extends Verticle {
     ]
 
     def webServerConf = [
+            //host              : 'localhost',
+            host              : '0.0.0.0',
             port              : 8080,
-            host              : 'localhost',
-            static_files      : 'true',
+            web_root: '/home/samueldoyle/Projects/VMware/StudioRepo/git/NewStack/studio_angular_vertx/web-ui/app',
+            index_page: 'index.html',
+            static_files      : true,
             ssl               : false,
             bridge            : true,
             inbound_permitted : [[:]],
@@ -32,7 +35,7 @@ class App extends Verticle {
             deployModule('io.vertx~mod-mongo-persistor~2.0.0-final', mongoPersistorConf) { asyncResult ->
                 if (asyncResult.succeeded) {
                     // Bootstrap some data
-                    deployVerticle('Bootstrap')
+                    deployVerticle('Bootstrap.groovy')
                 } else {
                     println "Failed to deploy ${asyncResult}"
                 }

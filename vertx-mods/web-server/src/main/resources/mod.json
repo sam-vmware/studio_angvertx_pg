@@ -1,10 +1,10 @@
 {
-  "auto-redeploy": true,
   "main":"groovy:com.vmware.studio.vertxmods.webserver.App",
   "description":"Provagent Module",
   "licenses": ["The Apache Software License Version 2.0"],
   "author": "Samuel Doyle",
   "developers": ["Samueld Doyle"],
   "keywords": ["vertx", "groovy", "studio", "vami"],
-  "homepage": "http://"
+  "homepage": "http://",
+  "auto-redeploy": true
 }
