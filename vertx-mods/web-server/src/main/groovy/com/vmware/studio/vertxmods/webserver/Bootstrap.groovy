@@ -1,20 +1,24 @@
 package com.vmware.studio.vertxmods.webserver
+import org.vertx.groovy.platform.Verticle
 
-def eb = vertx.eventBus
-def pa = vertx.mongopersistor
+class Bootstrap extends Verticle {
 
-// Delete users
-eb.send(pa, [action: 'delete', collection: 'users', matcher: [:]]) {
-    // Then add a user
-    eb.send(pa, [
-            action    : 'save',
-            collection: 'users',
-            document  : [
-                    firstname: 'Sam',
-                    lastname : 'Doyle',
-                    email    : 'samuledoyle@lvmware.com',
-                    username : 'sam',
-                    password : 'ca$hc0w'
-            ]
-    ])
+    def eb = vertx.eventBus
+    def pa = vertx.mongopersistor
+
+    def start() {
+        eb.send(pa, [action: 'delete', collection: 'users', matcher: [:]]) {
+            eb.send(pa, [
+                    action    : 'save',
+                    collection: 'users',
+                    document  : [
+                            firstname: 'Sam',
+                            lastname : 'Doyle',
+                            email    : 'samuledoyle@lvmware.com',
+                            username : 'sam',
+                            password : 'ca$hc0w'
+                    ]
+            ])
+        }
+    }
 }
