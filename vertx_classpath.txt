@@ -1,7 +1,2 @@
-# system-service
-vami-mods/system-service/src/main/resources
-vami-mods/system-service/build/classes/main
-
-# web-server
-vertx-mods/web-server/src/main/resources
-vertx-mods/web-server/build/classes/main
+out/production/system-service
+out/production/web-server
