@@ -1,4 +1,3 @@
-apply plugin: 'groovy'
 apply from: "$rootDir/gradle/vertx.gradle"
 
 /*
@@ -57,12 +56,6 @@ dependencies {
     testCompile "com.foo:foo-lib:1.0.1" - for test time deps
     provided "com.foo:foo-lib:1.0.1" - if you DON'T want it to be packaged in the module zip
     */
-
-    // If you're creating Groovy compiled verticles you may need the following dependencies
-    provided "org.codehaus.groovy:groovy-all:$groovyVersion"
-    provided "io.vertx:lang-groovy:$groovyLangModVersion@jar"
-
-    compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
 }
 
 test {
@@ -70,7 +63,7 @@ test {
     include 'org/foo/**'
     exclude 'org/boo/**'
     */
-
+    // classpath = project.sourceSets.test.runtimeClasspath + files("${rootDir}/classes/production/system-service")
 }
 
 /*

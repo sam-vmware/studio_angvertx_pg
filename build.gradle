@@ -1,25 +1,126 @@
-allprojects {
-    apply plugin: 'idea'
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
-    group = 'com.vmware.studio'
-    version = '1.0'
-}
+configurations.all {
+    resolutionStrategy {
+        // fail eagerly on version conflict (includes transitive dependencies)
+        // e.g. multiple different versions of the same dependency (group and name are equal)
+        failOnVersionConflict()
 
-subprojects {
-    ext.GLOBAL_CONF = [
-        vertx: [
-            libDir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib"
-        ]
-    ]
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        //compile fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar'])
+        // force certain versions of dependencies (including transitive)
+        //  *append new forced modules:
+        force 'org.codehaus.groovy:groovy-all:2.2.1'
+        //  *replace existing forced modules with new ones:
+        forcedModules = ['org.codehaus.groovy:groovy-all:2.2.1']
+
+        // add a dependency resolve rule
+        eachDependency { DependencyResolveDetails details ->
+            //changing 'groovy-all' into 'groovy':
+            if (details.requested.name == 'groovy-all') {
+                //details.useTarget group: details.requested.group, name: 'groovy', version: details.requested.version
+                details.useTarget group: details.requested.group, name: 'groovy-all', version: '2.2.1'
+            }
+        }
+
+        // cache dynamic versions for 10 minutes
+        cacheDynamicVersionsFor 10*60, 'seconds'
+        // don't cache changing modules at all
+        cacheChangingModulesFor 0, 'seconds'
     }
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.10'
 }
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
+    group = 'com.vmware.studio'
+    version = '1.0'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.2.1'
+    }
+}
+
+subprojects {
+    apply plugin: 'groovy'
+    ext.GLOBAL_CONF = [
+        groovyVersion: "2.2.1",
+        vertx: [
+            libDir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib",
+            groovyLangModVersion: "2.0.0-final"
+        ]
+    ]
+
+// Add these dependencies by default except for the web stuff
+    def excludeAutoDependProjects = ['web-ui']
+    if (!(project.name in excludeAutoDependProjects)) {
+        dependencies {
+            compile "org.codehaus.groovy:groovy-all:${GLOBAL_CONF.groovyVersion}"
+            compile "io.vertx:lang-groovy:${GLOBAL_CONF.vertx.groovyLangModVersion}@jar"
+            compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
+        }
+    }
+
+   /* afterEvaluate { project ->
+        if (project.hasIntegrationTests) {
+            println "Adding integration task to $project"
+            project.task([type: Test, dependsOn: "test"], "integrationTest") << {
+                include '**//*IntegrationTest*.*'
+            }
+        }
+    }*/
+}
+
+/*def excludeAutoDependProjects = ['web-ui']
+configure(subprojects.findAll {!(it.name in excludeAutoDependProjects)}) {
+    dependencies {
+        compile "org.codehaus.groovy:groovy-all:${GLOBAL_CONF.groovyVersion}"
+        compile "io.vertx:lang-groovy:${GLOBAL_CONF.vertx.groovyLangModVersion}@jar"
+        compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
+    }
+}*/
+
+project(':vami-mods:system-service') {
+    dependencies {
+        compile project(':shared:common')
+    }
+}
+
+dependencies {
+    compile(project(":shared:common"))
+}
+
+// Console setup, dunno groovyConsole unable to change classpath, thinking I messed up however after exhausting
+// various configurations I tried it as shipped and it didn't work. Could be latest version or something
+task(console, dependsOn: 'classes', type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    // main = 'groovy.ui.Console'
+    main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
+    ignoreExitValue = true
+    def jars = files(fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar']))
+    classpath += jars
+    main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
+    //args = [jars.getAsPath()]
+    args = [classpath.getAsPath(), jars.getAsPath()]
+}
+
+/*task(console, dependsOn: 'classes', type:Exec) {
+    def cp = sourceSets.main.runtimeClasspath.filter {
+        ! it.name.contains("groovy-all")
+    }
+    cp += files("$rootDir/classes/production/common")
+
+    def jars = files(fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar']))
+    environment["JARS_TO_ADD"] = jars.getAsPath()
+
+    commandLine '/usr/bin/env', 'groovyConsole', '--classpath', cp.getAsPath()
+    ignoreExitValue true
+}*/
+

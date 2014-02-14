@@ -1,0 +1,10 @@
+{
+  "main":"groovy:com.vmware.studio.vamimods.system.SystemService",
+  "description":"Provagent Module",
+  "licenses": ["The Apache Software License Version 2.0"],
+  "author": "Samuel Doyle",
+  "developers": ["Samueld Doyle"],
+  "keywords": ["vertx", "groovy", "studio", "vami"],
+  "homepage": "http://",
+  "auto-redeploy": true
+}
