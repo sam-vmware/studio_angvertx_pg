@@ -33,3 +33,4 @@ bower_components
 karma-e2e.conf.js
 karma.conf.js
 package.json
+classes
