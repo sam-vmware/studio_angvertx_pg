@@ -10,11 +10,12 @@ import org.vertx.groovy.testtools.VertxTests
 /**
  * Created by samueldoyle on 2/13/14.
  */
-
+/*
 def testDeployArbitraryVerticle() {
     assertEquals("true", "true")
     container.deployVerticle("groovy:" + SystemServiceTest.class.getName())
+    testComplete()
 }
 
 VertxTests.initialize(this)
-VertxTests.startTests(this)
+VertxTests.startTests(this)*/

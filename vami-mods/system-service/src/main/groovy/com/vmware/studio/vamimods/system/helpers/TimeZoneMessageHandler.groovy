@@ -56,12 +56,12 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
 
     Map handle(Map message) {
         // Use method reference directly to avoid any getter/setter interception nastiness
-        if (! this.metaClass.respondsTo(this, message.body.operation as String)) {
-            return BasemessageHandler.ERROR_RESPONSE(
-                    ResourceLoader.getProperty("services.systemService.errorMessages.unknownOperationType")
+        if (! this.metaClass.respondsTo(this, message.operation as String)) {
+            return ERROR_RESPONSE(
+                    ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.unknownOperationType")
             )
         }
-        return this.".&${message.body.operation}"(message)
+        return this.&"${message.operation}"(message)
     }
 
     String getType() {

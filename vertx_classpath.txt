@@ -8,6 +8,9 @@ classes/production/system-service
 #out/production/web-server
 
 # From Gradle Build
+
+#shared/common/build/classes/main
+
 # system-service
 #vami-mods/system-service/src/main/resources
 #vami-mods/system-service/build/classes/main

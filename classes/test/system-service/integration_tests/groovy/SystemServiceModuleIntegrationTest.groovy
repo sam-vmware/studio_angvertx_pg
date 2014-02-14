@@ -18,27 +18,27 @@ def testInvalidMsgBody() {
     })
 }
 
-def testInvalidMsgUnknownMessage() {
-    container.logger.info("Running testSystemServiceUnknownMessage")
-    def unknownMsgType = [
-        type: "foo"
-    ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, unknownMsgType, { reply ->
-        assertEquals(reply.body.result, "error")
-        assert reply.body.cause.startsWith("Unknown message type received")
-        testComplete()
-    })
-}
-
-/*
 def testInvalidMsgMissingOperation() {
     container.logger.info("Running testSystemServiceUnknownMessage")
     def missingOperationType = [
-        type: "TimeZone",
+            type: "TimeZone",
     ]
     vertx.eventBus.send(SystemService.MY_ADDRESS, missingOperationType, { reply ->
         assertEquals(reply.body.result, "error")
         assert reply.body.cause.startsWith("Message validation failed")
+        testComplete()
+    })
+}
+
+def testInvalidMsgUnknownType() {
+    container.logger.info("Running testSystemServiceUnknownMessage")
+    def unknownMsgType = [
+        type: "foo",
+        operation: "get"
+    ]
+    vertx.eventBus.send(SystemService.MY_ADDRESS, unknownMsgType, { reply ->
+        assertEquals(reply.body.result, "error")
+        assert reply.body.cause.startsWith("Unknown message type received")
         testComplete()
     })
 }
@@ -63,10 +63,12 @@ def testSystemServiceTZMessage() {
         operation: "get"
     ]
     vertx.eventBus.send(SystemService.MY_ADDRESS, unknownMsgType, { reply ->
-        assertEquals(reply.body.result, "error")
+        assertEquals(reply.body.result, "ok")
+        println "Returned TimeZone: ${reply.body.data}"
         testComplete()
     })
-}*/
+
+}
 
 VertxTests.initialize(this)
 
