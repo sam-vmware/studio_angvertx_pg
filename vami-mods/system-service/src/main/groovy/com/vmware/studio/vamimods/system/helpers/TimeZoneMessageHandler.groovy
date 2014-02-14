@@ -1,7 +1,6 @@
 package com.vmware.studio.vamimods.system.helpers
 
 import com.vmware.studio.services.messaging.BaseMessageHandler
-import com.vmware.studio.services.messaging.CommonMessageHandlerDelegate
 import com.vmware.studio.shared.system.LinuxShellSupport
 import com.vmware.studio.utils.ResourceLoader
 import org.vertx.groovy.core.Vertx
@@ -10,8 +9,6 @@ import org.vertx.groovy.core.Vertx
  * Created by samueldoyle on 2/11/14.
  */
 class TimeZoneMessageHandler implements BaseMessageHandler {
-    @Delegate CommonMessageHandlerDelegate commonMessageHandlerImpl
-
     public static final String MY_TYPE = "TimeZone"
     def final tzFile = "/etc/timezone"
     def final vertx = Vertx.newVertx()
@@ -57,4 +54,17 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
 
     }
 
+    Map handle(Map message) {
+        // Use method reference directly to avoid any getter/setter interception nastiness
+        if (! this.metaClass.respondsTo(this, message.operation as String)) {
+            return ERROR_RESPONSE(
+                    ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.unknownOperationType")
+            )
+        }
+        return this.&"${message.operation}"(message)
+    }
+
+    String getType() {
+        return MY_TYPE
+    }
 }
