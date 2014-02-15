@@ -69,7 +69,7 @@ class GroovyConsoleWrapper {
         LOGGER.info("$me: Launching GroovyConsole: $commandLine")
 
         String[] envp = ["CLASSPATH=${args[0]}"]
-        def(process, out, err) = LinuxShellSupport.consumeShellCmdWait(commandLine, envp)
+        def(process, out, err) = LinuxShellSupport.instance.consumeShellCmdWait(commandLine, envp)
         if (process.exitValue()) {
             LOGGER.severe("Failed to launch groovyConsole: ${process.err.text}")
         }

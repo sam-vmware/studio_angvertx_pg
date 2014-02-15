@@ -9,7 +9,6 @@ import com.vmware.studio.vamimods.system.SystemService
  */
 
 def testInvalidMsgBody() {
-    container.logger.info("Running testInvalidMsgBody")
     def msg = "Hi I'm a String"
     vertx.eventBus.send(SystemService.MY_ADDRESS, msg, { reply ->
         assertEquals(reply.body.result, "error")
@@ -19,9 +18,8 @@ def testInvalidMsgBody() {
 }
 
 def testInvalidMsgMissingOperation() {
-    container.logger.info("Running testSystemServiceUnknownMessage")
     def missingOperationType = [
-            type: "TimeZone",
+            type: "TimeZone"
     ]
     vertx.eventBus.send(SystemService.MY_ADDRESS, missingOperationType, { reply ->
         assertEquals(reply.body.result, "error")
@@ -31,7 +29,6 @@ def testInvalidMsgMissingOperation() {
 }
 
 def testInvalidMsgUnknownType() {
-    container.logger.info("Running testSystemServiceUnknownMessage")
     def unknownMsgType = [
         type: "foo",
         operation: "get"
@@ -44,7 +41,6 @@ def testInvalidMsgUnknownType() {
 }
 
 def testInvalidMsgWrongOperation() {
-    container.logger.info("Running testSystemServiceUnknownMessage")
     def missingOperationType = [
             type: "TimeZone",
             operation: "foo"
@@ -56,19 +52,6 @@ def testInvalidMsgWrongOperation() {
     })
 }
 
-def testSystemServiceTZMessage() {
-    container.logger.info("Running testSystemServiceUnknownMessage")
-    def unknownMsgType = [
-        type: "TimeZone",
-        operation: "get"
-    ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, unknownMsgType, { reply ->
-        assertEquals(reply.body.result, "ok")
-        println "Returned TimeZone: ${reply.body.data}"
-        testComplete()
-    })
-
-}
 
 VertxTests.initialize(this)
 

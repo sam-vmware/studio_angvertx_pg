@@ -1,5 +1,6 @@
 package com.vmware.studio.vamimods.system
 
+import com.vmware.studio.services.Service
 import com.vmware.studio.services.messaging.BaseMessageHandler
 import com.vmware.studio.services.messaging.MessageValidator
 import com.vmware.studio.utils.ClosureScriptAsClass
@@ -17,7 +18,7 @@ import com.vmware.studio.vamimods.system.helpers.*
  * data: ...
  * ]
  */
-class SystemService extends Verticle {
+class SystemService extends Verticle implements Service  {
     public final static String MY_ADDRESS = SystemService.class.name
     private Map HANDLER_REGISTRY = [:]
     // private static String myConfigObject = "com.vmware.studio.vamimods.system.resources.SystemService"
@@ -33,6 +34,10 @@ class SystemService extends Verticle {
                     unknownOperationType = "Unknown operation type received"
                     msgValidationFailure = "Message validation failed"
                     invalidMessagePayload = "Invalid message body payload type received"
+                    invalidNewTimezone = "Missing or invalid new timezone value"
+                    missingZoneFile = "The specified timezone file doesn't exist"
+                    unknownOS = "Unable to determine Operating System"
+                    failedToUpdateTZ = "Unable to determine Operating System"
                 }
                 environments {
                     dev {
@@ -57,8 +62,8 @@ class SystemService extends Verticle {
         // Register with the event bus
         vertx.eventBus.registerLocalHandler(MY_ADDRESS, { Message message ->
             container.logger.info "Received Message: ${message.body()}"
-            container.logger.info "Body Type: ${message.body().class}"
-            if (!(message.body() instanceof Map)) {
+            def msgBody = message.body()
+            if (!(msgBody instanceof Map)) {
                 message.reply(BaseMessageHandler.ERROR_RESPONSE(
                         ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.invalidMessagePayload")
                 ))
@@ -76,17 +81,21 @@ class SystemService extends Verticle {
     def handleMessage(message) {
         // Basic failfast validation
         def validInfo = MessageValidator.instance.validate(message)
-        def invalid = validInfo.invalid
-        if (invalid) {
+        def valid = validInfo.valid
+
+        container.logger.info "DEBUG: message: $message"
+        container.logger.info "DEBUG: valid: $valid"
+
+        if (!valid) {
             return BaseMessageHandler.ERROR_RESPONSE(
-                    "${ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.msgValidationFailure")}: $invalid"
+                    "${ResourceLoader.instance.getConfigProperty('services.systemService.errorMessages.msgValidationFailure')}: $valid"
             )
         }
 
         def handler = HANDLER_REGISTRY[(message.type)]
         if (!handler) {
             return BaseMessageHandler.ERROR_RESPONSE(
-                    "${ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.unknownMessageType")}: $invalid"
+                    "${ResourceLoader.instance.getConfigProperty('services.systemService.errorMessages.unknownMessageType')}: $valid"
             )
         }
 
