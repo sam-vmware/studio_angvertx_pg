@@ -1,4 +1,4 @@
-package com.vmware.studio.utils
+package com.vmware.studio.shared.utils
 
 /**
  * Created by samueldoyle on 2/13/14.

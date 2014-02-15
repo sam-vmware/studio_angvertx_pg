@@ -1,17 +1,18 @@
 package com.vmware.studio.vamimods.system.helpers
 
+import com.vmware.studio.shared.mixins.ResourceEnabled
+import com.vmware.studio.shared.services.messaging.BaseMessageHandler
 import com.vmware.studio.shared.system.FSSupport
 import com.vmware.studio.shared.system.OSSupport
 import groovy.util.logging.Log
-import com.vmware.studio.services.messaging.BaseMessageHandler
 import com.vmware.studio.shared.system.LinuxShellSupport
-import com.vmware.studio.utils.ResourceLoader
 import org.vertx.groovy.core.Vertx
 
 /**
  * Created by samueldoyle on 2/11/14.
  */
 @Log(value = "LOGGER")
+@Mixin(ResourceEnabled)
 class TimeZoneMessageHandler implements BaseMessageHandler {
     public static final String MY_TYPE = "TimeZone"
     final vertx = Vertx.newVertx()
@@ -81,16 +82,12 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         def data = message.operation.data
         def newTimeZone = data.newTimeZone
         if (!newTimeZone || !tzSetPattern.matcher(newTimeZone).matches()) {
-            return ERROR_RESPONSE(
-                    ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.invalidNewTimezone")
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.invalidNewTimezone")
         }
 
         def newLocalTimeFile = new File("/usr/share/zoneinfo/$newTimeZone")
         if (!newLocalTimeFile.canRead()) {
-            return ERROR_RESPONSE(
-                    "${ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.missingZoneFile")} : $newTimeZone"
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.missingZoneFile", newTimeZone)
         }
 
         def targetUpdater
@@ -109,26 +106,17 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
                 targetFileToUpdate = clockFile
                 break
             default:
-                return ERROR_RESPONSE(
-                        ResourceLoader
-                                .instance.getConfigProperty("services.systemService.errorMessages.unknownOS")
-                )
+                return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.unknownOS")
         }
 
         // Update the target content file using the correct updater
         boolean result = FSSupport.instance.processFileInplace(new File(targetFileToUpdate), targetUpdater.curry(newTimeZone))
         if (!result) {
-            return ERROR_RESPONSE(
-                ResourceLoader
-                    .instance.getConfigProperty("services.systemService.errorMessages.failedToUpdateTZ")
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.failedToUpdateTZ")
         }
 
         if (localTimeUpdater(newLocalTimeFile) != 0) {
-            return ERROR_RESPONSE(
-                    ResourceLoader
-                            .instance.getConfigProperty("services.systemService.errorMessages.failedToUpdateTZ")
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.failedToUpdateTZ")
         }
 
         OK_RESPONSE(newTimeZone)
@@ -159,16 +147,12 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         LOGGER.info msg
 
         if (!newTimeZone || !tzSetPattern.matcher(newTimeZone).matches()) {
-            return ERROR_RESPONSE(
-                    ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.invalidNewTimezone")
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.invalidNewTimezone")
         }
 
         def newLocalTimeFile = new File("/usr/share/zoneinfo/$newTimeZone")
         if (!newLocalTimeFile.canRead()) {
-            return ERROR_RESPONSE(
-                    "${ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.missingZoneFile")} : $newTimeZone"
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.missingZoneFile")
         }
         LOGGER.info "Setting new timezone: $newTimeZone"
 
@@ -188,10 +172,7 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
                 targetFileToUpdate = clockFile
                 break
             default:
-                return ERROR_RESPONSE(
-                        ResourceLoader
-                            .instance.getConfigProperty("services.systemService.errorMessages.unknownOS")
-                )
+                return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.unknownOS")
         }
 
         /** MOCK FOR TEST **/
@@ -212,37 +193,31 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         // Use mock so not actually do update on the target content file using the correct updater
         boolean result = fsSupportMock.processFileInplace(new File(targetFileToUpdate), targetUpdater.curry(newTimeZone))
         if (!result) {
-            return ERROR_RESPONSE(
-                    ResourceLoader
-                            .instance.getConfigProperty("services.systemService.errorMessages.failedToUpdateTZ")
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.failedToUpdateTZ")
         }
 
         // Replace linking the real local time with a tmp
         if (localTimeUpdater(newLocalTimeFile, new File(tmplocalTimeFile)) != 0) {
-            return ERROR_RESPONSE(
-                    ResourceLoader
-                            .instance.getConfigProperty("services.systemService.errorMessages.failedToUpdateTZ")
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.failedToUpdateTZ")
         }
 
         OK_RESPONSE(newTimeZone)
     }
 
+    /***** Implementations Below *****/
+    // In addition see @Mixin([CommonMessageHandling, ResourceEnabled])
 
-    /***** Interface Implementations Below *****/
+    @Override
+    String getType() {
+        MY_TYPE
+    }
 
+    @Override
     Map handle(Map message) {
         // Use method reference directly to avoid any getter/setter interception nastiness
         if (!this.metaClass.respondsTo(this, message.operation as String)) {
-            return ERROR_RESPONSE(
-                    ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.unknownOperationType")
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.unknownOperationType")
         }
         this.&"${message.operation}"(message)
-    }
-
-    String getType() {
-        MY_TYPE
     }
 }

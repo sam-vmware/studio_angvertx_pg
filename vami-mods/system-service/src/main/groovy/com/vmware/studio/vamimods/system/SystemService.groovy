@@ -1,13 +1,13 @@
 package com.vmware.studio.vamimods.system
 
-import com.vmware.studio.services.Service
-import com.vmware.studio.services.messaging.BaseMessageHandler
-import com.vmware.studio.services.messaging.MessageValidator
-import com.vmware.studio.utils.ClosureScriptAsClass
-import com.vmware.studio.utils.ResourceLoader
-import org.vertx.groovy.platform.Verticle
+import com.vmware.studio.shared.mixins.MessageHandlerRegistry
+import com.vmware.studio.shared.mixins.ResourceEnabled
+import com.vmware.studio.shared.services.Service
+import com.vmware.studio.shared.services.messaging.MessageValidator
+import com.vmware.studio.shared.utils.ClosureScriptAsClass
+import com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler
 import org.vertx.groovy.core.eventbus.Message
-import com.vmware.studio.vamimods.system.helpers.*
+import org.vertx.groovy.platform.Verticle
 
 /**
  * Simple verticle to represent system service
@@ -18,9 +18,9 @@ import com.vmware.studio.vamimods.system.helpers.*
  * data: ...
  * ]
  */
-class SystemService extends Verticle implements Service  {
+@Mixin([ResourceEnabled, MessageHandlerRegistry])
+class SystemService extends Verticle implements Service {
     public final static String MY_ADDRESS = SystemService.class.name
-    private Map HANDLER_REGISTRY = [:]
     // private static String myConfigObject = "com.vmware.studio.vamimods.system.resources.SystemService"
 
     // Until I can figure out how to deal with the Vert.X classloader stuff
@@ -42,6 +42,10 @@ class SystemService extends Verticle implements Service  {
                 environments {
                     dev {
                     }
+                    test {
+                    }
+                    prod {
+                    }
                 }
             }
         }
@@ -56,7 +60,7 @@ class SystemService extends Verticle implements Service  {
 
         // Register Handlers
         for (svc in [new TimeZoneMessageHandler()]) {
-            HANDLER_REGISTRY += [(svc.type): svc]
+            addHandler(svc)
         }
 
         // Register with the event bus
@@ -64,9 +68,7 @@ class SystemService extends Verticle implements Service  {
             container.logger.info "Received Message: ${message.body()}"
             def msgBody = message.body()
             if (!(msgBody instanceof Map)) {
-                message.reply(BaseMessageHandler.ERROR_RESPONSE(
-                        ResourceLoader.instance.getConfigProperty("services.systemService.errorMessages.invalidMessagePayload")
-                ))
+                message.reply(RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.invalidMessagePayload"))
             } else {
                 message.reply(handleMessage(message.body()))
             }
@@ -84,19 +86,14 @@ class SystemService extends Verticle implements Service  {
         def valid = validInfo.valid
 
         container.logger.info "DEBUG: message: $message"
-        container.logger.info "DEBUG: valid: $valid"
 
         if (!valid) {
-            return BaseMessageHandler.ERROR_RESPONSE(
-                    "${ResourceLoader.instance.getConfigProperty('services.systemService.errorMessages.msgValidationFailure')}: $valid"
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.msgValidationFailure")
         }
 
-        def handler = HANDLER_REGISTRY[(message.type)]
+        def handler = lookupHandler(message.type as String)
         if (!handler) {
-            return BaseMessageHandler.ERROR_RESPONSE(
-                    "${ResourceLoader.instance.getConfigProperty('services.systemService.errorMessages.unknownMessageType')}: $valid"
-            )
+            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.unknownMessageType")
         }
 
         handler.handle(message)
@@ -110,7 +107,7 @@ class SystemService extends Verticle implements Service  {
         container.logger.info "Deployment succeeded for: ${this.class.name}"
 
         // Load config
-        ResourceLoader.instance.loadConfigObject(new ClosureScriptAsClass(closure: myConfigObject))
+        loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))
         postInitialize()
 
         /*

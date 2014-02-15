@@ -1,4 +1,4 @@
-package com.vmware.studio.services.messaging
+package com.vmware.studio.shared.services.messaging
 
 import groovy.util.logging.Log
 

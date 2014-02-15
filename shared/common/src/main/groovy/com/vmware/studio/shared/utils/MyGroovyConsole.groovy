@@ -1,4 +1,4 @@
-package com.vmware.studio.utils
+package com.vmware.studio.shared.utils
 
 import groovy.transform.ThreadInterrupt
 import groovy.ui.HistoryRecord

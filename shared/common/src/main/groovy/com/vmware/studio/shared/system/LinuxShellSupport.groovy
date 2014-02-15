@@ -1,5 +1,6 @@
 package com.vmware.studio.shared.system
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Log
 
 @Log(value = "LOGGER")
@@ -14,26 +15,26 @@ class LinuxShellSupport {
         return [process, out, err]
     }
 
-    def consumeShellCmdWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
+    List consumeShellCmdWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
         LOGGER.fine "Running command: $command"
         def (process, out, err) = consumeShellCmdCommon(command, workingDir, envp)
         process.waitFor()
         return [process, out, err]
     }
 
-    def consumeShellCmdNoWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
+    List consumeShellCmdNoWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
         LOGGER.fine "Running command: $command"
         consumeShellCmdCommon(command, workingDir, envp)
     }
 
-    def executeShellCmdWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
+    Process executeShellCmdWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
         LOGGER.fine "Running command: $command"
         Process p = command.execute(envp, workingDir)
         p.waitFor()
         return p
     }
 
-    def executeShellCmdNoWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
+    Process executeShellCmdNoWait(String command, String[] envp = [], File workingDir = new File(System.properties.'user.dir')) {
         LOGGER.fine "Running command: $command"
         command.execute(envp, workingDir)
     }

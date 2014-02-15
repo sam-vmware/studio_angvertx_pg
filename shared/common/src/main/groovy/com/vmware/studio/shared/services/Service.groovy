@@ -1,4 +1,4 @@
-package com.vmware.studio.services
+package com.vmware.studio.shared.services
 
 /**
  * Created by samueldoyle on 2/14/14.
