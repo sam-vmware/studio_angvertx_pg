@@ -1,4 +1,5 @@
 package com.vmware.studio.vamimods.system
+
 import org.vertx.groovy.platform.Verticle
 
 class SystemServiceBootstrap extends Verticle {

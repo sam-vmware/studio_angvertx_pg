@@ -1,8 +1,8 @@
 package com.vmware.studio.shared.utils
 
+import com.vmware.studio.shared.system.LinuxShellSupport
 import groovy.transform.ThreadInterrupt
 import groovy.util.logging.Log
-import com.vmware.studio.shared.system.LinuxShellSupport
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 
@@ -42,7 +42,7 @@ class GroovyConsoleWrapper {
         groovy.ui.Console.metaClass.newScript = { ClassLoader parent, Binding binding ->
             println " !!!! INSIDE NEW newScript !!!!"
             println " *** CLASSPATH: $targetClasspath"
-            config = new CompilerConfiguration(classpath:targetClasspath)
+            config = new CompilerConfiguration(classpath: targetClasspath)
             if (threadInterrupt) config.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt))
 
             def newClassLoader = new GroovyClassLoader()
@@ -69,7 +69,7 @@ class GroovyConsoleWrapper {
         LOGGER.info("$me: Launching GroovyConsole: $commandLine")
 
         String[] envp = ["CLASSPATH=${args[0]}"]
-        def(process, out, err) = LinuxShellSupport.instance.consumeShellCmdWait(commandLine, envp)
+        def (process, out, err) = LinuxShellSupport.instance.consumeShellCmdWait(commandLine, envp)
         if (process.exitValue()) {
             LOGGER.severe("Failed to launch groovyConsole: ${process.err.text}")
         }

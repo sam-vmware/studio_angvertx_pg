@@ -1,6 +1,7 @@
 package com.vmware.studio.shared.mixins
-import groovy.transform.CompileStatic
+
 import com.vmware.studio.shared.services.messaging.BaseMessageHandler
+import groovy.transform.CompileStatic
 
 /**
  * Created by samueldoyle on 2/14/14.

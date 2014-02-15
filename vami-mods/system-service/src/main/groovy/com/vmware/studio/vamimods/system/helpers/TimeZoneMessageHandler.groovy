@@ -3,9 +3,9 @@ package com.vmware.studio.vamimods.system.helpers
 import com.vmware.studio.shared.mixins.ResourceEnabled
 import com.vmware.studio.shared.services.messaging.BaseMessageHandler
 import com.vmware.studio.shared.system.FSSupport
+import com.vmware.studio.shared.system.LinuxShellSupport
 import com.vmware.studio.shared.system.OSSupport
 import groovy.util.logging.Log
-import com.vmware.studio.shared.system.LinuxShellSupport
 import org.vertx.groovy.core.Vertx
 
 /**
@@ -14,7 +14,8 @@ import org.vertx.groovy.core.Vertx
 @Log(value = "LOGGER")
 @Mixin(ResourceEnabled)
 class TimeZoneMessageHandler implements BaseMessageHandler {
-    public static final String MY_TYPE = "TimeZone"
+    private final ME = this.class.name
+    public final String MY_TYPE = "TimeZone"
     final vertx = Vertx.newVertx()
     final NL = System.properties['line.separator']
     final tzFile = "/etc/timezone"
@@ -133,14 +134,14 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         def newTimeZone = message.data.newTimeZone
 
         def msg = $/
-           DEBUG MSG START
+           $ME DEBUG MSG START
            ---------------
            INSIDE: TimeZoneMessageHandler.testSetTimeZone
 
            TimeZoneMessageHandler.testSetTimeZone
            message = ${message}
 
-           DEBUG MSG END
+           $ME DEBUG MSG END
            ---------------
         /$
 
@@ -154,7 +155,7 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         if (!newLocalTimeFile.canRead()) {
             return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.missingZoneFile")
         }
-        LOGGER.info "Setting new timezone: $newTimeZone"
+        LOGGER.info "$ME Setting new timezone: $newTimeZone"
 
         def targetUpdater
         String targetFileToUpdate
@@ -179,13 +180,13 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         def fsSupportMock = new Expando()
         fsSupportMock.processFileInplace = { File file, Closure processText ->
             if (!file || !file.exists() || !file.canWrite()) {
-                LOGGER.info "File ${file.name} cannot be written"
+                LOGGER.info "$ME File ${file.name} cannot be written"
                 //return false
             }
 
             def text = file.text
             def newText = processText(text)
-            LOGGER.info "MOCKED: would run -> file.write(processText($newText))"
+            LOGGER.info "$ME MOCKED: would run -> file.write(processText($newText))"
             true
         }
         /** END MOCK FOR TEST **/
@@ -205,7 +206,6 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
     }
 
     /***** Implementations Below *****/
-    // In addition see @Mixin([CommonMessageHandling, ResourceEnabled])
 
     @Override
     String getType() {

@@ -6,7 +6,7 @@ import groovy.util.logging.Log
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 
-import javax.swing.SwingUtilities
+import javax.swing.*
 
 /**
  * Created by samueldoyle on 2/12/14.
@@ -17,18 +17,20 @@ class MyGroovyConsole extends groovy.ui.Console {
 
     def myParent
     def myBinding
+
     MyGroovyConsole(ClassLoader parent, Binding binding) {
-       super(parent, binding)
-       myParent = parent
-       myBinding = binding
+        super(parent, binding)
+        myParent = parent
+        myBinding = binding
     }
 
     void newScript(ClassLoader parent, Binding binding) {
-        config = new CompilerConfiguration(classpath:System.getProperty('java.class.path'))
+        config = new CompilerConfiguration(classpath: System.getProperty('java.class.path'))
         if (threadInterrupt) config.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt))
         //shell = new GroovyShell(parent, binding, config)
         shell = new GroovyShell(parent)
     }
+
     void newScript() {
         this.newScript(myParent, myBinding)
     }
@@ -43,7 +45,7 @@ class MyGroovyConsole extends groovy.ui.Console {
         stackOverFlowError = false // reset this flag before running a script
         def endLine = System.getProperty('line.separator')
         def record = new HistoryRecord(allText: inputArea.getText().replaceAll(endLine, '\n'),
-                selectionStart: textSelectionStart, selectionEnd: textSelectionEnd)
+            selectionStart: textSelectionStart, selectionEnd: textSelectionEnd)
         addToHistory(record)
         pendingRecord = new HistoryRecord(allText: '', selectionStart: 0, selectionEnd: 0)
 

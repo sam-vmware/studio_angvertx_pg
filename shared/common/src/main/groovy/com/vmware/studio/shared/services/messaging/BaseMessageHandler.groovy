@@ -5,5 +5,6 @@ package com.vmware.studio.shared.services.messaging
  */
 public interface BaseMessageHandler {
     Map handle(Map message)
+
     String getType()
 }

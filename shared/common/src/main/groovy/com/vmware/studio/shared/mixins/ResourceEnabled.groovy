@@ -1,6 +1,5 @@
 package com.vmware.studio.shared.mixins
 
-import com.vmware.studio.shared.utils.ClosureScriptAsClass
 import com.vmware.studio.shared.utils.ResourceLoader
 import groovy.transform.CompileStatic
 

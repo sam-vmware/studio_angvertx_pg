@@ -19,7 +19,8 @@ class OSSupport {
     }
 
     public OS_TYPE getOperatingSystemType() {
-        Process process = LinuxShellSupport.instance.executeShellCmdWait("cat /proc/version")
+        Process process = LinuxShellSupport.instance.executeShellCmdWait("/bin/cat /proc/version")
+        assert process.exitValue() == 0
         OS_TYPE returnType
         switch(process.text) {
             case ~/(?is).*?ubuntu.*?/: returnType = OS_TYPE.DEBIAN; break
@@ -30,5 +31,11 @@ class OSSupport {
         }
 
         returnType
+    }
+
+    public String getHostName() {
+        Process process = LinuxShellSupport.instance.executeShellCmdWait("/bin/hostname")
+        assert process.exitValue() == 0
+        return process.text
     }
 }

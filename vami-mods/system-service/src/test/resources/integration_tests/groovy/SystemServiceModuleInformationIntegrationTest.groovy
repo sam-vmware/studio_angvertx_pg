@@ -10,29 +10,27 @@ import static org.vertx.testtools.VertxAssert.*
  * Operational tests
  */
 
-def testSystemServiceTZMessage() {
-    def getTZMsg = [
-        type     : "TimeZone",
-        operation: "get"
+def testSystemServiceSystemInformationUnknownOperation() {
+    def getSystemInfoMsg = [
+        type     : "SystemInformation",
+        operation: "fooBlah"
     ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, getTZMsg, { reply ->
-        println "body: ${reply.body}"
-        assertEquals(reply.body.result, "ok")
+    vertx.eventBus.send(SystemService.MY_ADDRESS, getSystemInfoMsg, { reply ->
+        container.logger.info "body: ${reply.body}"
+        assertEquals(reply.body.result, "error")
         testComplete()
     })
 }
 
-def testSetTZ() {
-    def setTZMsg = [
-        type     : "TimeZone",
-        operation: "testSetTimeZone",
-        data     : [
-            newTimeZone: "Arctic/Longyearbyen"
-        ]
+def testSystemServiceSystemInformation() {
+    def getSystemInfoMsg = [
+        type     : "SystemInformation",
+        operation: "testGetSystemInformation"
     ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, setTZMsg, { reply ->
-        println "body: ${reply.body}"
+    vertx.eventBus.send(SystemService.MY_ADDRESS, getSystemInfoMsg, { reply ->
+        container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "ok")
+        assertEquals(reply.body.data.product as String, "VMware Studio")
         testComplete()
     })
 }

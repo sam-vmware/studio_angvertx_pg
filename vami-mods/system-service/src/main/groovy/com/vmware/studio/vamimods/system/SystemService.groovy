@@ -5,6 +5,7 @@ import com.vmware.studio.shared.mixins.ResourceEnabled
 import com.vmware.studio.shared.services.Service
 import com.vmware.studio.shared.services.messaging.MessageValidator
 import com.vmware.studio.shared.utils.ClosureScriptAsClass
+import com.vmware.studio.vamimods.system.helpers.InformationMessageHandler
 import com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler
 import org.vertx.groovy.core.eventbus.Message
 import org.vertx.groovy.platform.Verticle
@@ -20,6 +21,7 @@ import org.vertx.groovy.platform.Verticle
  */
 @Mixin([ResourceEnabled, MessageHandlerRegistry])
 class SystemService extends Verticle implements Service {
+    private final ME = this.class.name
     public final static String MY_ADDRESS = SystemService.class.name
     // private static String myConfigObject = "com.vmware.studio.vamimods.system.resources.SystemService"
 
@@ -59,13 +61,13 @@ class SystemService extends Verticle implements Service {
     def postInitialize() {
 
         // Register Handlers
-        for (svc in [new TimeZoneMessageHandler()]) {
+        for (svc in [new TimeZoneMessageHandler(), new InformationMessageHandler()]) {
             addHandler(svc)
         }
 
         // Register with the event bus
         vertx.eventBus.registerLocalHandler(MY_ADDRESS, { Message message ->
-            container.logger.info "Received Message: ${message.body()}"
+            container.logger.debug "$ME Received Message: ${message.body()}"
             def msgBody = message.body()
             if (!(msgBody instanceof Map)) {
                 message.reply(RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.invalidMessagePayload"))
@@ -85,8 +87,6 @@ class SystemService extends Verticle implements Service {
         def validInfo = MessageValidator.instance.validate(message)
         def valid = validInfo.valid
 
-        container.logger.info "DEBUG: message: $message"
-
         if (!valid) {
             return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.msgValidationFailure")
         }
@@ -104,7 +104,7 @@ class SystemService extends Verticle implements Service {
      * @return
      */
     def start() {
-        container.logger.info "Deployment succeeded for: ${this.class.name}"
+        container.logger.info "$ME Deployment succeeded for: ${this.class.name}"
 
         // Load config
         loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))

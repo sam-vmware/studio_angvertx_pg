@@ -13,7 +13,8 @@ import groovy.transform.CompileStatic
 @CompileStatic
 @Singleton
 class ResourceLoader {
-    private static InheritableThreadLocal<HashMap<String, String>> CONFIG = new InheritableThreadLocal<HashMap<String, String>>()
+    private
+    static InheritableThreadLocal<HashMap<String, String>> CONFIG = new InheritableThreadLocal<HashMap<String, String>>()
 
     private void setTheConfig(ConfigObject co) {
         HashMap<String, String> configMap = co.flatten() as HashMap<String, String>
@@ -35,7 +36,7 @@ class ResourceLoader {
      * @param fqClassname the fully qualified classname e.g. "com.vmware.com.SomeClass"
      */
     public void loadConfigObject(String fqClassname,
-            ClassLoader targetLoader = ResourceLoader.instance.class.classLoader, String environment = "dev") {
+                                 ClassLoader targetLoader = ResourceLoader.instance.class.classLoader, String environment = "dev") {
         Class scriptClass = targetLoader.loadClass(fqClassname)
         ConfigObject co = new ConfigSlurper(environment).parse(scriptClass)
         setTheConfig(co)

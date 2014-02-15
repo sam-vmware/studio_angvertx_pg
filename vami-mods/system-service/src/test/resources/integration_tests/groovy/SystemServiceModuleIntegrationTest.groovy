@@ -1,8 +1,9 @@
 package integration_tests.groovy
-import static org.vertx.testtools.VertxAssert.*
-import org.vertx.groovy.testtools.VertxTests
 
 import com.vmware.studio.vamimods.system.SystemService
+import org.vertx.groovy.testtools.VertxTests
+
+import static org.vertx.testtools.VertxAssert.*
 
 /**
  * Created by samueldoyle on 2/13/14.
@@ -19,7 +20,7 @@ def testInvalidMsgBody() {
 
 def testInvalidMsgMissingOperation() {
     def missingOperationType = [
-            type: "TimeZone"
+        type: "TimeZone"
     ]
     vertx.eventBus.send(SystemService.MY_ADDRESS, missingOperationType, { reply ->
         assertEquals(reply.body.result, "error")
@@ -30,7 +31,7 @@ def testInvalidMsgMissingOperation() {
 
 def testInvalidMsgUnknownType() {
     def unknownMsgType = [
-        type: "foo",
+        type     : "foo",
         operation: "get"
     ]
     vertx.eventBus.send(SystemService.MY_ADDRESS, unknownMsgType, { reply ->
@@ -42,8 +43,8 @@ def testInvalidMsgUnknownType() {
 
 def testInvalidMsgWrongOperation() {
     def missingOperationType = [
-            type: "TimeZone",
-            operation: "foo"
+        type     : "TimeZone",
+        operation: "foo"
     ]
     vertx.eventBus.send(SystemService.MY_ADDRESS, missingOperationType, { reply ->
         assertEquals(reply.body.result, "error")
@@ -51,7 +52,6 @@ def testInvalidMsgWrongOperation() {
         testComplete()
     })
 }
-
 
 VertxTests.initialize(this)
 
