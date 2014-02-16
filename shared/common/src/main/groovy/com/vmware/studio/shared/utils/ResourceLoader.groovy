@@ -13,12 +13,23 @@ import groovy.transform.CompileStatic
 @CompileStatic
 @Singleton
 class ResourceLoader {
-    private
-    static InheritableThreadLocal<HashMap<String, String>> CONFIG = new InheritableThreadLocal<HashMap<String, String>>()
+
+    class ConfigContainer {
+        ConfigObject configObject
+        HashMap<String, String> configMap
+        public ConfigContainer(ConfigObject configObject, HashMap<String, String> configMap){
+            this.configMap = configMap
+            this.configObject = configObject
+        }
+    }
+
+    private static InheritableThreadLocal<ConfigContainer> CONFIG =
+        new InheritableThreadLocal<ConfigContainer>()
 
     private void setTheConfig(ConfigObject co) {
         HashMap<String, String> configMap = co.flatten() as HashMap<String, String>
-        CONFIG.set(configMap)
+        def cc = new ConfigContainer(co, configMap)
+        CONFIG.set(cc)
     }
 
     /**
@@ -57,7 +68,7 @@ class ResourceLoader {
      * @return
      */
     public String getConfigProperty(String property) {
-        return CONFIG.get()[property]
+        return CONFIG.get().configMap[property]
     }
 
     /**
@@ -66,6 +77,14 @@ class ResourceLoader {
      * @param newValue
      */
     public void setConfigPropery(String propertyName, Object newValue) {
-        CONFIG.get()[propertyName] = newValue
+        CONFIG.get().configMap[propertyName] = newValue
+    }
+
+    /**
+     * Just get the configobject like for using javaobjects
+     * @return
+     */
+    public ConfigObject getConfigObject() {
+        return CONFIG.get().configObject
     }
 }

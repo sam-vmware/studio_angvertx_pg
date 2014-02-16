@@ -9,9 +9,28 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class ResourceEnabled {
+    public static final String OK = "ok"
+    public static final String ERROR = "error"
 
     public void loadLocalResource(Script configClosure) {
         ResourceLoader.instance.loadConfigObject(configClosure)
+    }
+
+    /**
+     * Simply lookup given key
+     * @param resourceKey - c
+     * @return
+     */
+    def LOOKUP_CONFIG(String resourceKey) {
+        ResourceLoader.instance.getConfigProperty(resourceKey)
+    }
+
+    /**
+     * Just get the raw config object
+     * @return
+     */
+    def GET_CONFIG() {
+        ResourceLoader.instance.getConfigObject()
     }
 
     /**
@@ -21,7 +40,7 @@ class ResourceEnabled {
      */
     public Map RESOURCE_ERROR_RESPONSE(String resourceKey) {
         def cause = ResourceLoader.instance.getConfigProperty(resourceKey)
-        [result: "error", cause: cause]
+        [result: ERROR, cause: cause]
     }
 
     /**
@@ -32,7 +51,15 @@ class ResourceEnabled {
      */
     public Map RESOURCE_ERROR_RESPONSE(String resourceKey, String additionalInfo) {
         def cause = ResourceLoader.instance.getConfigProperty(resourceKey) + " $additionalInfo"
-        [result: "error", cause: cause]
+        [result: ERROR, cause: cause]
+    }
+
+    /**
+     * Error with no cause
+     * @return
+     */
+    public Map ERROR_RESPONSE() {
+        [result: ERROR]
     }
 
     /**
@@ -40,13 +67,18 @@ class ResourceEnabled {
      * @param errMsg the error message
      * @return
      */
-    public Map ERROR_RESPONSE(String resourceKey) {
-        def cause = ResourceLoader.instance.getConfigProperty(resourceKey)
-        [result: "error", cause: cause]
+    public Map ERROR_RESPONSE(String cause) {
+        [result: ERROR, cause: cause]
+    }
+
+    /** Ok with no data
+    *  @return
+    */
+    public Map OK_RESPONSE() {
+        [result: OK]
     }
 
     public Map OK_RESPONSE(data) {
-        [result: "ok", data: data]
+        [result: OK, data: data]
     }
-
 }

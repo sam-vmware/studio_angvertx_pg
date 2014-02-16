@@ -3,9 +3,11 @@ package com.vmware.studio.vamimods.system
 import com.vmware.studio.shared.mixins.MessageHandlerRegistry
 import com.vmware.studio.shared.mixins.ResourceEnabled
 import com.vmware.studio.shared.services.Service
+import com.vmware.studio.shared.services.messaging.BaseMessageHandler
 import com.vmware.studio.shared.services.messaging.MessageValidator
 import com.vmware.studio.shared.utils.ClosureScriptAsClass
 import com.vmware.studio.vamimods.system.helpers.InformationMessageHandler
+import com.vmware.studio.vamimods.system.helpers.OperatingSystemHelper
 import com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler
 import org.vertx.groovy.core.eventbus.Message
 import org.vertx.groovy.platform.Verticle
@@ -31,6 +33,11 @@ class SystemService extends Verticle implements Service {
         services {
             systemService {
                 bootStrapVerticle = "groovy:com.vmware.studio.vamimods.system.SystemServiceBootstrap"
+                handlers = [
+                    [name: "TimeZoneMessageHandler", FQCN: "com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler", enabled: true],
+                    [name: "InformationMessageHandler", FQCN: "com.vmware.studio.vamimods.system.helpers.InformationMessageHandler", enabled: true],
+                    [name: "OperatingSystemHelper", FQCN: "com.vmware.studio.vamimods.system.helpers.OperatingSystemHelper", enabled: true]
+                ]
                 errorMessages {
                     unknownMessageType = "Unknown message type received"
                     unknownOperationType = "Unknown operation type received"
@@ -40,15 +47,18 @@ class SystemService extends Verticle implements Service {
                     missingZoneFile = "The specified timezone file doesn't exist"
                     unknownOS = "Unable to determine Operating System"
                     failedToUpdateTZ = "Unable to determine Operating System"
+                    manifestFileNotReadable = "The provided manifest file is not accessible : "
+                    rebootCmdFailed = "Failed to perform reboot operation : "
+                    shutdownCmdFailed = "Failed to perform shutdown operation : "
                 }
-                environments {
-                    dev {
-                    }
-                    test {
-                    }
-                    prod {
-                    }
-                }
+            }
+        }
+        environments {
+            dev {
+            }
+            test {
+            }
+            prod {
             }
         }
     }
@@ -61,8 +71,16 @@ class SystemService extends Verticle implements Service {
     def postInitialize() {
 
         // Register Handlers
-        for (svc in [new TimeZoneMessageHandler(), new InformationMessageHandler()]) {
-            addHandler(svc)
+        def handlers = GET_CONFIG().services.systemService.handlers
+        def instance
+        for (svc in handlers) {
+            if (svc.enabled) {
+                container.logger.info "Registering enabled service: ${svc.name}"
+                instance = this.class.classLoader.loadClass(svc.FQCN, true)?.newInstance()
+                addHandler(instance)
+            } else {
+                container.logger.info "Skpping disabled service ${svc.name} for registry"
+            }
         }
 
         // Register with the event bus

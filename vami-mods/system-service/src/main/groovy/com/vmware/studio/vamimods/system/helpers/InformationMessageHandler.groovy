@@ -22,8 +22,13 @@ class InformationMessageHandler implements BaseMessageHandler {
      * from system - hostname, osname
      */
     def getSystemInformation(Map message, File manifestFile = new File(manifestXMLFile)) {
-        def update = loadManifest(manifestFile)
+        def loadResult = loadManifest(manifestFile)
+        if (!loadResult["result"] == OK) {
+            // return the error
+            return loadResult
+        }
 
+        def update = loadResult.data
         def data = [
             product: "${update.product.text()}",
             vendor : "${update.vendor.text()}",
