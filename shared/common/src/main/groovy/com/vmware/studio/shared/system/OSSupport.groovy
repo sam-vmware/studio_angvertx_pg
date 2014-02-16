@@ -14,7 +14,9 @@ class OSSupport {
     enum OS_TYPE {
         DEBIAN("Ubuntu"), RH("Red Hat"), CENTOS("CentOS"), SUSE("SUSE/SLES"), UNKNOWN("Unknown")
         private final String osName
+
         OS_TYPE(String osName) { this.osName = osName }
+
         public String getOSName() { return this.osName }
     }
 
@@ -22,7 +24,7 @@ class OSSupport {
         Process process = LinuxShellSupport.instance.executeShellCmdWait("/bin/cat /proc/version")
         assert process.exitValue() == 0
         OS_TYPE returnType
-        switch(process.text) {
+        switch (process.text) {
             case ~/(?is).*?ubuntu.*?/: returnType = OS_TYPE.DEBIAN; break
             case ~/(?is).*?centos.*?/: returnType = OS_TYPE.CENTOS; break
             case ~/(?is).*?redhat.*?/: returnType = OS_TYPE.RH; break

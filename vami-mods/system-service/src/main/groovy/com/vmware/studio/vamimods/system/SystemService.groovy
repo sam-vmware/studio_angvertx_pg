@@ -3,12 +3,8 @@ package com.vmware.studio.vamimods.system
 import com.vmware.studio.shared.mixins.MessageHandlerRegistry
 import com.vmware.studio.shared.mixins.ResourceEnabled
 import com.vmware.studio.shared.services.Service
-import com.vmware.studio.shared.services.messaging.BaseMessageHandler
 import com.vmware.studio.shared.services.messaging.MessageValidator
 import com.vmware.studio.shared.utils.ClosureScriptAsClass
-import com.vmware.studio.vamimods.system.helpers.InformationMessageHandler
-import com.vmware.studio.vamimods.system.helpers.OperatingSystemHelper
-import com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler
 import org.vertx.groovy.core.eventbus.Message
 import org.vertx.groovy.platform.Verticle
 

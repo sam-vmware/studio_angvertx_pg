@@ -1,6 +1,5 @@
 package com.vmware.studio.shared.system
 
-import groovy.transform.CompileStatic
 import groovy.util.logging.Log
 
 @Log(value = "LOGGER")

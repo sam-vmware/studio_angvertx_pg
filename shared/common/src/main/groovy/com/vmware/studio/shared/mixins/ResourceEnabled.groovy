@@ -72,8 +72,8 @@ class ResourceEnabled {
     }
 
     /** Ok with no data
-    *  @return
-    */
+     * @return
+     */
     public Map OK_RESPONSE() {
         [result: OK]
     }

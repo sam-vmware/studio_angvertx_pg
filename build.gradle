@@ -98,10 +98,14 @@ dependencies {
 
 // Console setup, dunno groovyConsole unable to change classpath, thinking I messed up however after exhausting
 // various configurations I tried it as shipped and it didn't work. Could be latest version or something
-task(console, dependsOn: 'classes', type: JavaExec) {
+/*task(console, dependsOn: 'classes', type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'groovy.ui.Console'
+}*/
+
+/*task(console, dependsOn: 'classes', type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 
-    // main = 'groovy.ui.Console'
     main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
     ignoreExitValue = true
     def jars = files(fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar']))
@@ -109,9 +113,9 @@ task(console, dependsOn: 'classes', type: JavaExec) {
     main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
     //args = [jars.getAsPath()]
     args = [classpath.getAsPath(), jars.getAsPath()]
-}
+}*/
 
-/*task(console, dependsOn: 'classes', type:Exec) {
+task(console, dependsOn: 'classes', type:Exec) {
     def cp = sourceSets.main.runtimeClasspath.filter {
         ! it.name.contains("groovy-all")
     }
@@ -120,7 +124,9 @@ task(console, dependsOn: 'classes', type: JavaExec) {
     def jars = files(fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar']))
     environment["JARS_TO_ADD"] = jars.getAsPath()
 
-    commandLine '/usr/bin/env', 'groovyConsole', '--classpath', cp.getAsPath()
+    def consoleCP = cp + jars
+    //commandLine '/usr/bin/env', 'groovyConsole', '--classpath', cp.getAsPath()
+    commandLine '/usr/local/java/groovy/groovy-2.2.1/bin/groovyConsole', '--classpath', consoleCP.getAsPath()
     ignoreExitValue true
-}*/
+}
 

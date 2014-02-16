@@ -1,4 +1,5 @@
 package com.vmware.studio.shared.system
+
 import groovy.util.logging.Log
 import org.vertx.groovy.core.Vertx
 

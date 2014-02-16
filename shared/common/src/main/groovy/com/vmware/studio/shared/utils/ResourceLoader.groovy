@@ -17,7 +17,8 @@ class ResourceLoader {
     class ConfigContainer {
         ConfigObject configObject
         HashMap<String, String> configMap
-        public ConfigContainer(ConfigObject configObject, HashMap<String, String> configMap){
+
+        public ConfigContainer(ConfigObject configObject, HashMap<String, String> configMap) {
             this.configMap = configMap
             this.configObject = configObject
         }
