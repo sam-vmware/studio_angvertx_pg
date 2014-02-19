@@ -11,7 +11,7 @@ import org.vertx.groovy.core.Vertx
  * the async version, to be flushed out later
  */
 @Log(value = "LOGGER")
-@Singleton
+@Singleton(lazy = true)
 class FSSupport {
     private final ME = FSSupport.class.name
     public final LN = "/bin/ln"

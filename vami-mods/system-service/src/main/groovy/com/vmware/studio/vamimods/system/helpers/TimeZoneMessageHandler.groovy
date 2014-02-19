@@ -5,6 +5,7 @@ import com.vmware.studio.shared.services.messaging.BaseMessageHandler
 import com.vmware.studio.shared.system.FSSupport
 import com.vmware.studio.shared.system.LinuxShellSupport
 import com.vmware.studio.shared.system.OSSupport
+import com.vmware.studio.shared.system.OSType
 import groovy.util.logging.Log
 import org.vertx.groovy.core.Vertx
 
@@ -94,14 +95,14 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         def targetUpdater
         String targetFileToUpdate
         switch (OSSupport.instance.operatingSystemType) {
-            case OSSupport.OS_TYPE.DEBIAN:
+            case OSType.DEBIAN:
                 // reprocess /etc/timezone with debian processor
                 targetUpdater = debianTZUpdater
                 targetFileToUpdate = tzFile
                 break
-            case OSSupport.OS_TYPE.RH:
-            case OSSupport.OS_TYPE.CENTOS:
-            case OSSupport.OS_TYPE.SUSE:
+            case OSType.RH:
+            case OSType.CENTOS:
+            case OSType.SUSE:
                 // reprocess /etc/sysconfig/clock with rh processor
                 targetUpdater = rhCentSuseTZUpdater
                 targetFileToUpdate = clockFile
@@ -160,14 +161,14 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         def targetUpdater
         String targetFileToUpdate
         switch (OSSupport.instance.operatingSystemType) {
-            case OSSupport.OS_TYPE.DEBIAN:
+            case OSType.DEBIAN:
                 // reprocess /etc/timezone with debian processor
                 targetUpdater = debianTZUpdater
                 targetFileToUpdate = tzFile
                 break
-            case OSSupport.OS_TYPE.RH:
-            case OSSupport.OS_TYPE.CENTOS:
-            case OSSupport.OS_TYPE.SUSE:
+            case OSType.RH:
+            case OSType.CENTOS:
+            case OSType.SUSE:
                 // reprocess /etc/sysconfig/clock with rh processor
                 targetUpdater = rhCentSuseTZUpdater
                 targetFileToUpdate = clockFile

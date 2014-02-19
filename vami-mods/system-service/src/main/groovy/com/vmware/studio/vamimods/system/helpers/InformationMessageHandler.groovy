@@ -30,18 +30,20 @@ class InformationMessageHandler implements BaseMessageHandler {
 
         def update = loadResult.data
         def data = [
-            product: "${update.product.text()}",
-            vendor : "${update.vendor.text()}",
-            version: "${update.fullVersion.text()}"
+            [key: "product",  value: "${update.product.text()}"],
+            [key: "vendor", value: "${update.vendor.text()}"],
+            [key: "version", value: "${update.fullVersion.text()}"]
         ]
 
         def hostName = OSSupport.instance.hostName
-        assert hostName
+        if (!hostName) {
+            ERROR_RESPONSE("Failed to obtain the hostname")
+        }
         def osName = OSSupport.instance.operatingSystemType.OSName
 
         data += [
-            hostName: "$hostName",
-            osName  : "$osName"
+            [key: "hostName", value: "$hostName"],
+            [key: "osName", vaalue: "$osName"]
         ]
 
         OK_RESPONSE(data)

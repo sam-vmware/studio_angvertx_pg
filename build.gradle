@@ -30,8 +30,18 @@ task wrapper(type: Wrapper) {
     gradleVersion = '1.10'
 }
 
+// Some global conf to share around projects
+ext.VMWARE_CONF = [
+    groovyVersion: "2.2.1",
+    vertx: [
+        libDir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib",
+        addedLibs: "$rootDir/shared/common/vertx_libs",
+        groovyLangModVersion: "2.1M6-SNAPSHOT"
+    ]
+]
+
 allprojects {
-    apply plugin: 'java'
+    //apply plugin: 'java'
     apply plugin: 'groovy'
     sourceCompatibility = '1.7'
     targetCompatibility = '1.7'
@@ -48,72 +58,41 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'groovy'
-    ext.GLOBAL_CONF = [
-        groovyVersion: "2.2.1",
-        vertx: [
-            libDir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib",
-            groovyLangModVersion: "2.0.0-final"
-        ]
-    ]
+    // Moving this related stuff to vmware.gradle
+/*    dependencies {
+        classpath fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
+        classpath fileTree(dir: GLOBAL_CONF.vertx.addedLibs, includes: ['*.jar'])
+        classpath "org.codehaus.groovy:groovy-all:${GLOBAL_CONF.groovyVersion}"
+        //compile "io.vertx:lang-groovy:${GLOBAL_CONF.vertx.groovyLangModVersion}@jar"
+    }
 
-// Add these dependencies by default except for the web stuff
+    // Add these dependencies by default except for the web stuff
     def excludeAutoDependProjects = ['web-ui']
     if (!(project.name in excludeAutoDependProjects)) {
         dependencies {
-            compile "org.codehaus.groovy:groovy-all:${GLOBAL_CONF.groovyVersion}"
-            compile "io.vertx:lang-groovy:${GLOBAL_CONF.vertx.groovyLangModVersion}@jar"
-            compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
+            classpath fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
+            classpath fileTree(dir: GLOBAL_CONF.vertx.addedLibs, includes: ['*.jar'])
+            classpath "org.codehaus.groovy:groovy-all:${GLOBAL_CONF.groovyVersion}"
+            //compile "io.vertx:lang-groovy:${GLOBAL_CONF.vertx.groovyLangModVersion}@jar"
         }
     }
 
-   /* afterEvaluate { project ->
-        if (project.hasIntegrationTests) {
+   afterEvaluate { project ->
+       if (project.hasIntegrationTests) {
             println "Adding integration task to $project"
             project.task([type: Test, dependsOn: "test"], "integrationTest") << {
-                include '**//*IntegrationTest*.*'
+                include '*IntegrationTest*.*'
             }
-        }
+       }
+       println "  Project:" + project.name
+       project.configurations.each { conf ->
+           println "    Configuration: ${conf.name}"
+           conf.allDependencies.each { dep ->
+               println "      ${dep.group}:${dep.name}:${dep.version}"
+           }
+       }
     }*/
 }
-
-/*def excludeAutoDependProjects = ['web-ui']
-configure(subprojects.findAll {!(it.name in excludeAutoDependProjects)}) {
-    dependencies {
-        compile "org.codehaus.groovy:groovy-all:${GLOBAL_CONF.groovyVersion}"
-        compile "io.vertx:lang-groovy:${GLOBAL_CONF.vertx.groovyLangModVersion}@jar"
-        compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
-    }
-}*/
-
-project(':vami-mods:system-service') {
-    dependencies {
-        compile project(':shared:common')
-    }
-}
-
-dependencies {
-    compile(project(":shared:common"))
-}
-
-// Console setup, dunno groovyConsole unable to change classpath, thinking I messed up however after exhausting
-// various configurations I tried it as shipped and it didn't work. Could be latest version or something
-/*task(console, dependsOn: 'classes', type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'groovy.ui.Console'
-}*/
-
-/*task(console, dependsOn: 'classes', type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-
-    main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
-    ignoreExitValue = true
-    def jars = files(fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar']))
-    classpath += jars
-    main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
-    //args = [jars.getAsPath()]
-    args = [classpath.getAsPath(), jars.getAsPath()]
-}*/
 
 task(console, dependsOn: 'classes', type:Exec) {
     def cp = sourceSets.main.runtimeClasspath.filter {
@@ -129,4 +108,48 @@ task(console, dependsOn: 'classes', type:Exec) {
     commandLine '/usr/local/java/groovy/groovy-2.2.1/bin/groovyConsole', '--classpath', consoleCP.getAsPath()
     ignoreExitValue true
 }
+
+/*
+def excludeAutoDependProjects = ['web-ui']
+configure(subprojects.findAll {!(it.name in excludeAutoDependProjects)}) {
+    dependencies {
+        compile "org.codehaus.groovy:groovy-all:${GLOBAL_CONF.groovyVersion}"
+        compile "io.vertx:lang-groovy:${GLOBAL_CONF.vertx.groovyLangModVersion}@jar"
+        compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
+    }
+}
+
+project(':vami-mods:system-service') {
+    dependencies {
+        compile project(':shared:common')
+    }
+}
+project(':vertx-mods:web-server') {
+    dependencies {
+        compile project(':shared:common')
+    }
+}
+
+dependencies {
+    compile(project(":shared:common"))
+}
+
+// Console setup, dunno groovyConsole unable to change classpath, thinking I messed up however after exhausting
+// various configurations I tried it as shipped and it didn't work. Could be latest version or something
+task(console, dependsOn: 'classes', type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'groovy.ui.Console'
+}
+
+task(console, dependsOn: 'classes', type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
+    ignoreExitValue = true
+    def jars = files(fileTree(dir: "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib", includes: ['*.jar']))
+    classpath += jars
+    main = 'com.vmware.studio.utils.GroovyConsoleWrapper'
+    //args = [jars.getAsPath()]
+    args = [classpath.getAsPath(), jars.getAsPath()]
+}*/
 

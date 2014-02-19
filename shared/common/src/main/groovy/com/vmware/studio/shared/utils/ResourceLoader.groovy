@@ -11,7 +11,7 @@ import groovy.transform.CompileStatic
  * !!!!!! THIS DOES NOT WORK IN VERT.X AND I DON'T KNOW WHY ATM !!!!!!
  */
 @CompileStatic
-@Singleton
+@Singleton(lazy = true)
 class ResourceLoader {
 
     class ConfigContainer {

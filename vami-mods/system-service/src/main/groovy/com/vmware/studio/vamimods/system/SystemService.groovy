@@ -20,7 +20,7 @@ import org.vertx.groovy.platform.Verticle
 @Mixin([ResourceEnabled, MessageHandlerRegistry])
 class SystemService extends Verticle implements Service {
     private final ME = this.class.name
-    public final static String MY_ADDRESS = SystemService.class.name
+    public final static String MY_ADDRESS = "vami.SystemService"
     // private static String myConfigObject = "com.vmware.studio.vamimods.system.resources.SystemService"
 
     // Until I can figure out how to deal with the Vert.X classloader stuff
@@ -80,13 +80,16 @@ class SystemService extends Verticle implements Service {
         }
 
         // Register with the event bus
+        container.logger.info "Registering local service address handler @ $MY_ADDRESS"
         vertx.eventBus.registerLocalHandler(MY_ADDRESS, { Message message ->
-            container.logger.debug "$ME Received Message: ${message.body()}"
+            container.logger.info "$ME Received Message: ${message.body()}"
             def msgBody = message.body()
             if (!(msgBody instanceof Map)) {
                 message.reply(RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.invalidMessagePayload"))
             } else {
-                message.reply(handleMessage(message.body()))
+                def replyMessage = handleMessage(message.body())
+                container.logger.info "$ME Sending Response Message: $replyMessage"
+                message.reply(replyMessage)
             }
         })
     }

@@ -1,4 +1,5 @@
 apply from: "$rootDir/gradle/vertx.gradle"
+apply from: "$rootDir/gradle/vmware.gradle"
 
 /*
 Usage:
@@ -58,10 +59,10 @@ dependencies {
     */
 
     // If you're creating Groovy compiled verticles you may need the following dependencies
-    provided "org.codehaus.groovy:groovy-all:$groovyVersion"
-    provided "io.vertx:lang-groovy:$groovyLangModVersion@jar"
+    //provided "org.codehaus.groovy:groovy-all:$groovyVersion"
+    //provided "io.vertx:lang-groovy:$groovyLangModVersion@jar"
 
-    compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
+    //compile fileTree(dir: GLOBAL_CONF.vertx.libDir, includes: ['*.jar'])
 }
 
 test {

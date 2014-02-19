@@ -3,7 +3,7 @@ package com.vmware.studio.shared.system
 import groovy.util.logging.Log
 
 @Log(value = "LOGGER")
-@Singleton
+@Singleton(lazy = true)
 class LinuxShellSupport {
 
     private def consumeShellCmdCommon(String command, File workingDir, String[] envp) {

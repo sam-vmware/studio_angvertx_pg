@@ -1,6 +1,7 @@
 package com.vmware.studio.shared.system
 
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
 import groovy.util.logging.Log
 
 /**
@@ -9,27 +10,26 @@ import groovy.util.logging.Log
  */
 @Log(value = "LOGGER")
 @CompileStatic
-@Singleton
+@Singleton(strict = false, lazy = false)
 class OSSupport {
-    enum OS_TYPE {
-        DEBIAN("Ubuntu"), RH("Red Hat"), CENTOS("CentOS"), SUSE("SUSE/SLES"), UNKNOWN("Unknown")
-        private final String osName
+    def final ME = OSSupport.class.name
 
-        OS_TYPE(String osName) { this.osName = osName }
-
-        public String getOSName() { return this.osName }
+    private OSSupport() {
+        OSType.values().each { OSType osType ->
+            LOGGER.fine("$ME: Initializing ${osType.OSName}")
+        }
     }
 
-    public OS_TYPE getOperatingSystemType() {
+    public OSType getOperatingSystemType() {
         Process process = LinuxShellSupport.instance.executeShellCmdWait("/bin/cat /proc/version")
         assert process.exitValue() == 0
-        OS_TYPE returnType
+        OSType returnType
         switch (process.text) {
-            case ~/(?is).*?ubuntu.*?/: returnType = OS_TYPE.DEBIAN; break
-            case ~/(?is).*?centos.*?/: returnType = OS_TYPE.CENTOS; break
-            case ~/(?is).*?redhat.*?/: returnType = OS_TYPE.RH; break
-            case ~/(?is).*?suse.*?/: returnType = OS_TYPE.SUSE; break
-            default: returnType = OS_TYPE.UNKNOWN
+            case ~/(?is).*?ubuntu.*?/: returnType = OSType.DEBIAN; break
+            case ~/(?is).*?centos.*?/: returnType = OSType.CENTOS; break
+            case ~/(?is).*?redhat.*?/: returnType = OSType.RH; break
+            case ~/(?is).*?suse.*?/: returnType = OSType.SUSE; break
+            default: returnType = OSType.UNKNOWN
         }
 
         returnType
@@ -37,7 +37,12 @@ class OSSupport {
 
     public String getHostName() {
         Process process = LinuxShellSupport.instance.executeShellCmdWait("/bin/hostname")
-        assert process.exitValue() == 0
-        return process.text
+
+        if (process.exitValue()) {
+            LOGGER.severe("$ME: Failed to run hostname command")
+            return null
+        }
+
+        process.text
     }
 }

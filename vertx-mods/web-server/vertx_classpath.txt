@@ -1,0 +1,9 @@
+#../../classes/production/common
+#../../classes/production/web-server
+#build/deps
+
+build/classes/main
+build/resources/main
+build/deps
+build/libs
+

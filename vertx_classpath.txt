@@ -1,6 +1,6 @@
 # IntelliJ build based on gradle import
-classes/production/common
-classes/production/system-service
+#classes/production/common
+#classes/production/system-service
 #classes/production/web-server
 
 # From intellij normal build
@@ -9,13 +9,27 @@ classes/production/system-service
 
 # From Gradle Build
 
-#shared/common/build/classes/main
+shared/common/build/classes/main
+shared/common/build/resources/main
+shared/common/build/deps
+shared/common/build/libs
 
 # system-service
-#vami-mods/system-service/src/main/resources
-#vami-mods/system-service/build/classes/main
+vami-mods/system-service/build/classes/main
+vami-mods/system-service/build/resources/main
+vami-mods/system-service/build/deps
+vami-mods/system-service/build/libs
+
 
 # web-server
-#vertx-mods/web-server/src/main/resources
-#vertx-mods/web-server/build/classes/main
+vertx-mods/web-server/build/classes/main
+vertx-mods/web-server/build/resources/main
+vertx-mods/web-server/build/deps
+vertx-mods/web-server/build/libs
+
+# main
+main/app/build/classes/main
+main/app/build/resources/main
+main/app/build/deps
+main/app/build/libs
 
