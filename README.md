@@ -25,7 +25,7 @@ js
 packages
 ```
 #### Running
-There is a simple wrapper verticle called **App.groovy** that calls the Vert.x Container's *deployModule* that deploys each [Module](http://vertx.io/manual.html#module) in the same VM, otherwise for each module to communicate each would need to run in cluster mode. First however, you need to setup your workspace using the Vert.x module link for each module
+There is a simple wrapper verticle called [App.groovy](https://github.com/sam-vmware/studio_angvertx_pg/blob/master/App.groovy) that calls the Vert.x Container's *deployModule* that deploys each [Module](http://vertx.io/manual.html#module) in the same VM, otherwise for each module to communicate each would need to run in cluster mode. First however, you need to setup your workspace using the Vert.x module link for each module
 ```bash
 $ cd vami-mods/system-service
 # I have something not set right in the gradle build that causes the common.jar not to be placed in the build directory so this step is needed for now.
