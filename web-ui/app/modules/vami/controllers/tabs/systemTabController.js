@@ -32,26 +32,46 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
             {field: "key", displayName: "key"},
             {field: "value", displayName: "value"}
         ];
+
         $scope.gridOptions = {
             data: "contents",
             columnDefs: $scope.columnDefs
         };
 
+        // Do reboot and shutdown send test request, careful not to send the real one
         $scope.doReboot = function () {
-            $log.debug("Reboot operation selected");
+            $log.debug("Shutdown operation selected");
+            serviceRequest({
+                serviceName: "system",
+                jsonMsg: testDoReboot
+            }, function(reply) {
+                $log.debug("Shutdown request response received");
+                if (reply.data) {
+                    $log.debug("reply.data -> " + reply.data);
+                }
+            });
         };
 
         $scope.doShutdown = function () {
             $log.debug("Shutdown operation selected");
+            serviceRequest({
+                serviceName: "system",
+                jsonMsg: testDoShutdown
+            }, function(reply) {
+                $log.debug("Shutdown request response received");
+                if (reply.data) {
+                    $log.debug("reply.data -> " + reply.data);
+                }
+            });
         };
 
+        // This makes the request through the service layer which ultimately uses the eventbus
+        // It is p2p so will wait on response with potential timeout
         $scope.getContent = function () {
-            var options = {
+            serviceRequest({
                 serviceName: "system",
                 jsonMsg: testGetSystemInformation
-            };
-
-            serviceRequest(options, function(reply) {
+            }, function(reply) {
                 if ($scope.contents) $scope.contents.length = 0;
                 $scope.contents = reply.data;
             });
@@ -61,6 +81,11 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
         function serviceRequest(options, scopeApplyCallback) {
 
             // We get back a promise
+            // Options must be of form e.g.
+            // {
+            //  serviceName: "system",
+            //  jsonMsg: testGetSystemInformation
+            // }
             serviceTabsService.sendRequest(options).then(function (reply) {
                 var timer = $timeout(function () {
                     $scope.$apply(function () {
