@@ -43,7 +43,7 @@ class InformationMessageHandler implements BaseMessageHandler {
 
         data += [
             [key: "hostName", value: "$hostName"],
-            [key: "osName", vaalue: "$osName"]
+            [key: "osName", value: "$osName"]
         ]
 
         OK_RESPONSE(data)

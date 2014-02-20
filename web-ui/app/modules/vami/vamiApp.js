@@ -10,7 +10,11 @@ var vamiApp = angular.module('vamiApp', [
     'template/tabs/tab.html',
     'template/tabs/tabset.html',
     'ui.bootstrap.tabs',
-    'ui.bootstrap.buttons'
+    'ui.bootstrap.buttons',
+    /*    'ui.bootstrap.modal',
+     'template/modal/window.html',
+     'template/modal/backdrop.html',
+     'angular-dialog-service'*/
 ]).factory('commonService', ['$resource', '$cacheFactory', function ($resource, $cacheFactory) {
     var cache = $cacheFactory('commonService');
     var loadedSuffix = "_isLoaded";
@@ -36,13 +40,12 @@ var vamiApp = angular.module('vamiApp', [
 }]).constant('VAMI_ROOT', $("#VAMI_ROOT").attr("href"))
     .config(['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$stateProvider',
         '$urlRouterProvider', '$sceProvider', '$rootScopeProvider', '$locationProvider', 'VAMI_ROOT',
-        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $stateProvider, $urlRouterProvider,
-                  $sceProvider, $rootScopeProvider, $locationProvider, VAMI_ROOT) {
+        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $stateProvider, $urlRouterProvider, $sceProvider, $rootScopeProvider, $locationProvider, VAMI_ROOT) {
             $sceProvider.enabled(false); // dealing with max digest attempts
             $rootScopeProvider.digestTtl(10); // dealing with max digest attempts
             $urlRouterProvider.otherwise("/index/services");
 
-            $provide.decorator('$exceptionHandler', function($delegate) {
+            $provide.decorator('$exceptionHandler', function ($delegate) {
                 return function (exception, cause) {
                     $delegate(exception, cause);
                     var trace = printStackTrace({e: exception});
@@ -54,7 +57,8 @@ var vamiApp = angular.module('vamiApp', [
             // a lot of anguarl max iteration blah .. errors
             var appResources = [
                 {name: "serviceTabsService.js", url: VAMI_ROOT + "/services/tabs/serviceTabsService.js"},
-                {name: "serviceTabsController.js", url: VAMI_ROOT + "/controllers/tabs/serviceTabsController.js"}
+                {name: "serviceTabsController.js", url: VAMI_ROOT + "/controllers/tabs/serviceTabsController.js"},
+                {name: "systemTabController.js", url: VAMI_ROOT + "/controllers/tabs/systemTabController.js"}
             ];
 
             vamiApp.lazy = {
@@ -65,45 +69,37 @@ var vamiApp = angular.module('vamiApp', [
                 service: $provide.service
             };
 
-            var vamiroot = {
-                abstract: true,
-                name: 'vamiroot',
-                template: "<div ui-view></div>"
-                /* resolve: {
-                 load: ['$q', '$rootScope', 'commonService', function ($q, $rootScope, commonService) {
-                 jQuery.ajaxSetup({
-                 cache: true
-                 });
-
-                 var promises = [];
-                 $.each(appResources, function (index, resource) {
-                 promises.push($.getScript(resource.url, function ($data, textStatus, jqxhr) {
-                 //$log.info(data); // Data returned
-                 //$log.info(textStatus); // Success
-                 //$log.info(jqxhr.status); // 200
-                 console.log("Load was performed: " + textStatus);
-                 }));
-                 promises.push(_.loadRemoteJSFile(resource.url));
-                 });
-
-                 return $q.all(promises).then(
-                 function (response, status) {
-                 //                                $rootScope.$apply(function () {
-                 $.each(appResources, function (index, resource) {
-                 console.log('loaded: ' + resource.name);
-                 commonService.setResourceLoadedFlag(resource.name);
-                 });
-                 //                                });
-                 });
-                 }]
-                 }*/
-            };
-
             var serviceTabs = {
                 name: 'serviceTabs',
-                abstract:true,
+                abstract: true,
                 reloadOnSearch: false,
                 access: { isPrivate: 0 },
+                resolve: {
+                    // each function in this resolve block witll be resolved and injected into the controller
+                    // if we return a promise, like here, it will be resolved first
+                    load: ['$q', '$rootScope', 'commonService', function ($q, $rootScope, commonService) {
+                        jQuery.ajaxSetup({
+                            cache: true
+                        });
+                        var promises = [];
+                        $.each(appResources, function (index, resource) {
+                            promises.push($.getScript(resource.url, function ($data, textStatus, jqxhr) {
+                                //$log.info(data); // Data returned
+                                //$log.info(textStatus); // Success
+                                //$log.info(jqxhr.status); // 200
+                                console.log("Load was performed: " + textStatus);
+                            }));
+                            promises.push(_.loadRemoteJSFile(resource.url));
+                        });
+
+                        return $q.all(promises).then(function (response, status) {
+                            $.each(appResources, function (index, resource) {
+                                console.log('loaded: ' + resource.name);
+                                //commonService.setResourceLoadedFlag(resource.name);
+                            });
+                        });
+                    }]
+                },
                 views: {
                     tabs: {
                         templateUrl: VAMI_ROOT + '/views/tabs/serviceTabs.html'

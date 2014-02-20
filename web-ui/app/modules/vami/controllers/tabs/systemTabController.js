@@ -1,6 +1,6 @@
 'use strict';
-// vamiApp.lazy.controller('serviceTabsController', ['$q', '$scope', '$log', 'serviceTabsService', function ($q, $scope, $log, serviceTabsService) {
-vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', 'serviceTabsService',
+vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', 'serviceTabsService',
+// vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', 'serviceTabsService',
     function ($q, $scope, $routeParams, $log, $state, $timeout, serviceTabsService) {
 
         var testGetSystemInformation = {
