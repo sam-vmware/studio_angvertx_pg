@@ -81,7 +81,7 @@ class SystemService extends Verticle implements Service {
 
         // Register with the event bus
         container.logger.info "Registering local service address handler @ $MY_ADDRESS"
-        vertx.eventBus.registerLocalHandler(MY_ADDRESS, { Message message ->
+        vertx.eventBus.registerHandler(MY_ADDRESS, { Message message ->
             container.logger.info "$ME Received Message: ${message.body()}"
             def msgBody = message.body()
             if (!(msgBody instanceof Map)) {
