@@ -1,3 +1,6 @@
+/**
+ * Created by samueldoyle
+ */
 package com.vmware.studio.vertxmods.webserver
 
 import org.vertx.groovy.core.Vertx
@@ -24,7 +27,6 @@ class WebServiceLoader extends Verticle {
             //host              : 'localhost',
             host              : '0.0.0.0',
             port              : 8080,
-            //web_root          : '/home/samueldoyle/Projects/VMware/StudioRepo/git/NewStack/studio_angular_vertx/web-ui/app',
             web_root          : '/opt/vmware/share/vertx_extra/web_root/web_app',
             index_page        : 'index.html',
             static_files      : true,

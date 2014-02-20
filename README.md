@@ -2,12 +2,21 @@ studio_angvertx_pg
 ==================
 #### Building
 ``` bash
-# First change the WebServiceLoader web_root configure property (atm it is hardcoded, external properties are passed to Vert.x modules via a conf file) to the absolute path of the web app directory.
+# First change any direct paths in the main build.gradle file to be what you need to be.
+$ vi ./build.gradle
+# Change anything in the variable block: ext.VMWARE_CONF
+# groovyConsolePath - only matters if you want to play around with the console, this sets up the classpath for the project so the console will allow you play around testing things
+# libDir - this needs to be the lib directory of your Vert.X build if you have done a custom build from the GitHub checkout: https://github.com/eclipse/vert.x.git
+# There is probably a better Gradle way of doing this as in properties or something. TBD
+
+# Change the WebServiceLoader web_root configure property (atm it is hardcoded, external properties are passed to Vert.x modules via a conf file) to the absolute path of the web app directory.
 $ vi ./vertx-mods/web-server/src/main/groovy/com/vmware/studio/vertxmods/webserver/WebServiceLoader.groovy
 # Change this line
-    web_root          : '/opt/vmware/share/vertx_extra/web_root/web_app'
+# web_root          : '/opt/vmware/share/vertx_extra/web_root/web_app'
 # To be the directory where your local version is which should be some like: 
 # /home/me/myprojects/studio_angvertx_pg/web-ui/app
+
+# Build
 $ ./gradlew assemble
 ```
 For **clean**

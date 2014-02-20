@@ -1,4 +1,7 @@
 'use strict';
+/**
+ * Created by samueldoyle
+ */
 vamiApp.lazy.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', function serviceTabsService($q, $log, vertxEventBus) {
 //vamiApp.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', function serviceTabsService($q, $log, vertxEventBus) {
 

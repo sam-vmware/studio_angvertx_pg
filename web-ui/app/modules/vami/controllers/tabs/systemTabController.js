@@ -1,4 +1,7 @@
 'use strict';
+/**
+ * Created by samueldoyle
+ */
 vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', 'serviceTabsService',
 // vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', 'serviceTabsService',
     function ($q, $scope, $routeParams, $log, $state, $timeout, serviceTabsService) {

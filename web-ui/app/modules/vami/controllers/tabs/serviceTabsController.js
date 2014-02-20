@@ -1,4 +1,7 @@
 'use strict';
+/**
+ * Created by samueldoyle
+ */
 vamiApp.lazy.controller('serviceTabsController', ['$q', '$log', '$scope', '$state', 'VAMI_ROOT',
 //vamiApp.controller('serviceTabsController', ['$q', '$log', '$scope', '$state', 'VAMI_ROOT',
     function ($q, $log, $scope, $state, VAMI_ROOT) {

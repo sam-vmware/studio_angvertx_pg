@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * Created by samueldoyle
+ */
 var mainApp = angular.module('mainApp', [
     'ui.bootstrap',
     'ui.router'

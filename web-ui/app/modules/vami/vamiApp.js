@@ -1,5 +1,7 @@
 'use strict';
-
+/**
+ * Created by samueldoyle
+ */
 var vamiApp = angular.module('vamiApp', [
     'ngCookies',
     'ngResource',

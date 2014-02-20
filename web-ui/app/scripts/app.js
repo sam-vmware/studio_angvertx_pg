@@ -1,4 +1,7 @@
 'use strict';
+/**
+ * Created by samueldoyle
+ */
 
 angular.element(document).ready(function () {
     // Nice suggestion for dealing with getScript limitations here:

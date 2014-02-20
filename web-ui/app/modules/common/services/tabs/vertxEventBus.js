@@ -1,4 +1,8 @@
 'use strict';
+/**
+ * Created by samueldoyle
+ * This is an angularservice to wrap the vertx eventbus
+ */
 //vamiApp.lazy.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', function ($rootScope, $q, $log, $timeout) {
 vamiApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', function ($rootScope, $q, $log, $timeout) {
     // This is work in progress for replacing the eb plugin
