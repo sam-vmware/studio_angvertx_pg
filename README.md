@@ -2,6 +2,12 @@ studio_angvertx_pg
 ==================
 #### Building
 ``` bash
+# First change the WebServiceLoader web_root configure property (atm it is hardcoded, external properties are passed to Vert.x modules via a conf file) to the absolute path of the web app directory.
+$ vi ./vertx-mods/web-server/src/main/groovy/com/vmware/studio/vertxmods/webserver/WebServiceLoader.groovy
+# Change this line
+    web_root          : '/opt/vmware/share/vertx_extra/web_root/web_app'
+# To be the directory where your local version is which should be some like: 
+# /home/me/myprojects/studio_angvertx_pg/web-ui/app
 $ ./gradlew assemble
 ```
 For **clean**
@@ -25,7 +31,7 @@ js
 packages
 ```
 #### Running
-There is a simple wrapper verticle called [App.groovy](https://github.com/sam-vmware/studio_angvertx_pg/blob/master/App.groovy) that calls the Vert.x Container's *deployModule* that deploys each [Module](http://vertx.io/manual.html#module) in the same VM, otherwise for each module to communicate each would need to run in cluster mode. First however, you need to setup your workspace using the Vert.x module link for each module
+There is a simple wrapper verticle called **App.groovy** that calls the Vert.x Container's *deployModule* that deploys each [Module](http://vertx.io/manual.html#module) in the same VM, otherwise for each module to communicate each would need to run in cluster mode. First however, you need to setup your workspace using the Vert.x module link for each module
 ```bash
 $ cd vami-mods/system-service
 # I have something not set right in the gradle build that causes the common.jar not to be placed in the build directory so this step is needed for now.
