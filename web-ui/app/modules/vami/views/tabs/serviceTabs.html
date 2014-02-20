@@ -3,35 +3,7 @@
         <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disabled="tab.disabled"></tab>
     </tabset>
 
-    <div ng-include="tab.template" />
     <div ng-if="getActive().templ != null">
         <div ng-include src="getActive().templ"></div>
     </div>
-
-<!--    <hr>
-    <h4>Active pane:</h4>
-    <pre>{{active()}}</pre>-->
-        <!--<tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="active(tab)" disabled="tab.disabled"></tab>-->
-        <!--<div ng-model="tabs.index">-->
-<!--            <div ng-repeat="tab in tabs" data-title="{{tab.title}}">
-                <p>Contents from the chosen page:</p>
-            </div>-->
-        <!--</div>-->
-
-<!--        <tab heading="VM" active="tab.name == vm"></tab>
-        <tab heading="vApp" active="tab.name == vapp"></tab>
-        <tab heading="system" active="tab.name == system"></tab>
-        <tab heading="Network" active="tab.name == network"></tab>
-    </tabset>-->
-    <!--    <div ng-model="tabs.index" bs-tabs>
-            <div ng-repeat="tab in tabs" data-title="{{tab.title}}">
-                <p>Contents from the chosen page:</p>
-            </div>
-        </div>
-
-        <div ng-show="tabs.active().name == 'vm'">VM</div>
-        <div ng-show="tabs.active().name == 'vapp'">vApp</div>
-        <div ng-show="tabs.active().name == 'system'">System</div>
-        <div ng-show="tabs.active().name == 'network'">Network</div>-->
-
 </div>

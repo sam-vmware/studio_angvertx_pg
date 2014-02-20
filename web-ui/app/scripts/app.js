@@ -60,6 +60,13 @@ angular.element(document).ready(function () {
                 '</div>');
     }]);
 
+    angular.module("template/tabs/tab.html", []).run(["$templateCache", function ($templateCache) {
+        $templateCache.put("template/tabs/tab.html",
+                '<li ng-class="{active: active, disabled: disabled}">' +
+                '    <a ng-click="select()" tab-heading-transclude>{{heading}}</a>' +
+                '</li>');
+    }]);
+
 
     angular.bootstrap(document.getElementById('vamiAppContainer'), ['vamiApp']);
 //    angular.bootstrap(document.getElementById('mainAppContainer'), ['mainApp']);

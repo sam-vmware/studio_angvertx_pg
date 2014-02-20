@@ -5,10 +5,12 @@ var vamiApp = angular.module('vamiApp', [
     'ngResource',
     'ngSanitize',
     'ngRoute',
+    'ngGrid',
+    'ui.router',
     'template/tabs/tab.html',
     'template/tabs/tabset.html',
     'ui.bootstrap.tabs',
-    'ui.router',
+    'ui.bootstrap.buttons'
 ]).factory('commonService', ['$resource', '$cacheFactory', function ($resource, $cacheFactory) {
     var cache = $cacheFactory('commonService');
     var loadedSuffix = "_isLoaded";
@@ -137,7 +139,7 @@ var vamiApp = angular.module('vamiApp', [
                 name: 'serviceTabs.system',
                 url: "/system",
                 access: { isPrivate: 0 },
-                reloadOnSearch: false,
+                reloadOnSearch: true,
                 views: {
                     tabContent: {
                         templateUrl: VAMI_ROOT + '/views/tabs/systemTab.html'

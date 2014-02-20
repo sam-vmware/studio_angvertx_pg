@@ -6,7 +6,6 @@ vamiApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', functi
     var ebPath = '/eventbus';
     var reconnectEnabled = true;
     var reconnectInterval = 10000;
-    var defaultTimeout = 5000;
     var eb = null;
 
     function closeEBConnection() {
@@ -16,6 +15,7 @@ vamiApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', functi
         }
     }
 
+    // Added cb since connection may not be fully opened
     function openEBConnection(callback) {
         if (!eb) {
             var connectURL = serverURL + ebPath;
@@ -34,55 +34,48 @@ vamiApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', functi
         }
     }
 
+    function makeUID() { return _.uniqueId('vertxEventBus'); }
+    function makeIDMsg(uid, msg) {
+        return "id: " + uid + " " + msg;
+    }
+
     function realSend(address, jsonMsg) {
-        $log.debug("sending address -> " + address + " msg ->" + jsonMsg);
+
+        var transID = makeUID();
+        $log.debug(makeIDMsg(transID, "sending address -> " + address + " msg ->" + jsonMsg));
         var deferred = $q.defer();
-
         try {
-            eb.send(address, jsonMsg, function (reply) {
-                $log.debug("response received: response -> " + reply);
-                $log.debug("invoking provided cb with result: " + reply.result + " data: " + reply.data);
-
-                var timer = $timeout(function() {
+            openEBConnection(function () {
+                eb.send(address, jsonMsg, function (reply) {
                     if (!reply.result === "ok") {
-                        $log.error("Response was in error result: " + reply.result + " data: " + reply.data);
+                        $log.error(makeIDMsg(transID, "Response was in error result: " + reply.result + " data: " + reply.data));
                         deferred.reject(reply);
                     } else {
                         deferred.resolve(reply);
                     }
-                }, defaultTimeout);
 
-                timer.then(
-                    function () { $log.debug("Timer resolved!", Date.now()); },
-                    function () { $log.warn("Timer rejected!", Date.now()); }
-                );
-
-                // Make sure to cleanup timers
-               /* $rootScope.$on(
-                    "$destroy",
-                    function (event) {
-                        if (timer) {
-                            $timeout.cancel(timer);
-                        }
+                    $log.debug(makeIDMsg(transID, "response received: response -> " + reply));
+                    if (!reply.result === "ok") {
+                        $log.error(makeIDMsg(transID, "Response was in error result: " + reply.result + " data: " + reply.data));
+                        deferred.reject(reply);
+                    } else {
+                        deferred.resolve(reply);
                     }
-                );*/
-                //closeEBConnection();
+
+                });
             });
         } catch (e) {
             deferred.reject(e);
-            $log.error("Failed to send to server: " + e.message);
+            $log.error(makeIDMsg(transID, "Failed to send to server: " + e.message));
         }
 
         return deferred.promise;
-
     }
 
     return {
         send: function (address, jsonMsg) {
-            var promise = openEBConnection(function() {
-                return realSend(address,jsonMsg);
-            });
-
+            // Returns promise to make clear
+            var promise = realSend(address, jsonMsg);
             return promise;
         }
     }
