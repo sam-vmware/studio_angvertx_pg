@@ -9,12 +9,12 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
         };
 
         var testDoReboot = {
-            type     : "OperatingSystem",
+            type: "OperatingSystem",
             operation: "testDoReboot"
         };
 
         var testDoShutdown = {
-            type     : "OperatingSystem",
+            type: "OperatingSystem",
             operation: "testDoShutdown"
         };
 
@@ -37,29 +37,13 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
             columnDefs: $scope.columnDefs
         };
 
-        $scope.doReboot = function() {
+        $scope.doReboot = function () {
             $log.debug("Reboot operation selected");
         };
 
-        $scope.doShutdown = function() {
+        $scope.doShutdown = function () {
             $log.debug("Shutdown operation selected");
         };
-
-        $scope.clickToggle = function ($event) {
-            var elem = angular.element($event.srcElement);
-            if (elem.hasClass("active")) {
-                elem.removeClass("active");
-            } else {
-                elem.addClass("active");
-            }
-        };
-
-        $scope.$watch("contents", function () {
-            $scope.columnDefs = [];
-            angular.forEach(_.keys($scope.contents), function (key) {
-                $scope.columnDefs.push({field: key});
-            });
-        });
 
         $scope.getContent = function () {
             var options = {
@@ -67,27 +51,28 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
                 jsonMsg: testGetSystemInformation
             };
 
+            serviceRequest(options, function(reply) {
+                if ($scope.contents) $scope.contents.length = 0;
+                $scope.contents = reply.data;
+            });
+        };
+
+        // Service request, send the options (message) and the callback on completion
+        function serviceRequest(options, scopeApplyCallback) {
+
             // We get back a promise
             serviceTabsService.sendRequest(options).then(function (reply) {
-                /*                var newContent = [];
-                 angular.forEach(reply.data, function (item, key) {
-                 newContent[(item.key)] = item.value;
-                 });*/
-
                 var timer = $timeout(function () {
                     $scope.$apply(function () {
-                        if ($scope.contents) $scope.contents.length = 0;
-                        $scope.contents = reply.data;
+                        if (scopeApplyCallback) {
+                            scopeApplyCallback(reply);
+                        }
                     });
                 }, 1000);
 
                 timer.then(
-                    function () {
-                        $log.debug("Timer resolved!", Date.now());
-                    },
-                    function () {
-                        $log.warn("Timer rejected!", Date.now());
-                    }
+                    function () { $log.debug("Timer resolved!", Date.now()); },
+                    function () { $log.warn("Timer rejected!", Date.now()); }
                 );
 
                 // Cleanup timer
@@ -101,11 +86,7 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
                 );
 
             });
-        };
-
-        /*        $scope.test = function() {
-         $log.debug("HERE I AM");
-         };*/
+        }
 
         $scope.getContent();
     }]);
