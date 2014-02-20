@@ -30,7 +30,12 @@ def testSystemServiceSystemInformation() {
     vertx.eventBus.send(SystemService.MY_ADDRESS, getSystemInfoMsg, { reply ->
         container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "ok")
-        assertEquals(reply.body.data.product as String, "VMware Studio")
+
+        def productEntry = reply.body.data.find {
+            it.key == "product"
+        }
+        assert productEntry
+        assertEquals(productEntry.value as String, "VMware Studio")
         testComplete()
     })
 }
