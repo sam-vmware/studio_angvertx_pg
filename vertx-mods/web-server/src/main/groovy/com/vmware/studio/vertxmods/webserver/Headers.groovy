@@ -1,6 +1,3 @@
-/**
- * Created by samueldoyle
- */
 package com.vmware.studio.vertxmods.webserver
 
 public class Headers {

@@ -2,9 +2,34 @@
 /**
  * Created by samueldoyle
  */
-vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', 'serviceTabsService',
-// vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', 'serviceTabsService',
-    function ($q, $scope, $routeParams, $log, $state, $timeout, serviceTabsService) {
+vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', '$modal',
+    'COMMON_ROOT', 'serviceTabsService',
+    function ($q, $scope, $routeParams, $log, $state, $timeout, $modal, COMMON_ROOT, serviceTabsService) {
+
+        var REBOOT_OP = "Reboot Operation";
+        var SHUTDOWN_OP = "Shutdown Operation";
+
+        $scope.open = function (modalData, confirmCB, rejectedCB) {
+            var modalInstance = $modal.open({
+                templateUrl: COMMON_ROOT + '/views/dialog/confirmDialog.html',
+                controller: 'confirmDialogController',
+                resolve: {
+                    modalData: function () {
+                        return modalData;
+//                        return $scope.modalData;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                // promise resolved in the dialog i.e. comfirmed
+                //$scope.selected = selectedItem;
+                confirmCB();
+            }, function () {
+                // promise rejected in the dialog i.e. cancel
+                rejectedCB();
+            });
+        };
 
         var testGetSystemInformation = {
             type: "SystemInformation",
@@ -44,28 +69,46 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
         // Do reboot and shutdown send test request, careful not to send the real one
         $scope.doReboot = function () {
             $log.debug("Shutdown operation selected");
-            serviceRequest({
-                serviceName: "system",
-                jsonMsg: testDoReboot
-            }, function(reply) {
-                $log.debug("Shutdown request response received");
-                if (reply.data) {
-                    $log.debug("reply.data -> " + reply.data);
-                }
-            });
+
+            var opConfirmedCB = function () {
+                $log.debug("Shutdown operation confirmed sending request ...");
+                serviceRequest({
+                    serviceName: "system",
+                    jsonMsg: testDoReboot
+                }, function (reply) {
+                    $log.debug("Shutdown request response received");
+                    if (reply.data) {
+                        $log.debug("reply.data -> " + reply.data);
+                    }
+                });
+            };
+
+            var opRejectedCB = function () {
+                $log.debug("Shutdown operation rejected, request will not be sent");
+            };
+
+            $scope.open({confirmText:REBOOT_OP}, opConfirmedCB, opRejectedCB);
         };
 
         $scope.doShutdown = function () {
             $log.debug("Shutdown operation selected");
-            serviceRequest({
-                serviceName: "system",
-                jsonMsg: testDoShutdown
-            }, function(reply) {
-                $log.debug("Shutdown request response received");
-                if (reply.data) {
-                    $log.debug("reply.data -> " + reply.data);
-                }
-            });
+            var opConfirmedCB = function () {
+                $log.debug("Shutdown operation confirmed sending request ...");
+                serviceRequest({
+                    serviceName: "system",
+                    jsonMsg: testDoShutdown
+                }, function (reply) {
+                    $log.debug("Shutdown request response received");
+                    if (reply.data) {
+                        $log.debug("reply.data -> " + reply.data);
+                    }
+                });
+            };
+            var opRejectedCB = function () {
+                $log.debug("Shutdown operation rejected, request will not be sent");
+            };
+
+            $scope.open({confirmText:SHUTDOWN_OP}, opConfirmedCB, opRejectedCB);
         };
 
         // This makes the request through the service layer which ultimately uses the eventbus
@@ -74,7 +117,7 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
             serviceRequest({
                 serviceName: "system",
                 jsonMsg: testGetSystemInformation
-            }, function(reply) {
+            }, function (reply) {
                 if ($scope.contents) $scope.contents.length = 0;
                 $scope.contents = reply.data;
             });
@@ -99,8 +142,12 @@ vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', 
                 }, 1000);
 
                 timer.then(
-                    function () { $log.debug("Timer resolved!", Date.now()); },
-                    function () { $log.warn("Timer rejected!", Date.now()); }
+                    function () {
+                        $log.debug("Timer resolved!", Date.now());
+                    },
+                    function () {
+                        $log.warn("Timer rejected!", Date.now());
+                    }
                 );
 
                 // Cleanup timer

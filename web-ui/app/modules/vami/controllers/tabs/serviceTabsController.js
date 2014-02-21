@@ -3,7 +3,6 @@
  * Created by samueldoyle
  */
 vamiApp.lazy.controller('serviceTabsController', ['$q', '$log', '$scope', '$state', 'VAMI_ROOT',
-//vamiApp.controller('serviceTabsController', ['$q', '$log', '$scope', '$state', 'VAMI_ROOT',
     function ($q, $log, $scope, $state, VAMI_ROOT) {
         $scope.tabs = [
             { title: "VM", name: "vm", state: "serviceTabs.vm", active: false, disabled: false, templ: VAMI_ROOT + '/views/tabs/vmTab.html' },

@@ -13,10 +13,10 @@ var vamiApp = angular.module('vamiApp', [
     'template/tabs/tabset.html',
     'ui.bootstrap.tabs',
     'ui.bootstrap.buttons',
-    /*    'ui.bootstrap.modal',
-     'template/modal/window.html',
-     'template/modal/backdrop.html',
-     'angular-dialog-service'*/
+    'ui.bootstrap.transition',
+    'template/modal/backdrop.html',
+    'template/modal/window.html',
+    'ui.bootstrap.modal'
 ]).factory('commonService', ['$resource', '$cacheFactory', function ($resource, $cacheFactory) {
     var cache = $cacheFactory('commonService');
     var loadedSuffix = "_isLoaded";
@@ -39,10 +39,11 @@ var vamiApp = angular.module('vamiApp', [
             cache.remove(id);
         }
     };
-}]).constant('VAMI_ROOT', $("#VAMI_ROOT").attr("href"))
+}]).constant('MAIN_ROOT', $("#MAIN_ROOT").attr("href")).constant('COMMON_ROOT', $("#COMMON_ROOT").attr("href")).constant('VAMI_ROOT', $("#VAMI_ROOT").attr("href"))
     .config(['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$stateProvider',
-        '$urlRouterProvider', '$sceProvider', '$rootScopeProvider', '$locationProvider', 'VAMI_ROOT',
-        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $stateProvider, $urlRouterProvider, $sceProvider, $rootScopeProvider, $locationProvider, VAMI_ROOT) {
+        '$urlRouterProvider', '$sceProvider', '$rootScopeProvider', '$locationProvider', '$injector', 'COMMON_ROOT', 'VAMI_ROOT',
+        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $stateProvider, $urlRouterProvider, $sceProvider, $rootScopeProvider,
+                  $locationProvider, $injector, COMMON_ROOT, VAMI_ROOT) {
             $sceProvider.enabled(false); // dealing with max digest attempts
             $rootScopeProvider.digestTtl(10); // dealing with max digest attempts
             $urlRouterProvider.otherwise("/index/services");
@@ -58,6 +59,7 @@ var vamiApp = angular.module('vamiApp', [
             // Remote fetching, I don't see a better of doing this besides using the $.getScript but it generates
             // a lot of anguarl max iteration blah .. errors
             var appResources = [
+                {name: "confirmDialogController.js", url: COMMON_ROOT + "/controllers/dialog/confirmDialogController.js"},
                 {name: "serviceTabsService.js", url: VAMI_ROOT + "/services/tabs/serviceTabsService.js"},
                 {name: "serviceTabsController.js", url: VAMI_ROOT + "/controllers/tabs/serviceTabsController.js"},
                 {name: "systemTabController.js", url: VAMI_ROOT + "/controllers/tabs/systemTabController.js"}
@@ -68,38 +70,50 @@ var vamiApp = angular.module('vamiApp', [
                 directive: $compileProvider.directive,
                 filter: $filterProvider.register,
                 factory: $provide.factory,
-                service: $provide.service
+                service: $provide.service,
+                injector: $injector
             };
 
             var serviceTabs = {
                 name: 'serviceTabs',
                 abstract: true,
+                url: '',
+                template: "<div ui-view></div>",
                 reloadOnSearch: false,
                 access: { isPrivate: 0 },
                 resolve: {
                     // each function in this resolve block witll be resolved and injected into the controller
                     // if we return a promise, like here, it will be resolved first
-                    load: ['$q', '$rootScope', 'commonService', function ($q, $rootScope, commonService) {
+                    preloadedResources: ['$q', '$timeout', '$rootScope', '$log', 'commonService', function ($q, $timeout, $rootScope, $log, commonService) {
                         jQuery.ajaxSetup({
                             cache: true
                         });
+                        var deferred = $q.defer();
+
                         var promises = [];
                         $.each(appResources, function (index, resource) {
-                            promises.push($.getScript(resource.url, function ($data, textStatus, jqxhr) {
-                                //$log.info(data); // Data returned
-                                //$log.info(textStatus); // Success
-                                //$log.info(jqxhr.status); // 200
-                                console.log("Load was performed: " + textStatus);
-                            }));
                             promises.push(_.loadRemoteJSFile(resource.url));
                         });
 
-                        return $q.all(promises).then(function (response, status) {
-                            $.each(appResources, function (index, resource) {
-                                console.log('loaded: ' + resource.name);
-                                //commonService.setResourceLoadedFlag(resource.name);
+                        try {
+                            $q.all(promises).then(function (response, status) {
+                                $.each(appResources, function (index, resource) {
+                                    console.log('loaded: ' + resource.name);
+                                    //commonService.setResourceLoadedFlag(resource.name);
+                                });
+                                $timeout(function () {
+                                    $rootScope.$apply();
+                                    $log.debug("All Resources loaded");
+                                    deferred.resolve();
+                                }, 1000);
+                            }, function (e) {
+                                deferred.reject(e.message);
                             });
-                        });
+                        } catch (error) {
+                            deferred.reject(error.message);
+                        }
+
+                        return deferred.promise;
                     }]
                 },
                 views: {
