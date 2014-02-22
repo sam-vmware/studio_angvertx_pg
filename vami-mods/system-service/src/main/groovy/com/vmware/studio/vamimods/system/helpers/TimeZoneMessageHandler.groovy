@@ -14,7 +14,7 @@ import org.vertx.groovy.core.Vertx
  */
 @Log(value = "LOGGER")
 @Mixin(ResourceEnabled)
-class TimeZoneMessageHandler implements BaseMessageHandler {
+class TimeZoneMessageHandler extends BaseMessageHandler {
     private final ME = this.class.name
     public final String MY_TYPE = "TimeZone"
     final vertx = Vertx.newVertx()
@@ -48,7 +48,10 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
         }.join(NL)
     }
 
-    /**
+    TimeZoneMessageHandler(String myType) {
+        super(myType)
+    }
+/**
      * Get TimeZone value
      * type: MY_TYPE
      * operation: get
@@ -81,7 +84,7 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
     }
 
     def setTimeZone(Map message) {
-        def data = message.operation.data
+        def data = message.data
         def newTimeZone = data.newTimeZone
         if (!newTimeZone || !tzSetPattern.matcher(newTimeZone).matches()) {
             return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.invalidNewTimezone")
@@ -207,11 +210,6 @@ class TimeZoneMessageHandler implements BaseMessageHandler {
     }
 
     /***** Implementations Below *****/
-
-    @Override
-    String getType() {
-        MY_TYPE
-    }
 
     @Override
     Map handle(Map message) {

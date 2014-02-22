@@ -1,7 +1,5 @@
-/**
- * Created by samueldoyle
- */
-package com.vmware.studio.vamimods.system
+
+package com.vmware.studio.vamimods.contentresolver
 
 import com.vmware.studio.shared.mixins.MessageHandlerRegistry
 import com.vmware.studio.shared.mixins.ResourceEnabled
@@ -12,43 +10,27 @@ import org.vertx.groovy.core.eventbus.Message
 import org.vertx.groovy.platform.Verticle
 
 /**
- * Simple verticle to represent system service
- * Messages should be of similar type to CIM, get,set,create ...
- * def msg = [
- * type: ...
- * operation: ...
- * data: ...
- * ]
- */
+* Created by samueldoyle
+* Resource specific handling entry point
+*/
 @Mixin([ResourceEnabled, MessageHandlerRegistry])
-class SystemService extends Verticle implements Service {
+class ContentResolverService extends Verticle implements Service {
     private final ME = this.class.name
-    public final static String MY_ADDRESS = "vami.SystemService"
-    // private static String myConfigObject = "com.vmware.studio.vamimods.system.resources.SystemService"
+    public final static String MY_ADDRESS = "vami.ContentResolverService"
 
-    // Until I can figure out how to deal with the Vert.X classloader stuff
-    // Belongs in resources/SystemServiceConfig
     def myConfigObject = {
         services {
-            systemService {
-                bootStrapVerticle = "groovy:com.vmware.studio.vamimods.system.SystemServiceBootstrap"
+            contentResolverService {
                 handlers = [
-                    [name: "TimeZoneMessageHandler", FQCN: "com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler", enabled: true],
-                    [name: "InformationMessageHandler", FQCN: "com.vmware.studio.vamimods.system.helpers.InformationMessageHandler", enabled: true],
-                    [name: "OperatingSystemHelper", FQCN: "com.vmware.studio.vamimods.system.helpers.OperatingSystemHelper", enabled: true]
+                    [name: "ResourceRequestHandler", FQCN: "com.vmware.studio.vamimods.contentresolver.handlers.ResourceRequestHandler", enabled: true]
                 ]
+                GLOBAL_RESOURCE_CHANNEL_ID = "GLOBAL_RESOURCE_CHANNEL"
                 errorMessages {
                     unknownMessageType = "Unknown message type received"
                     unknownOperationType = "Unknown operation type received"
                     msgValidationFailure = "Message validation failed"
                     invalidMessagePayload = "Invalid message body payload type received"
-                    invalidNewTimezone = "Missing or invalid new timezone value"
-                    missingZoneFile = "The specified timezone file doesn't exist"
-                    unknownOS = "Unable to determine Operating System"
-                    failedToUpdateTZ = "Unable to determine Operating System"
-                    manifestFileNotReadable = "The provided manifest file is not accessible : "
-                    rebootCmdFailed = "Failed to perform reboot operation : "
-                    shutdownCmdFailed = "Failed to perform shutdown operation : "
+                    regSvcMsgValidationFailure = "New service validation failed, missing one or more requried keys : "
                 }
             }
         }
@@ -70,7 +52,7 @@ class SystemService extends Verticle implements Service {
     def postInitialize() {
 
         // Register Handlers
-        def handlers = GET_CONFIG().services.systemService.handlers
+        def handlers = GET_CONFIG().services.contentResolverService.handlers
         def instance
         for (svc in handlers) {
             if (svc.enabled) {
@@ -88,9 +70,23 @@ class SystemService extends Verticle implements Service {
             container.logger.info "$ME Received Message: ${message.body()}"
             def msgBody = message.body()
             if (!(msgBody instanceof Map)) {
-                message.reply(RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.invalidMessagePayload"))
+                message.reply(RESOURCE_ERROR_RESPONSE("services.contentResolverService.errorMessages.invalidMessagePayload"))
             } else {
                 def replyMessage = handleMessage(message.body())
+                container.logger.info "$ME Sending Response Message: $replyMessage"
+                message.reply(replyMessage)
+            }
+        })
+
+        // Also we register on the global resource topic
+        def globalResourceAddress = LOOKUP_CONFIG("services.contentResolverService.GLOBAL_RESOURCE_CHANNEL_ID")
+        vertx.eventBus.registerHandler(globalResourceAddress as String, { Message message ->
+            container.logger.info "$ME Received Global Resource Message: ${message.body()}"
+            def msgBody = message.body()
+            if (!(msgBody instanceof Map)) {
+                message.reply(RESOURCE_ERROR_RESPONSE("services.contentResolverService.errorMessages.invalidMessagePayload"))
+            } else {
+                def replyMessage = handleMessage(message.body(), "ResourceRequestHandler")
                 container.logger.info "$ME Sending Response Message: $replyMessage"
                 message.reply(replyMessage)
             }
@@ -108,12 +104,12 @@ class SystemService extends Verticle implements Service {
         def valid = validInfo.valid
 
         if (!valid) {
-            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.msgValidationFailure")
+            return RESOURCE_ERROR_RESPONSE("services.contentResolverService.errorMessages.msgValidationFailure")
         }
 
-        def handler = lookupHandler(handlerType as String)
+        def handler = lookupHandler(handlerType)
         if (!handler) {
-            return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.unknownMessageType")
+            return RESOURCE_ERROR_RESPONSE("services.contentResolverService.errorMessages.unknownMessageType", handlerType)
         }
 
         handler.handle(message)
@@ -129,21 +125,6 @@ class SystemService extends Verticle implements Service {
         // Load config
         loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))
         postInitialize()
-
-        /*
-          def bootStrap = ResourceLoader.instance.getConfigProperty("services.systemService.bootStrapVerticle")
-          if (bootStrap) {
-              container.logger.debug "Found bootStrap: $bootStrap"
-              container.deployVerticle(bootStrap) { asyncResult ->
-                  if (asyncResult.succeeded) {
-                      postInitialize()
-                  } else {
-                      container.logger.error "Failed to deploy ${asyncResult.result()}"
-                  }
-              }
-          } else {
-              container.logger.debug "No bootStrap found"
-              postInitialize()
-          }*/
     }
+
 }

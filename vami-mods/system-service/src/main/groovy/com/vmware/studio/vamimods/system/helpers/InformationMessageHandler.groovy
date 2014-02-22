@@ -11,11 +11,14 @@ import groovy.util.logging.Log
  */
 @Log(value = "LOGGER")
 @Mixin([ResourceEnabled, Manifest])
-class InformationMessageHandler implements BaseMessageHandler {
+class InformationMessageHandler extends BaseMessageHandler {
     public static final String MY_TYPE = "SystemInformation"
     public final manifestXMLFile = "/opt/vmware/etc/appliance-manifest.xml"
 
-    /**
+    InformationMessageHandler(String myType) {
+        super(myType)
+    }
+/**
      * Get basic system information
      * @return
      * from update manifest.xml - product, vendor, version
@@ -58,11 +61,6 @@ class InformationMessageHandler implements BaseMessageHandler {
     }
 
     /***** Implementations Below *****/
-
-    @Override
-    String getType() {
-        MY_TYPE
-    }
 
     @Override
     Map handle(Map message) {

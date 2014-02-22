@@ -11,10 +11,14 @@ import groovy.util.logging.Log
  */
 @Log(value = "LOGGER")
 @Mixin(ResourceEnabled)
-class OperatingSystemHelper implements BaseMessageHandler {
+class OperatingSystemHelper extends BaseMessageHandler {
     public static final String MY_TYPE = "OperatingSystem"
     public static final String rebootCommand = "/sbin/shutdown -r -t 5 now"
     public static final String shutdownCommand = "/sbin/shutdown -h -t 5 now"
+
+    OperatingSystemHelper(String myType) {
+        super(myType)
+    }
 
     def doReboot(Map message) {
         LOGGER.info "Performing actual reboot operation!"
@@ -48,11 +52,6 @@ class OperatingSystemHelper implements BaseMessageHandler {
     }
 
     /***** Implementations Below *****/
-
-    @Override
-    String getType() {
-        MY_TYPE
-    }
 
     @Override
     Map handle(Map message) {

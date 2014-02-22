@@ -11,11 +11,11 @@ import groovy.util.logging.Log
 class MessageValidator {
     public final Set REQUIRED_KEYS = ["type", "operation"].asImmutable()
 
-    public Map validate(Map message) {
+    public Map validate(Map message, Set requiredKeys = REQUIRED_KEYS) {
         def response = [valid: true]
 
-        def commons = REQUIRED_KEYS.intersect(message.keySet())
-        if (!commons.containsAll(REQUIRED_KEYS)) {
+        def commons = requiredKeys.intersect(message.keySet())
+        if (!commons.containsAll(requiredKeys)) {
             response.valid = false
         }
 /*        def difference = REQUIRED_KEYS.plus(message.keySet())
