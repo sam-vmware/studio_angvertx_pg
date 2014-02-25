@@ -17,7 +17,6 @@ import org.vertx.groovy.platform.Verticle
  */
 @Mixin([ResourceEnabled, MessageHandlerRegistry, ContextConfig, CommonService])
 class ContentResolverService extends Verticle implements Service {
-    private final ME = this.class.name
     public final static String MY_ADDRESS = "vami.ContentResolverService"
 
     def myConfigObject = {
@@ -26,7 +25,6 @@ class ContentResolverService extends Verticle implements Service {
                 handlers = [
                     [name: "ResourceRequestHandler", FQCN: "com.vmware.studio.vamimods.contentresolver.handlers.ResourceRequestHandler", enabled: true]
                 ]
-                newServiceAnnounceChannel = "vami.newServiceAnnounceChannel"
                 // This is the directory we expect to find be available from the start directory
                 // which should be the VERTX_MODS directory e.g.
                 // MY_ROOT_SHOULD_BE_HERE = $VERTX_MODS/$expectedRootMatch
@@ -72,13 +70,13 @@ class ContentResolverService extends Verticle implements Service {
         // Register with the event bus
         container.logger.info "Registering local service address handler @ $MY_ADDRESS"
         vertx.eventBus.registerHandler(MY_ADDRESS, { Message message ->
-            container.logger.info "$ME Received Message: ${message.body()}"
+            container.logger.info "Received Message: ${message.body()}"
             def msgBody = message.body()
             if (!(msgBody instanceof Map)) {
                 message.reply(RESOURCE_ERROR_RESPONSE("services.contentResolverService.errorMessages.invalidMessagePayload"))
             } else {
                 def replyMessage = handleMessage(message.body())
-                container.logger.info "$ME Sending Response Message: $replyMessage"
+                container.logger.info "Sending Response Message: ${replyMessage.toString()}"
                 message.reply(replyMessage)
             }
         })
@@ -119,7 +117,7 @@ class ContentResolverService extends Verticle implements Service {
      */
     @Override
     def start() {
-        container.logger.info "$ME Deployment succeeded for: $ME"
+        container.logger.info "Deployment succeeded"
 
         // Load config
         loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))

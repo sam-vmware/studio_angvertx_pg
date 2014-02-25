@@ -35,9 +35,9 @@ class SystemService extends Verticle implements Service {
             systemService {
                 bootStrapVerticle = "groovy:com.vmware.studio.vamimods.system.SystemServiceBootstrap"
                 handlers = [
-                    [name: "TimeZoneMessageHandler", FQCN: "com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler", enabled: true],
-                    [name: "InformationMessageHandler", FQCN: "com.vmware.studio.vamimods.system.helpers.InformationMessageHandler", enabled: true],
-                    [name: "OperatingSystemHelper", FQCN: "com.vmware.studio.vamimods.system.helpers.OperatingSystemHelper", enabled: true]
+                    [name: "TimeZone", FQCN: "com.vmware.studio.vamimods.system.helpers.TimeZoneMessageHandler", enabled: true],
+                    [name: "SystemInformation", FQCN: "com.vmware.studio.vamimods.system.helpers.InformationMessageHandler", enabled: true],
+                    [name: "OperatingSystem", FQCN: "com.vmware.studio.vamimods.system.helpers.OperatingSystemHelper", enabled: true]
                 ]
                 // This is the directory we expect to find be available from the start directory
                 // which should be the VERTX_MODS directory e.g.

@@ -8,6 +8,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 public abstract class BaseMessageHandler {
     protected String type
+    protected final List UNWANTED_KEYS = ['operation', 'type'].asImmutable()
 
     private BaseMessageHandler() {}
 
@@ -16,6 +17,14 @@ public abstract class BaseMessageHandler {
     }
 
     public String getType() { this.type }
+
+    Map stripPostProcessKeys(Map message) {
+        for (key in UNWANTED_KEYS) {
+            message.remove(key)
+        }
+
+        message
+    }
 
     abstract Map handle(Map message)
 }

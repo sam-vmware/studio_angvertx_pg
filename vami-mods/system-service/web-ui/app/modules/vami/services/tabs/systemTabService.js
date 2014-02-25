@@ -2,9 +2,8 @@
 /**
  * Created by samueldoyle
  */
-vamiApp.lazy.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', 'VAMI_ROOT',
-    function serviceTabsService($q, $log, vertxEventBus, VAMI_ROOT) {
-//vamiApp.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', function serviceTabsService($q, $log, vertxEventBus) {
+vamiApp.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', 'WEB_ROOT',
+    function serviceTabsService($q, $log, vertxEventBus, WEB_ROOT) {
         var ME = "serviceTabsService";
 
         var SERVICE_INFO = {
@@ -40,7 +39,7 @@ vamiApp.lazy.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', 'VAMI
                 serviceName: "contentResolver",
                 jsonMsg: SERVICE_INFO.contentResolver.messages.getAllServicesMessage
             }).then(function (response) {
-                $log.info(ME + " Retrieved service info: " + response.data);
+                $log.debug(ME + " Retrieved service info: " + JSON.stringify(response.data));
             }, function (e) {
                 $log.error(ME + " Failed to make request for all existing services: " + e.message);
             })

@@ -61,6 +61,7 @@ class GlobalServiceConfig {
         builder.call([
             service: [
                 globalChannel: "vami.GLOBAL_RESOURCE_CHANNEL",
+                newServiceAnnounceChannel: "vami.newServiceAnnounceChannel",
                 messages     : [
                     reregister: [
                         type             : "REREGISTER_SERVICE",

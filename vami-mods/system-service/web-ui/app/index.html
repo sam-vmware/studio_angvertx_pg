@@ -25,25 +25,24 @@
 <!-- endbuild -->
 
 <!-- Add some ids for storing module route -->
-<link id="MAIN_ROOT" href="/modules/main"/>
-<link id="COMMON_ROOT" href="/modules/common"/>
-<link id="VAMI_ROOT" href="/modules/vami"/>
+<link id="WEB_ROOT" href="/com.vmware~vami-system-service~1.0/web-ui/app"/>
+    <style type="text/css">
+        body, html
+        {
+            margin: 0; padding: 0; height: 100%; overflow: hidden;
+        }
+
+        #content
+        {
+            position:absolute; left: 0; right: 0; bottom: 0; top: 0px;
+        }
+    </style>
 </head>
 <body>
 <!--[if lt IE 7]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
     your browser</a> to improve your experience.</p>
 <![endif]-->
-
-<!-- Add your site or application content here -->
-<div class="header">
-    <ul class="nav nav-pills pull-right">
-        <li class="active"><a ng-href="#">Home</a></li>
-        <li><a ng-href="#">About</a></li>
-        <li><a ng-href="#">Contact</a></li>
-    </ul>
-    <h3 class="text-muted">Studio Angular Testing</h3>
-</div>
 
 <!-- Container for systemApp -->
 <div id="systemAppContainer">
@@ -75,7 +74,10 @@
 <script src="scripts/sockjs-0.3.min.js"></script>
 <script src="scripts/vertxbus-2.1.js"></script>
 <script src="modules/vami/systemApp.js"></script>
+<script src="modules/vami/services/tabs/systemTabService.js"></script>
+<script src="modules/vami/controllers/tabs/systemTabController.js"></script>
 <script src="modules/common/services/vertxEventBus.js"></script>
+<script src="modules/common/services/resourceLoaderService.js"></script>
 
 <!-- Now loaded dynamic
 <script src="modules/vami/services/tabs/serviceTabsService.js"></script>

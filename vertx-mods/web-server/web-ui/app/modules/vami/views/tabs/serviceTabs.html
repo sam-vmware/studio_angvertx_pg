@@ -4,8 +4,8 @@
         <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disabled="tab.disabled"></tab>
     </tabset>
 
-    <div ng-if="getActive().templ != null">
+    <div id="content" ng-if="getActive().templ != null">
         <!--<div ng-include src="getActive().templ"></div>-->
-        <iframe ng-src="{{getActive().templ}}"></iframe>
+        <iframe height="100%" width="100%" frameborder="0" ng-src="{{getActive().templ}}"></iframe>
     </div>
 </div>

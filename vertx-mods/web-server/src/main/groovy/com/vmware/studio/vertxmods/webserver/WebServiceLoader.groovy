@@ -111,22 +111,31 @@ class WebServiceLoader extends Verticle implements Service {
             info "==============================================="
         }
 
-        def server = vertx.createHttpServer().requestHandler { req ->
-            container.logger.info "req.uri: $req.uri"
-            def file = req.uri == "/" ? "index.html" : req.uri
-            req.response.sendFile "$baseRoot/$myWebRoot/$file"
+        def server = vertx.createHttpServer()
+/*        def routeMatcher = new RouteMatcher()
+        routeMatcher.get("/") { req ->
+            req.response.sendFile("$baseRoot/$myWebRoot/index.html")
         }
+        server.requestHandler(routeMatcher.asClosure())*/
+        server.requestHandler { req ->
+//            container.logger.info "req.uri: $req.uri"
+            def file
+            switch(req.uri) {
+                case "/":
+                    file = "$baseRoot/$myWebRoot/index.html"
+                    break
+                case ~/^\/com\..+/:
+                    file = "$baseRoot/${req.uri}"
+                    break
+                default:
+                    file = "$baseRoot/$myWebRoot/${req.uri}"
+            }
+//            container.logger.info "sending --> $file"
+            "$baseRoot/$myWebRoot/$file"
+            req.response.sendFile file
+        }
+
         vertx.createSockJSServer(server).bridge(prefix: '/eventbus', [[:]], [[:]])
-
-        // routeMatcher for services
-/*        routeMatcher.getWithRegEx("^\\/static\\/.*") { req ->
-            req.response.sendFile("traderclient/" + req.path.substring(1))
-        }
-        routeMatcher.get("/trades") { req ->
-            req.response.end "You requested trades"
-        }*/
-
-        // Listen
         server.listen(port, host)
     }
 

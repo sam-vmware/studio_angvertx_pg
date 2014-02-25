@@ -69,21 +69,21 @@ vamiApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', functi
      */
     function send(address, jsonMsg) {
         var transID = makeUID();
-        $log.debug(makeIDMsg(transID, "sending address -> " + address + " msg ->" + jsonMsg));
+        $log.debug(makeIDMsg(transID, "sending address -> " + address + " msg ->" + JSON.stringify(jsonMsg)));
         var deferred = $q.defer();
         try {
             openEBConnection(function () {
                 eb.send(address, jsonMsg, function (reply) {
                     if (!reply.result === "ok") {
-                        $log.error(makeIDMsg(transID, "Response was in error result: " + reply.result + " data: " + reply.data));
+                        $log.error(makeIDMsg(transID, "Response was in error result: " + reply.result + " data: " + JSON.stringify(reply.data)));
                         deferred.reject(reply);
                     } else {
                         deferred.resolve(reply);
                     }
 
-                    $log.debug(makeIDMsg(transID, "response received: response -> " + reply));
+                    $log.debug(makeIDMsg(transID, "response received: response -> " + JSON.stringify(reply)));
                     if (!reply.result === "ok") {
-                        $log.error(makeIDMsg(transID, "Response was in error result: " + reply.result + " data: " + reply.data));
+                        $log.error(makeIDMsg(transID, "Response was in error result: " + reply.result + " data: " + JSON.stringify(reply.data)));
                         deferred.reject(reply);
                     } else {
                         deferred.resolve(reply);

@@ -61,7 +61,27 @@ vamiApp.lazy.factory('serviceTabsService', ['$q', '$log', '$sce', '$rootScope', 
                 serviceName: "contentResolver",
                 jsonMsg: SERVICE_INFO.contentResolver.messages.getAllServicesMessage
             }).then(function (response) {
-                $log.info(ME + " Retrieved service info: " + response.data);
+                $log.debug(ME + " Retrieved service info: " + JSON.stringify(response.data));
+                $timeout(function() {
+                    $rootScope.$apply(function() {
+                        _.each(response.data, function(v,k) {
+                            var index = _.arrayObjectIndexOf(tabsList, k, "name");
+                            if (index != -1) {
+                                $log.debug(ME + " Found existing tab for: " + k + " removing");
+                                tabsList.splice(index,index);
+                            }
+                            var data = v.data;
+                            var newTabEntry = {
+                                title: data.title,
+                                name: data.svcName,
+                                disabled: data.isDisabled,
+                                templ: $sce.trustAsResourceUrl(data.webRootDir+"/"+ data.indexFile)
+                            };
+                            $log.debug(ME + " Adding new tab entry: " + JSON.stringify(newTabEntry));
+                            tabsList.push(newTabEntry);
+                        });
+                    });
+                }, 2000);
             }, function (e) {
                 $log.error(ME + " Failed to make request for all existing services: " + e.message);
             })
@@ -80,7 +100,12 @@ vamiApp.lazy.factory('serviceTabsService', ['$q', '$log', '$sce', '$rootScope', 
             $log.debug(ME + "indexFile -> " + data.indexFile + " svcName -> " + data.svcName + " title -> "
                        + data.title + " webRootDir -> " + data.webRootDir + " indexFile -> " + data.indexFile);
             $timeout(function() {
-                $rootScope.apply(function() {
+                $rootScope.$apply(function() {
+                    var index = _.arrayObjectIndexOf(tabsList, newTab.name, "name");
+                    if (index != -1) {
+                        $log.debug(ME + " Found existing tab for: " + newTab.name + " removing");
+                        tabsList.splice(index,index);
+                    }
                     tabsList.push(newTab);
                 });
             }, 2000);

@@ -2,7 +2,7 @@
  * Created by samueldoyle
  * General confirm/cancel dialog controller
  */
-vamiApp.lazy.controller('confirmDialogController', ['$scope', '$log', '$modalInstance', 'modalData',
+vamiApp.controller('confirmDialogController', ['$scope', '$log', '$modalInstance', 'modalData',
     function ($scope, $log, $modalInstance, modalData) {
         $scope.modalData = modalData;
 

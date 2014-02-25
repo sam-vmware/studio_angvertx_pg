@@ -2,16 +2,16 @@
 /**
  * Created by samueldoyle
  */
-vamiApp.lazy.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$state', '$timeout', '$modal',
-    'COMMON_ROOT', 'serviceTabsService',
-    function ($q, $scope, $routeParams, $log, $state, $timeout, $modal, COMMON_ROOT, serviceTabsService) {
+vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
+    'WEB_ROOT', 'serviceTabsService',
+    function ($q, $scope, $routeParams, $log, $timeout, $modal, WEB_ROOT, serviceTabsService) {
 
         var REBOOT_OP = "Reboot Operation";
         var SHUTDOWN_OP = "Shutdown Operation";
 
         $scope.open = function (modalData, confirmCB, rejectedCB) {
             var modalInstance = $modal.open({
-                templateUrl: COMMON_ROOT + '/views/dialog/confirmDialog.html',
+                templateUrl: WEB_ROOT + '/modules/common/views/dialog/confirmDialog.html',
                 controller: 'confirmDialogController',
                 resolve: {
                     modalData: function () {

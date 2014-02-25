@@ -38,18 +38,10 @@ var vamiApp = angular.module('systemApp', [
             cache.removeAll();
         }
     };
-}]).constant('MAIN_ROOT', $("#MAIN_ROOT").attr("href"))
-    .constant('COMMON_ROOT', $("#COMMON_ROOT").attr("href"))
-    .constant('VAMI_ROOT', $("#VAMI_ROOT").attr("href"))
-    .constant('DYNAMIC_RESOURCES', [
-        {name: "confirmDialogController.js", url: $("#COMMON_ROOT").attr("href") + "/controllers/dialog/confirmDialogController.js"},
-        {name: "serviceTabsService.js", url: $("#VAMI_ROOT").attr("href") + "/services/tabs/systemTabService.js"},
-        {name: "serviceTabsController.js", url: $("#VAMI_ROOT").attr("href") + "/controllers/tabs/systemTabController.js"},
-    ])
+}]).constant('WEB_ROOT', $("#WEB_ROOT").attr("href"))
     .config(['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$sceProvider', '$rootScopeProvider',
-        '$locationProvider', '$injector', '$routeProvider', 'DYNAMIC_RESOURCES', 'COMMON_ROOT', 'VAMI_ROOT',
-        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $sceProvider, $rootScopeProvider, $locationProvider,
-                  $injector, $routeProvider, DYNAMIC_RESOURCES, COMMON_ROOT, VAMI_ROOT ) {
+        '$locationProvider', '$injector', '$routeProvider', 'WEB_ROOT',
+        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $sceProvider, $rootScopeProvider, $locationProvider, $injector, $routeProvider, WEB_ROOT) {
             $sceProvider.enabled(false); // dealing with max digest attempts
             $rootScopeProvider.digestTtl(10); // dealing with max digest attempts
             $provide.decorator('$exceptionHandler', function ($delegate) {
@@ -70,13 +62,7 @@ var vamiApp = angular.module('systemApp', [
             };
 
             $routeProvider.when('/', {
-                templateUrl: VAMI_ROOT + '/views/tabs/systemTab.html',
-                resolve: {
-                    deps: ['$q', '$log', '$rootScope', 'resourceLoaderService',
-                        function ($q, $log, $rootScope, resourceLoaderService) {
-                            return resourceLoaderService.preloadJSResources(DYNAMIC_RESOURCES)
-                        }]
-                }
+                templateUrl: WEB_ROOT + '/modules/vami/views/tabs/systemTab.html'
             }).otherwise({redirectTo: '/'});
         }
     ]);

@@ -1,11 +1,12 @@
 package com.vmware.studio.vamimods.contentresolver.handlers
 
 import com.vmware.studio.shared.mixins.ContextConfig
-import com.vmware.studio.shared.utils.CurrentContext
 import com.vmware.studio.shared.mixins.ResourceEnabled
 import com.vmware.studio.shared.services.messaging.BaseMessageHandler
 import com.vmware.studio.shared.services.messaging.MessageValidator
+import com.vmware.studio.shared.utils.GlobalServiceConfig
 import groovy.util.logging.Log
+import org.vertx.java.core.json.JsonObject
 
 /**
  * Created by samueldoyle on 2/21/14.
@@ -20,7 +21,8 @@ class ResourceRequestHandler extends BaseMessageHandler {
     // Services need to provide some basic information
     // webroot
     public final Set SVC_REQUIRED_KEYS = ["svcName", "webRootDir", "indexFile"].asImmutable()
-    private final Map REGISTERED_SERVICES_MAP = new LinkedHashMap()
+
+    private final JsonObject REGISTERED_SERVICES_MAP = new JsonObject()
 
     public ResourceRequestHandler(String myType = MY_TYPE) {
         super(myType)
@@ -42,14 +44,18 @@ class ResourceRequestHandler extends BaseMessageHandler {
                 SVC_REQUIRED_KEYS as String)
         }
 
-        REGISTERED_SERVICES_MAP[message.svcName] = message
+        String svcName = message.data.svcName
+        if (!svcName) {
+            return ERROR_RESPONSE("addNewService: svcName was not set")
+        }
+        REGISTERED_SERVICES_MAP.removeField(svcName)
+        REGISTERED_SERVICES_MAP.putValue(svcName, new JsonObject(message))
 
-        def newServiceAnnounceChannel =
-            LOOKUP_CONFIG("services.contentResolverService.newServiceAnnounceChannel")
+        def newServiceAnnounceChannel = GlobalServiceConfig.instance.globalServiceCommonConfig.service.newServiceAnnounceChannel
 
         // Announce new service to listeners
         LOGGER.info "Publishing new service registration announce: channel -> $newServiceAnnounceChannel, data -> $message"
-        GET_VERTX().eventBus.publish(newServiceAnnounceChannel, REGISTERED_SERVICES_MAP[message.svcName]);
+        GET_VERTX().eventBus.publish(newServiceAnnounceChannel, REGISTERED_SERVICES_MAP.getValue(svcName));
 
         OK_RESPONSE()
     }
@@ -65,12 +71,20 @@ class ResourceRequestHandler extends BaseMessageHandler {
                 SVC_REQUIRED_KEYS as String)
         }
 
-        REGISTERED_SERVICES_MAP[message.svcName] = message
+        String svcName = message.data.svcName
+        assert svcName != null
+        REGISTERED_SERVICES_MAP.removeField(svcName)
+        REGISTERED_SERVICES_MAP.putValue(svcName, new JsonObject(message))
+
         OK_RESPONSE()
     }
 
     def getServices(Map message) {
-        OK_RESPONSE(REGISTERED_SERVICES_MAP)
+        def returnResults = REGISTERED_SERVICES_MAP.toMap().inject([:]) { newMap, k, v ->
+            newMap << [(k):v]
+            newMap
+        }
+        OK_RESPONSE(returnResults)
     }
 
     def testGetServices(Map message) {
@@ -90,6 +104,8 @@ class ResourceRequestHandler extends BaseMessageHandler {
         if (!this.metaClass.respondsTo(this, message.operation as String)) {
             return RESOURCE_ERROR_RESPONSE("services.contentResolverService.errorMessages.unknownOperationType")
         }
-        this.&"${message.operation}"(message)
+        def operation = message.operation
+        message = stripPostProcessKeys(message)
+        this.&"$operation"(message)
     }
 }
