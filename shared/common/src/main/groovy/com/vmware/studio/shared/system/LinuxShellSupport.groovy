@@ -1,10 +1,12 @@
-/**
- * Created by samueldoyle
- */
 package com.vmware.studio.shared.system
 
 import groovy.util.logging.Log
 
+/**
+ * Created by samueldoyle
+ * Intended to provide support for dealing with shell commands
+ * This should be abstracted so that it isn't Linux specific
+ */
 @Log(value = "LOGGER")
 @Singleton(lazy = true)
 class LinuxShellSupport {

@@ -1,0 +1,11 @@
+<!-- Created by samueldoyle -->
+<div id="serviceTabsController" ng-controller="serviceTabsController">
+    <tabset>
+        <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disabled="tab.disabled"></tab>
+    </tabset>
+
+    <div ng-if="getActive().templ != null">
+        <!--<div ng-include src="getActive().templ"></div>-->
+        <iframe ng-src="{{getActive().templ}}"></iframe>
+    </div>
+</div>

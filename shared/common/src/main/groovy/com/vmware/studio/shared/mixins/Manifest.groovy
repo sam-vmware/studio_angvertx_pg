@@ -16,7 +16,7 @@ class Manifest {
                 return ERROR_RESPONSE("Manifest file failed basic validation for node: $targetNode")
             }
         }
-        return OK_RESPONSE()
+        OK_RESPONSE()
     }
 
     def loadManifest(File manifestFile) {
@@ -30,7 +30,7 @@ class Manifest {
             return validateResult
         }
 
-        return OK_RESPONSE(update)
+        OK_RESPONSE(update)
     }
 
 }

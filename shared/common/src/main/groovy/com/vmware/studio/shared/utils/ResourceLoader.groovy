@@ -7,8 +7,6 @@ import groovy.transform.CompileStatic
  *
  * Note this is using ThreadLocal if you go and deploy another verticle from within a verticle these
  * values aren't preserved unless you configure the classloaders in such a way
- *
- * !!!!!! THIS DOES NOT WORK IN VERT.X AND I DON'T KNOW WHY ATM !!!!!!
  */
 @CompileStatic
 @Singleton(lazy = true)

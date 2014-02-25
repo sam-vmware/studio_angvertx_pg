@@ -1,10 +1,11 @@
 {
   "main":"groovy:com.vmware.studio.vertxmods.webserver.WebServiceLoader",
-  "description":"Provagent Module",
+  "description":"Web Loader",
   "licenses": ["The Apache Software License Version 2.0"],
   "author": "Samuel Doyle",
-  "developers": ["Samueld Doyle"],
+  "developers": ["Samuel Doyle"],
   "keywords": ["vertx", "groovy", "studio", "vami"],
   "homepage": "http://",
+  "preserve-cwd": true,
   "auto-redeploy": true
 }

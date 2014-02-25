@@ -15,7 +15,7 @@ class InformationMessageHandler extends BaseMessageHandler {
     public static final String MY_TYPE = "SystemInformation"
     public final manifestXMLFile = "/opt/vmware/etc/appliance-manifest.xml"
 
-    InformationMessageHandler(String myType) {
+    InformationMessageHandler(String myType = MY_TYPE) {
         super(myType)
     }
 /**
@@ -60,7 +60,7 @@ class InformationMessageHandler extends BaseMessageHandler {
         getSystemInformation(message, tmpManifestFile)
     }
 
-    /***** Implementations Below *****/
+    /*********************************** OVERRIDES BELOW ***********************************/
 
     @Override
     Map handle(Map message) {

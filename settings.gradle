@@ -1,5 +1,3 @@
 include 'shared:common'
 include 'vami-mods', 'vami-mods:system-service', 'vami-mods:content-resolver'
 include 'vertx-mods', 'vertx-mods:web-server'
-include 'web-ui'
-

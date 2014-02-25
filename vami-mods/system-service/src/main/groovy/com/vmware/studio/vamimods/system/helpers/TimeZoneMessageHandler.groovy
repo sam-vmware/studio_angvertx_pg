@@ -15,8 +15,7 @@ import org.vertx.groovy.core.Vertx
 @Log(value = "LOGGER")
 @Mixin(ResourceEnabled)
 class TimeZoneMessageHandler extends BaseMessageHandler {
-    private final ME = this.class.name
-    public final String MY_TYPE = "TimeZone"
+    public static final String MY_TYPE = "TimeZone"
     final vertx = Vertx.newVertx()
     final NL = System.properties['line.separator']
     final tzFile = "/etc/timezone"
@@ -48,7 +47,7 @@ class TimeZoneMessageHandler extends BaseMessageHandler {
         }.join(NL)
     }
 
-    TimeZoneMessageHandler(String myType) {
+    TimeZoneMessageHandler(String myType = MY_TYPE) {
         super(myType)
     }
 /**
@@ -138,14 +137,14 @@ class TimeZoneMessageHandler extends BaseMessageHandler {
         def newTimeZone = message.data.newTimeZone
 
         def msg = $/
-           $ME DEBUG MSG START
+           DEBUG MSG START
            ---------------
            INSIDE: TimeZoneMessageHandler.testSetTimeZone
 
            TimeZoneMessageHandler.testSetTimeZone
            message = ${message}
 
-           $ME DEBUG MSG END
+           DEBUG MSG END
            ---------------
         /$
 
@@ -159,7 +158,7 @@ class TimeZoneMessageHandler extends BaseMessageHandler {
         if (!newLocalTimeFile.canRead()) {
             return RESOURCE_ERROR_RESPONSE("services.systemService.errorMessages.missingZoneFile")
         }
-        LOGGER.info "$ME Setting new timezone: $newTimeZone"
+        LOGGER.info "Setting new timezone: $newTimeZone"
 
         def targetUpdater
         String targetFileToUpdate
@@ -184,13 +183,13 @@ class TimeZoneMessageHandler extends BaseMessageHandler {
         def fsSupportMock = new Expando()
         fsSupportMock.processFileInplace = { File file, Closure processText ->
             if (!file || !file.exists() || !file.canWrite()) {
-                LOGGER.info "$ME File ${file.name} cannot be written"
+                LOGGER.info "File ${file.name} cannot be written"
                 //return false
             }
 
             def text = file.text
             def newText = processText(text)
-            LOGGER.info "$ME MOCKED: would run -> file.write(processText($newText))"
+            LOGGER.info "MOCKED: would run -> file.write(processText($newText))"
             true
         }
         /** END MOCK FOR TEST **/
@@ -209,7 +208,7 @@ class TimeZoneMessageHandler extends BaseMessageHandler {
         OK_RESPONSE(newTimeZone)
     }
 
-    /***** Implementations Below *****/
+    /*********************************** OVERRIDES BELOW ***********************************/
 
     @Override
     Map handle(Map message) {

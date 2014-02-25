@@ -16,7 +16,7 @@ class OperatingSystemHelper extends BaseMessageHandler {
     public static final String rebootCommand = "/sbin/shutdown -r -t 5 now"
     public static final String shutdownCommand = "/sbin/shutdown -h -t 5 now"
 
-    OperatingSystemHelper(String myType) {
+    OperatingSystemHelper(String myType = MY_TYPE) {
         super(myType)
     }
 

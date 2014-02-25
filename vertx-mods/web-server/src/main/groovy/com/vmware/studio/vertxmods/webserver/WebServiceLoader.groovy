@@ -3,38 +3,44 @@
  */
 package com.vmware.studio.vertxmods.webserver
 
-import org.vertx.groovy.core.Vertx
-import org.vertx.groovy.platform.Verticle
+import com.vmware.studio.shared.categories.CommonService
+import com.vmware.studio.shared.mixins.ContextConfig
+import com.vmware.studio.shared.mixins.ResourceEnabled
+import com.vmware.studio.shared.services.Service
+import com.vmware.studio.shared.utils.ClosureScriptAsClass
+import com.vmware.studio.shared.utils.GlobalServiceConfig
 import org.vertx.groovy.core.http.RouteMatcher
+import org.vertx.groovy.platform.Verticle
 
-class WebServiceLoader extends Verticle {
-    private final ME = this.class.name
+@Mixin([ResourceEnabled, ContextConfig, CommonService])
+class WebServiceLoader extends Verticle implements Service {
 
     def authManagerConf = [
-            // addres: 'vertx.basicauthmanager',
-            // persistor_address: 'vertx.mongopersistor',
-            user_collection: 'users',
-            session_timeout: 1800000 // 30mins
+        // addres: 'vertx.basicauthmanager',
+        // persistor_address: 'vertx.mongopersistor',
+        user_collection: 'users',
+        session_timeout: 1800000 // 30mins
     ]
 
     def mongoPersistorConf = [
-            host   : 'localhost',
-            port   : 27017,
-            db_name: 'studio_db'
+        host   : 'localhost',
+        port   : 27017,
+        db_name: 'studio_db'
     ]
 
     def webServerConf = [
-            //host              : 'localhost',
-            host              : '0.0.0.0',
-            port              : 8080,
-            web_root          : '/home/samueldoyle/Projects/VMware/StudioRepo/git/NewStack/studio_angular_vertx/web-ui/app',
-            //web_root          : '/opt/vmware/share/vertx_extra/web_root/web_app',
-            index_page        : 'index.html',
-            static_files      : true,
-            ssl               : false,
-            bridge            : true,
-            inbound_permitted : [[:]],
-            outbound_permitted: [[:]]
+        //host              : 'localhost',
+        host              : '0.0.0.0',
+        port              : 8080,
+        web_root          : '', // fill this in or defaults to the mod directory (which it should probably be)
+        // web_root          : '/home/samueldoyle/Projects/VMware/StudioRepo/git/NewStack/studio_angular_vertx/web-ui/app',
+        //web_root          : '/opt/vmware/share/vertx_extra/web_root/web_app',
+        index_page        : 'index.html',
+        static_files      : true,
+        ssl               : false,
+        bridge            : true,
+        inbound_permitted : [[:]],
+        outbound_permitted: [[:]]
     ]
 
     def DEFAULT_PORT = 8080;
@@ -42,74 +48,112 @@ class WebServiceLoader extends Verticle {
     def DEFAULT_WEB_ROOT = "web";
     def DEFAULT_INDEX_PAGE = "index.html";
 //    def DEFAULT_AUTH_ADDRESS = "vertx.basicauthmanager.authorise";
-    def  DEFAULT_AUTH_TIMEOUT = 5 * 60 * 1000;
+    def DEFAULT_AUTH_TIMEOUT = 5 * 60 * 1000;
 
-    def start() {
-        container.logger.info "$ME Deployment succeeded for: ${this.class.name}"
-
-/*        container.deployModule('io.vertx~mod-mongo-persistor~2.0.0-final', mongoPersistorConf) { asyncResult ->
-            if (asyncResult.succeeded) {
-                // Bootstrap some data
-                container.deployVerticle("groovy:com.vmware.studio.vertxmods.webserver.WebServiceLoaderBootstrap")
-            } else {
-                println "Failed to deploy ${asyncResult}"
+    def myConfigObject = {
+        services {
+            newServiceAnnounceChannel = "vami.newServiceAnnounceChannel"
+            webService {
+                // This is the directory we expect to find be available from the start directory
+                // which should be the VERTX_MODS directory e.g.
+                // MY_ROOT_SHOULD_BE_HERE = $VERTX_MODS/$expectedRootMatch
+                expectedRootMatch = "com.vmware~vami-web-server~1.0"
             }
         }
-        // Start the web server, with the config we defined above
-        container.deployModule('io.vertx~mod-auth-mgr~2.0.0-final', authManagerConf)
-
-        // Start the web server, with the config we defined above
-        container.deployModule('io.vertx~mod-web-server~2.0.0-final', webServerConf)*/
-
-/*        def webRoot = container.config["web_root"] ?: DEFAULT_WEB_ROOT;
-        def staticHandler = {
-            def webRoot = webServerConf["web_root"]
-            def index = webServerConf["index_page"]
-            String webRootPrefix = "webRoot + ${File.separator}"
-            String indexPage = "$webRootPrefix$index"
-            boolean gzipFiles = webServerConf["gzip_files"] ?: false
-            boolean caching = webServerConf["caching"] ?: false
-
-            new StaticFileHandler(vertx, webRootPrefix, indexPage, gzipFiles, caching);
+        environments {
+            dev {
+            }
+            test {
+            }
+            prod {
+            }
         }
-        def routeMatcher = {
-            def matcher = new RouteMatcher();
-            matcher.noMatch(staticHandler);
-            matcher;
-        }
+    }
 
-        def server = vertx.createHttpServer()
 
-        if (webServerConf["ssl"]) {
-            server.setSSL(true).setKeyStorePassword((webServerConf["key_store_password"] ?: "wibble") as String)
-                .setKeyStorePath((webServerConf["key_store_path"] ?: "server-keystore.jks") as String);
-        }
+    def postInitialize() {
+    }
 
-        if (webServerConf["route_matcher"]) {
-            server.requestHandler(routeMatcher)
-        } else  if (webServerConf["static_files"]) {
-            server.requestHandler(staticHandler);
-        }
+    /*********************************** OVERRIDES BELOW ***********************************/
 
-        if (webServerConf["bridge"]) {
-            def inboundPermitted = webServerConf["inbound_permitted"] ?: [[:]]
-            def outboundPermitted = webServerConf["outbound_permitted"] ?: [[:]]
-            vertx.createSockJSServer(server).bridge(prefix: '/eventbus', inboundPermitted, outboundPermitted)
-        }
-        server.requestHandler(staticHandler);*/
+    def routeMatcher = new RouteMatcher()
+
+    @Override
+    def start() {
+        container.logger.info "Deployment succeeded"
+
+        // Load config
+        loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))
+
+        // Share container and vertx
+        SET_CONTAINER(container).SET_VERTX(vertx)
+
+        DUMP_CONTAINER_CONF()
+        DUMP_CONTAINER_ENV()
+
+        // CommonService Mixin on Service
+        // Verify our install root is where it should be
+        VERIFY_INSTALL_ROOT()
+
+        postInitialize()
 
         // Serve the static resources
         def host = webServerConf["host"]
         def port = webServerConf["port"]
-        def webRoot = webServerConf["web_root"]
-        def server = vertx.createHttpServer().requestHandler { req ->
-            def file = req.uri == "/" ? "index.html" : req.uri
-            req.response.sendFile "$webRoot/$file"
+        def baseRoot = webServerConf["web_root"] ?: GET_MOD_DIR()
+        def myWebRoot = "${getExpectedRoot().name}/web-ui/app"
+        container.logger.with {
+            info "========== WebServiceLoader Starting =========="
+            info "host: $host"
+            info "port: $port"
+            info "base root: $baseRoot"
+            info "relative root: $myWebRoot"
+            info "==============================================="
         }
 
+        def server = vertx.createHttpServer().requestHandler { req ->
+            container.logger.info "req.uri: $req.uri"
+            def file = req.uri == "/" ? "index.html" : req.uri
+            req.response.sendFile "$baseRoot/$myWebRoot/$file"
+        }
         vertx.createSockJSServer(server).bridge(prefix: '/eventbus', [[:]], [[:]])
 
-        container.logger.info "$ME Server Listening on port: $port, host: $host"
-        server.listen(port,host)
+        // routeMatcher for services
+/*        routeMatcher.getWithRegEx("^\\/static\\/.*") { req ->
+            req.response.sendFile("traderclient/" + req.path.substring(1))
+        }
+        routeMatcher.get("/trades") { req ->
+            req.response.end "You requested trades"
+        }*/
+
+        // Listen
+        server.listen(port, host)
+    }
+
+    /*********************************** OVERRIDES BELOW ***********************************/
+
+    @Override
+    File getExpectedRoot() {
+        new File(GET_CONFIG().services.webService.expectedRootMatch)
+    }
+
+    @Override
+    void registerService() {
+        // webserviceloader has no content
+    }
+
+    @Override
+    void handleGlobalResourceMessage(Map message) {
+        // webserviceloader has no content
+    }
+
+    @Override
+    String getServiceName() {
+        GlobalServiceConfig.instance.webServiceCommonConfig.service.name
+    }
+
+    @Override
+    String getAddress() {
+        GlobalServiceConfig.instance.webServiceCommonConfig.service.address
     }
 }

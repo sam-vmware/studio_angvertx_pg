@@ -73,7 +73,9 @@ task(console, dependsOn: 'classes', type:Exec) {
     }
     cp += files("$rootDir/classes/production/common")
 
-    def jars = files(fileTree(dir: VMWARE_CONF.vertx.libDir, includes: ['*.jar']))
+    def jars =
+        files(fileTree(dir: VMWARE_CONF.vertx.libDir, includes: ['*.jar'])) +
+            files(fileTree(dir: VMWARE_CONF.vertx.addedLibs, includes: ['*.jar']))
     environment["JARS_TO_ADD"] = jars.getAsPath()
 
     def consoleCP = cp + jars

@@ -9,11 +9,13 @@ import groovy.transform.CompileStatic
 public abstract class BaseMessageHandler {
     protected String type
 
+    private BaseMessageHandler() {}
+
     public BaseMessageHandler(String type) {
         this.type = type
     }
 
-    public String getType() {this.type}
+    public String getType() { this.type }
 
     abstract Map handle(Map message)
 }
