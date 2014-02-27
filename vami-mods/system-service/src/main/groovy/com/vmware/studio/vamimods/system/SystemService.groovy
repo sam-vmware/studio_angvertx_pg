@@ -167,7 +167,7 @@ class SystemService extends Verticle implements Service {
         def globalResourceAddress = GlobalServiceConfig.instance.contentResolverServiceCommonConfig.service.address
         container.logger.info "Registering with content resolver service: $globalResourceAddress"
 
-        def myWebRootDir = "${getExpectedRoot().name}/web-ui/app"
+        def myWebRootDir = "${getExpectedRoot().name}/app"
 
         def resourceSvcRegistrationMsg =
             GlobalServiceConfig.instance.systemServiceCommonConfig.service.web.messages.resourceSvcRegistrationMsg

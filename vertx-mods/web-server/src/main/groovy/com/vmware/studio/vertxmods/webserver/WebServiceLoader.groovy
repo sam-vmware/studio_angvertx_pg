@@ -101,7 +101,7 @@ class WebServiceLoader extends Verticle implements Service {
         def host = webServerConf["host"]
         def port = webServerConf["port"]
         def baseRoot = webServerConf["web_root"] ?: GET_MOD_DIR()
-        def myWebRoot = "${getExpectedRoot().name}/web-ui/app"
+        def myWebRoot = "${getExpectedRoot().name}/app"
         container.logger.with {
             info "========== WebServiceLoader Starting =========="
             info "host: $host"
@@ -118,7 +118,6 @@ class WebServiceLoader extends Verticle implements Service {
         }
         server.requestHandler(routeMatcher.asClosure())*/
         server.requestHandler { req ->
-//            container.logger.info "req.uri: $req.uri"
             def file
             switch(req.uri) {
                 case "/":
@@ -130,8 +129,6 @@ class WebServiceLoader extends Verticle implements Service {
                 default:
                     file = "$baseRoot/$myWebRoot/${req.uri}"
             }
-//            container.logger.info "sending --> $file"
-            "$baseRoot/$myWebRoot/$file"
             req.response.sendFile file
         }
 
