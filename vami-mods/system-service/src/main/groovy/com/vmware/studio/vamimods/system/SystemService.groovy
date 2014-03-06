@@ -149,10 +149,8 @@ class SystemService extends Verticle implements Service {
         // Share container and vertx
         SET_CONTAINER(container).SET_VERTX(vertx)
 
-        /*
         DUMP_CONTAINER_CONF()
         DUMP_CONTAINER_ENV()
-        */
         // CommonService Mixin on Service
         // Verify our install root is where it should be
         // TBD embed this in some config logic

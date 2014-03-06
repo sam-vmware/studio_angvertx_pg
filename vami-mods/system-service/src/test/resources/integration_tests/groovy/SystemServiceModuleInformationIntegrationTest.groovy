@@ -1,7 +1,6 @@
 package integration_tests.groovy
 
 import com.vmware.studio.shared.utils.GlobalServiceConfig
-import com.vmware.studio.vamimods.system.SystemService
 import org.vertx.groovy.testtools.VertxTests
 
 import static org.vertx.testtools.VertxAssert.*

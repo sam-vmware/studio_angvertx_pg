@@ -36,7 +36,7 @@ ext.VMWARE_CONF = [
     groovyConsolePath: "/usr/local/java/groovy/groovy-2.2.1/bin/groovyConsole",
     vertx            : [
         // Change this to the lib directory of where your Vert.x build lib directory is
-        libDir              : "/home/samueldoyle/Projects/GitHub/Vertx/vertx/build/current/lib",
+        libDir              : "${System.env.VERTX_HOME}/lib",
         // Additional jar dependencies
         // !! IMPORTANT !!
         // The vertx lang-groovy-xxx*.jar is in here and MUST MATCH the
