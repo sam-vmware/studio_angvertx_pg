@@ -17,7 +17,7 @@ import org.vertx.groovy.platform.Verticle
  */
 @Mixin([ResourceEnabled, MessageHandlerRegistry, ContextConfig, CommonService])
 class ContentResolverService extends Verticle implements Service {
-    public final static String MY_ADDRESS = "vami.ContentResolverService"
+    final String CURRENT_ENVIRONMENT = System.properties["env"] ?: "dev"
 
     def myConfigObject = {
         services {
@@ -68,8 +68,8 @@ class ContentResolverService extends Verticle implements Service {
         }
 
         // Register with the event bus
-        container.logger.info "Registering local service address handler @ $MY_ADDRESS"
-        vertx.eventBus.registerHandler(MY_ADDRESS, { Message message ->
+        container.logger.info "Registering local service address handler @ ${getAddress()}"
+        vertx.eventBus.registerHandler(getAddress(), { Message message ->
             container.logger.info "Received Message: ${message.body()}"
             def msgBody = message.body()
             if (!(msgBody instanceof Map)) {
@@ -118,19 +118,24 @@ class ContentResolverService extends Verticle implements Service {
     @Override
     def start() {
         container.logger.info "Deployment succeeded"
+        container.logger.info "*** Environment: $CURRENT_ENVIRONMENT"
 
         // Load config
-        loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))
+        loadLocalResource(new ClosureScriptAsClass(myConfigObject))
 
         // Share container and vertx
         SET_CONTAINER(container).SET_VERTX(vertx)
 
+        /*
         DUMP_CONTAINER_CONF()
         DUMP_CONTAINER_ENV()
-
+        */
         // CommonService Mixin on Service
         // Verify our install root is where it should be
-        VERIFY_INSTALL_ROOT()
+        // TBD embed this in some config logic
+        if (CURRENT_ENVIRONMENT != "test") {
+            VERIFY_INSTALL_ROOT()
+        }
 
         postInitialize()
     }

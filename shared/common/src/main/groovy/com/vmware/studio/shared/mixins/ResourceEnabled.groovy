@@ -12,8 +12,8 @@ class ResourceEnabled {
     public static final String OK = "ok"
     public static final String ERROR = "error"
 
-    public void loadLocalResource(Script configClosure) {
-        ResourceLoader.instance.loadConfigObject(configClosure)
+    public void loadLocalResource(Script configClosure, String environment = "dev") {
+        ResourceLoader.instance.loadConfigObject(configClosure, environment)
     }
 
     /**

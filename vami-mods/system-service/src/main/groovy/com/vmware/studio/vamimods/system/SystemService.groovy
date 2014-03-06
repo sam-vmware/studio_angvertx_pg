@@ -26,7 +26,7 @@ import org.vertx.groovy.platform.Verticle
  */
 @Mixin([ResourceEnabled, MessageHandlerRegistry, ContextConfig, CommonService])
 class SystemService extends Verticle implements Service {
-    // private static String myConfigObject = "com.vmware.studio.vamimods.system.resources.SystemService"
+    final String CURRENT_ENVIRONMENT = System.properties["env"] ?: "dev"
 
     // Until I can figure out how to deal with the Vert.X classloader stuff
     // Belongs in resources/SystemServiceConfig
@@ -141,19 +141,24 @@ class SystemService extends Verticle implements Service {
     @Override
     def start() {
         container.logger.info "Deployment succeeded for"
+        container.logger.info "*** Environment: $CURRENT_ENVIRONMENT"
 
         // Load config
-        loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))
+        loadLocalResource(new ClosureScriptAsClass(myConfigObject))
 
         // Share container and vertx
         SET_CONTAINER(container).SET_VERTX(vertx)
 
+        /*
         DUMP_CONTAINER_CONF()
         DUMP_CONTAINER_ENV()
-
+        */
         // CommonService Mixin on Service
         // Verify our install root is where it should be
-        VERIFY_INSTALL_ROOT()
+        // TBD embed this in some config logic
+        if (CURRENT_ENVIRONMENT != "test") {
+            VERIFY_INSTALL_ROOT()
+        }
 
         postInitialize()
     }
@@ -173,10 +178,12 @@ class SystemService extends Verticle implements Service {
             GlobalServiceConfig.instance.systemServiceCommonConfig.service.web.messages.resourceSvcRegistrationMsg
         resourceSvcRegistrationMsg.data.webRootDir = myWebRootDir
 
-        container.logger.info "Sending new service registration message to: $globalResourceAddress, data: $resourceSvcRegistrationMsg"
-        vertx.eventBus.send(globalResourceAddress as String, resourceSvcRegistrationMsg, { reply ->
-            container.logger.info "Received response from content service: ${reply.body}"
-        })
+        if (CURRENT_ENVIRONMENT != "test") {
+            container.logger.info "Sending new service registration message to: $globalResourceAddress, data: $resourceSvcRegistrationMsg"
+            vertx.eventBus.send(globalResourceAddress as String, resourceSvcRegistrationMsg, { reply ->
+                container.logger.info "Received response from content service: ${reply.body}"
+            })
+        }
 
         this
     }

@@ -14,6 +14,7 @@ import org.vertx.groovy.platform.Verticle
 
 @Mixin([ResourceEnabled, ContextConfig, CommonService])
 class WebServiceLoader extends Verticle implements Service {
+    final String CURRENT_ENVIRONMENT = System.properties["env"] ?: "dev"
 
     def authManagerConf = [
         // addres: 'vertx.basicauthmanager',
@@ -81,19 +82,24 @@ class WebServiceLoader extends Verticle implements Service {
     @Override
     def start() {
         container.logger.info "Deployment succeeded"
+        container.logger.info "*** Environment: $CURRENT_ENVIRONMENT"
 
         // Load config
-        loadLocalResource(new ClosureScriptAsClass(closure: myConfigObject))
+        loadLocalResource(new ClosureScriptAsClass(myConfigObject))
 
         // Share container and vertx
         SET_CONTAINER(container).SET_VERTX(vertx)
 
+        /*
         DUMP_CONTAINER_CONF()
         DUMP_CONTAINER_ENV()
-
+        */
         // CommonService Mixin on Service
         // Verify our install root is where it should be
-        VERIFY_INSTALL_ROOT()
+        // TBD embed this in some config logic
+        if (CURRENT_ENVIRONMENT != "test") {
+            VERIFY_INSTALL_ROOT()
+        }
 
         postInitialize()
 
@@ -119,7 +125,7 @@ class WebServiceLoader extends Verticle implements Service {
         server.requestHandler(routeMatcher.asClosure())*/
         server.requestHandler { req ->
             def file
-            switch(req.uri) {
+            switch (req.uri) {
                 case "/":
                     file = "$baseRoot/$myWebRoot/index.html"
                     break

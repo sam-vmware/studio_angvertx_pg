@@ -1,5 +1,6 @@
 package integration_tests.groovy
 
+import com.vmware.studio.shared.utils.GlobalServiceConfig
 import com.vmware.studio.vamimods.system.SystemService
 import org.vertx.groovy.testtools.VertxTests
 
@@ -10,12 +11,13 @@ import static org.vertx.testtools.VertxAssert.*
  * Operational tests
  */
 
+serviceAddress = GlobalServiceConfig.instance.systemServiceCommonConfig.service.address
 def testSystemServiceSystemInformationUnknownOperation() {
     def getSystemInfoMsg = [
         type     : "SystemInformation",
         operation: "fooBlah"
     ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, getSystemInfoMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, getSystemInfoMsg, { reply ->
         container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "error")
         testComplete()
@@ -27,7 +29,7 @@ def testSystemServiceSystemInformation() {
         type     : "SystemInformation",
         operation: "testGetSystemInformation"
     ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, getSystemInfoMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, getSystemInfoMsg, { reply ->
         container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "ok")
 

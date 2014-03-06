@@ -1,5 +1,6 @@
 package integration_tests.groovy
 
+import com.vmware.studio.shared.utils.GlobalServiceConfig
 import com.vmware.studio.vamimods.contentresolver.ContentResolverService
 import org.vertx.groovy.testtools.VertxTests
 
@@ -10,12 +11,13 @@ import static org.vertx.testtools.VertxAssert.*
  * Operational tests
  */
 
+serviceAddress = GlobalServiceConfig.instance.contentResolverServiceCommonConfig.service.address
 def testSystemContentResolverServiceInformationUnknownOperation() {
     def wrongOperationMsg = [
         type     : "ResourceRequestHandler",
         operation: "fooBlah"
     ]
-    vertx.eventBus.send(ContentResolverService.MY_ADDRESS, wrongOperationMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, wrongOperationMsg, { reply ->
         container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "error")
         testComplete()
@@ -30,7 +32,7 @@ def testAddNewServiceFailedMissingKey() {
             svcName: "testService"
         ]
     ]
-    vertx.eventBus.send(ContentResolverService.MY_ADDRESS, missingKeyMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, missingKeyMsg, { reply ->
         container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "error")
         assert reply.body.cause.startsWith("New service validation failed, missing one or more requried keys")
@@ -48,7 +50,7 @@ def testAddNewServiceGood() {
             indexFile: "index.html"
         ]
     ]
-    vertx.eventBus.send(ContentResolverService.MY_ADDRESS, goodMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, goodMsg, { reply ->
         container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "ok")
         testComplete()
@@ -62,7 +64,7 @@ def testGetServices() {
         type     : "ResourceRequestHandler",
         operation: "testGetServices"
     ]
-    vertx.eventBus.send(ContentResolverService.MY_ADDRESS, goodMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, goodMsg, { reply ->
         container.logger.info "body: ${reply.body}"
         assertEquals(reply.body.result, "ok")
 

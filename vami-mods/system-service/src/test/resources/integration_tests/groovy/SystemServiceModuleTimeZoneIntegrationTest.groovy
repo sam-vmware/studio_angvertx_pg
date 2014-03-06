@@ -1,5 +1,6 @@
 package integration_tests.groovy
 
+import com.vmware.studio.shared.utils.GlobalServiceConfig
 import com.vmware.studio.vamimods.system.SystemService
 import org.vertx.groovy.testtools.VertxTests
 
@@ -10,12 +11,13 @@ import static org.vertx.testtools.VertxAssert.*
  * Operational tests
  */
 
+serviceAddress = GlobalServiceConfig.instance.systemServiceCommonConfig.service.address
 def testSystemServiceTZMessage() {
     def getTZMsg = [
         type     : "TimeZone",
         operation: "get"
     ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, getTZMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, getTZMsg, { reply ->
         println "body: ${reply.body}"
         assertEquals(reply.body.result, "ok")
         testComplete()
@@ -30,7 +32,7 @@ def testSetTZ() {
             newTimeZone: "Arctic/Longyearbyen"
         ]
     ]
-    vertx.eventBus.send(SystemService.MY_ADDRESS, setTZMsg, { reply ->
+    vertx.eventBus.send(serviceAddress, setTZMsg, { reply ->
         println "body: ${reply.body}"
         assertEquals(reply.body.result, "ok")
         testComplete()

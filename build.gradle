@@ -61,6 +61,8 @@ tasks.whenTaskAdded { task ->
         task.dependsOn copyWebUI
     }
 }
+configure(subprojects.findAll {it.tasks.findByPath('modZip')}) {
+}
 */
 
 allprojects {
@@ -81,8 +83,8 @@ allprojects {
 }
 
 subprojects {
-/*    afterEvaluate { project ->
-        def modZipTask = project.tasks.findByPath('modZip')
+    afterEvaluate { project ->
+    /*  def modZipTask = project.tasks.findByPath('modZip')
         if (modZipTask) {
             println "Project: ${project.name} has modZipTask: $modZipTask"
             project.task(name: copyWebUI, type: Copy, dependsOn: modZipTask) << {
@@ -90,11 +92,13 @@ subprojects {
                 into("build/mods/$moduleName")
                 outputs.upToDateWhen { false }
             }
+        }*/
+        // Inject test configuration into all subprojects
+        test {
+            // See http://www.gradle.org/docs/current/dsl/org.gradle.api.tasks.testing.Test.html for more settings
+            systemProperty 'env', 'test'
         }
-    }*/
-}
-
-configure(subprojects.findAll {it.tasks.findByPath('modZip')}) {
+    }
 }
 
 task(console, dependsOn: 'classes', type: Exec) {
