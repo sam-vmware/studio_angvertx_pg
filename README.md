@@ -8,11 +8,32 @@ $ cd vertx
 $ ./gradlew distTar # Creates the distribution in tar format
 $ cd build
 $ ln -s vert.x-<VERSION>/ current
+
 # Set a environment variable for your current link (.bashrc) e.g.
 $ export VERTX_HOME="$HOME/Projects/GitHub/Vertx/vertx/build/current"
+
 # Set the vert.x mod directory, this is where mods will be assumed and if downloaded placed
 $ export VERTX_MODS="$HOME/Projects/GitHub/Vertx/mods"
+
 $ mkdir -p $VERTX_MODS
+
+## For local cluster running ##
+# 1. Disable multicast and enable tcp-ip and set tcp-ip interface to 127.0.0.1
+$ vi $VERTX_HOME/conf/cluster.xml
+# Change sections to look like this:
+#            <multicast enabled="false"></multicast>
+#            <tcp-ip enabled="true">
+#                <interface>127.0.0.1</interface>
+#            </tcp-ip>
+# 2. Change mod-lang-groovy version
+$ vi $VERTX_HOME/conf/langs.properties
+# Use this value
+# groovy=io.vertx~lang-groovy~2.1RC1-SNAPSHOT:org.vertx.groovy.platform.impl.GroovyVerticleFactory
+# 3. Change repos.txt and remove local repo
+# avoid picking up any of your stale builds
+$ vi $VERTX_HOME/conf/repos.txt
+# comment out the local
+#mavenLocal:~/.m2/repository
 ```
 #### Building
 ```bash
@@ -57,6 +78,18 @@ There are three modules at the momement
 
 You probably want to run one in each terminal
 ```bash
+# First need to use vertx module-link to link our local repo source modules to be used by vertx
+# If you have done this a few times you may want to remove an existing link if it is already there
+# vertx doesn't provide a way to relink
+$ cd vertx-mods/web-server
+$ vertx create-module-link com.vmware~vami-web-server~1.0
+$ cd vami-mods/content-resolver
+$ vertx create-module-link com.vmware~vami-content-resolver~1.0
+$ cd vami-mods/system-service
+$ vertx create-module-link com.vmware~vami-system-service~1.0
+# There is a modlink script in the root directory that might be good for you
+
+# Now we can run the mods
 $ cd $VERTX_MODS
 # terminal 1, vami-web-server
 $ vertx runmod com.vmware~vami-web-server~1.0 -cluster -cluster-host 127.0.0.1 -cluster-port 9000

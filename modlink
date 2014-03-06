@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+if [[ -z $VERTX_MODS ]]; then
+    echo "VERTX_MODS env not set, should point to the Vert.x expected mod directory"
+    exit 1
+fi
+if [[ -z $VERTX_HOME ]]; then
+    echo "VERTX_HOME env not set, should point to the your local built distro e.g. VERTX_HOME=/home/me/Projects/GitHub/Vertx/vertx/build/current"
+    exit 1
+fi
+
+SRC_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+rm -fr $VERTX_MODS/com.vmware*
+
+pushd vami-mods/system-service/
+vertx create-module-link com.vmware~vami-system-service~1.0
+pushd "$VERTX_MODS/com.vmware~vami-system-service~1.0"
+ln -s $SRC_ROOT/vami-mods/system-service/web-ui/app
+popd
+popd
+
+pushd vami-mods/content-resolver/
+vertx create-module-link com.vmware~vami-content-resolver~1.0
+popd
+
+pushd vertx-mods/web-server/
+vertx create-module-link com.vmware~vami-web-server~1.0
+pushd "$VERTX_MODS/com.vmware~vami-web-server~1.0"
+ln -s $SRC_ROOT/vertx-mods/web-server/web-ui/app
+popd
+popd
