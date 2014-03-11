@@ -42,6 +42,27 @@ angular.element(document).ready(function () {
         }
     });
 
+    angular.module("template/tabs/tab.html", []).run(["$templateCache", function ($templateCache) {
+        $templateCache.put("template/tabs/tab.html",
+                '<li ng-class="{active: active, disabled: disabled}">' +
+                '    <a ng-click="select()" tab-heading-transclude>{{heading}}</a>' +
+                '</li>');
+    }]);
+
+    angular.module("template/tabs/tabset.html", []).run(["$templateCache", function ($templateCache) {
+        $templateCache.put("template/tabs/tabset.html",
+                '<div>' +
+                '   <ul class="nav nav-{{type || \'tabs\'}}" ng-class="{\'nav-stacked\': vertical, \'nav-justified\': justified}" ng-transclude></ul>' +
+                '    <div class="tab-content">' +
+                '        <div class="tab-pane" ' +
+                '           ng-repeat="tab in tabs" ' +
+                '           ng-class="{active: tab.active}"' +
+                '           tab-content-transclude="tab">' +
+                '       </div>' +
+                '    </div>' +
+                '</div>');
+    }]);
+
     angular.module("template/modal/backdrop.html", []).run(["$templateCache", function ($templateCache) {
         $templateCache.put("template/modal/backdrop.html",
                 '<div class="modal-backdrop fade"' +

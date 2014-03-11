@@ -3,7 +3,7 @@
  * Use this to fetch resources async
  * Created by samueldoyle.
  */
-vamiApp.factory('resourceLoaderService', ['$rootScope', '$q', '$log', '$timeout', 'commonService',
+systemApp.factory('resourceLoaderService', ['$rootScope', '$q', '$log', '$timeout', 'commonService',
     function ($rootScope, $q, $log, $timeout, commonService) {
 
         // Load JS remote resources, evalute them and insert into DOM, returns a promise

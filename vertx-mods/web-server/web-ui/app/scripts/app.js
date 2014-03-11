@@ -72,13 +72,6 @@ angular.element(document).ready(function () {
                 '</div>');
     }]);
 
-    angular.module("template/tabs/tab.html", []).run(["$templateCache", function ($templateCache) {
-        $templateCache.put("template/tabs/tab.html",
-                '<li ng-class="{active: active, disabled: disabled}">' +
-                '    <a ng-click="select()" tab-heading-transclude>{{heading}}</a>' +
-                '</li>');
-    }]);
-
     angular.module("template/modal/backdrop.html", []).run(["$templateCache", function ($templateCache) {
         $templateCache.put("template/modal/backdrop.html",
                 '<div class="modal-backdrop fade"' +

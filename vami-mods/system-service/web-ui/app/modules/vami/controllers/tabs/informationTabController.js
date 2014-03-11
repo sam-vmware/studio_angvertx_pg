@@ -2,9 +2,9 @@
 /**
  * Created by samueldoyle
  */
-vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
-    'WEB_ROOT', 'serviceTabsService',
-    function ($q, $scope, $routeParams, $log, $timeout, $modal, WEB_ROOT, serviceTabsService) {
+systemApp.controller('informationTabController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
+    'WEB_ROOT', 'systemTabsService',
+    function ($q, $scope, $routeParams, $log, $timeout, $modal, WEB_ROOT, systemTabsService) {
 
         var REBOOT_OP = "Reboot Operation";
         var SHUTDOWN_OP = "Shutdown Operation";
@@ -45,6 +45,7 @@ vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log
             type: "OperatingSystem",
             operation: "testDoShutdown"
         };
+
 
         /* reply.data = {
          key hostName: value: "sam-MacBookPro"
@@ -132,7 +133,7 @@ vamiApp.controller('systemTabController', ['$q', '$scope', '$routeParams', '$log
             //  serviceName: "system",
             //  jsonMsg: testGetSystemInformation
             // }
-            serviceTabsService.sendRequest(options).then(function (reply) {
+            systemTabsService.sendRequest(options).then(function (reply) {
                 var timer = $timeout(function () {
                     $scope.$apply(function () {
                         if (scopeApplyCallback) {

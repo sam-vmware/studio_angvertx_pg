@@ -8,33 +8,47 @@
 <!--[if gt IE 8]><!-->
 <html class="no-js"> <!--<![endif]-->
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title></title>
-<meta name="description" content="">
-<meta name="viewport" content="width=device-width">
-<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-<!-- build:css styles/vendor.css -->
-<!-- bower:css -->
-<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-<link rel="stylesheet" href="bower_components/angular-grid/ng-grid.min.css" />
-<!-- endbower -->
-<!-- endbuild -->
-<!-- build:css({.tmp,app}) styles/main.css -->
-<link rel="stylesheet" href="styles/main.css">
-<!-- endbuild -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="bower_components/angular-grid/ng-grid.min.css"/>
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css({.tmp,app}) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
 
-<!-- Add some ids for storing module route -->
-<link id="WEB_ROOT" href="/com.vmware~vami-system-service~1.0/app"/>
+    <!-- Add some ids for storing module route -->
+    <link id="WEB_ROOT" href="/com.vmware~vami-system-service~1.0/app"/>
     <style type="text/css">
-        body, html
-        {
-            margin: 0; padding: 0; height: 100%; overflow: hidden;
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
         }
 
-        #content
-        {
-            position:absolute; left: 0; right: 0; bottom: 0; top: 0px;
+        #content {
+            position: relative;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0px;
+        }
+
+        hr {
+            display: block;
+            height: 1px;
+            border: 0;
+            border-top: 1px solid #000000;
+            margin: 1em 0;
+            padding: 0;
         }
     </style>
 </head>
@@ -74,17 +88,13 @@
 <script src="scripts/sockjs-0.3.min.js"></script>
 <script src="scripts/vertxbus-2.1.js"></script>
 <script src="modules/vami/systemApp.js"></script>
-<script src="modules/vami/services/tabs/systemTabService.js"></script>
-<script src="modules/vami/controllers/tabs/systemTabController.js"></script>
+<script src="modules/vami/services/tabs/systemTabsService.js"></script>
+<script src="modules/vami/controllers/tabs/systemTabsController.js"></script>
+<script src="modules/vami/controllers/tabs/informationTabController.js"></script>
+<script src="modules/vami/controllers/tabs/timeZoneController.js"></script>
 <script src="modules/common/services/vertxEventBus.js"></script>
 <script src="modules/common/services/resourceLoaderService.js"></script>
 <script src="modules/common/controllers/dialog/confirmDialogController.js"></script>
-
-<!-- Now loaded dynamic
-<script src="modules/vami/services/tabs/serviceTabsService.js"></script>
-<script src="modules/vami/controllers/tabs/serviceTabsController.js"></script>
-<script src="modules/vami/controllers/tabs/systemTabController.js"></script>
--->
 
 <script src="scripts/app.js"></script>
 </body>

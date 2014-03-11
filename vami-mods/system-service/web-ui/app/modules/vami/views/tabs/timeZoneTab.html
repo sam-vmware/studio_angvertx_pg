@@ -1,0 +1,14 @@
+<!-- Created by samueldoyle -->
+<div id="timeZoneController" ng-controller="timeZoneController">
+    <h4>Time Zone Settings</h4>
+    <hr>
+    <div>
+        <select
+            ng-model="selectedTimeZone"
+            ng-options="tz as tz.value for tz in timeZones">
+        </select>
+    </div>
+    <button type="button" ng-click="setTimeZone()" class="btn btn-primary" ng-model="singleModel" btn-checkbox btn-checkbox-true="1" btn-checkbox-false="0">
+        Save Settings
+    </button>
+</div>

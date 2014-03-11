@@ -3,7 +3,7 @@
  * Created by samueldoyle
  * This is an angularservice to wrap the vertx eventbus
  */
-vamiApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', function ($rootScope, $q, $log, $timeout) {
+systemApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', function ($rootScope, $q, $log, $timeout) {
     // This is work in progress for replacing the eb plugin
     var serverURL = location.protocol + '//' + location.hostname + ':' + (location.port || 80);
     var ebPath = '/eventbus';

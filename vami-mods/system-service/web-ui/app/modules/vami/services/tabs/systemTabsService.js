@@ -2,8 +2,8 @@
 /**
  * Created by samueldoyle
  */
-vamiApp.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', 'WEB_ROOT',
-    function serviceTabsService($q, $log, vertxEventBus, WEB_ROOT) {
+systemApp.factory('systemTabsService', ['$q', '$log', '$sce', 'vertxEventBus', 'WEB_ROOT',
+    function systemTabsService($q, $log, $sce, vertxEventBus, WEB_ROOT) {
         var ME = "serviceTabsService";
 
         var SERVICE_INFO = {
@@ -23,6 +23,21 @@ vamiApp.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', 'WEB_ROOT'
                 address: "vami.SystemService"
             }
         };
+
+        var tabsList = [
+            {
+                title: "Information", name: "information", active: true,  disabled: false,
+                templ: $sce.trustAsResourceUrl(WEB_ROOT + '/modules/vami/views/tabs/informationTab.html')
+            },
+            {
+                title: "Time Zone", name: "timeZone", active: false, disabled: false,
+                templ: $sce.trustAsResourceUrl(WEB_ROOT + '/modules/vami/views/tabs/timeZoneTab.html')
+            }
+        ];
+
+        function getTabs(options) {
+            return tabsList;
+        }
 
         function fetchServerContent(options) {
             // Important! This returns a promise
@@ -55,6 +70,9 @@ vamiApp.factory('serviceTabsService', ['$q', '$log', 'vertxEventBus', 'WEB_ROOT'
                 // returns promise
                 var promise = fetchServerContent(options);
                 return promise
+            },
+            getTabs: function (options) {
+                return getTabs(options)
             }
         }
     }]);

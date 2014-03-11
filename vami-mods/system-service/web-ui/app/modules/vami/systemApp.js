@@ -2,12 +2,15 @@
 /**
  * Created by samueldoyle
  */
-var vamiApp = angular.module('systemApp', [
+var systemApp = angular.module('systemApp', [
     'ngCookies',
     'ngResource',
     'ngSanitize',
     'ngRoute',
     'ngGrid',
+    'template/tabs/tab.html',
+    'template/tabs/tabset.html',
+    'ui.bootstrap.tabs',
     'ui.bootstrap.buttons',
     'ui.bootstrap.transition',
     'template/modal/backdrop.html',
@@ -52,7 +55,7 @@ var vamiApp = angular.module('systemApp', [
                 };
             });
 
-            vamiApp.lazy = {
+            systemApp.lazy = {
                 controller: $controllerProvider.register,
                 directive: $compileProvider.directive,
                 filter: $filterProvider.register,
@@ -62,14 +65,14 @@ var vamiApp = angular.module('systemApp', [
             };
 
             $routeProvider.when('/', {
-                templateUrl: WEB_ROOT + '/modules/vami/views/tabs/systemTab.html'
+                templateUrl: WEB_ROOT + '/modules/vami/views/tabs/systemTabs.html'
             }).otherwise({redirectTo: '/'});
         }
     ]);
 
 // Start things off, transition to index
-/*vamiApp.run(['$log',
+/*systemApp.run(['$log',
  function ($log) {
- $log.debug("Inside vamiApp.run");
+ $log.debug("Inside systemApp.run");
  }
  ]);*/
