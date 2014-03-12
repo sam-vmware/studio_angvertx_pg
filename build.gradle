@@ -32,8 +32,6 @@ task wrapper(type: Wrapper) {
 
 // Some global conf to share around projects
 ext.VMWARE_CONF = [
-    groovyVersion    : "2.2.1",
-    groovyConsolePath: "/usr/local/java/groovy/groovy-2.2.1/bin/groovyConsole",
     vertx            : [
         // Change this to the lib directory of where your Vert.x build lib directory is
         libDir              : "${System.env.VERTX_HOME}/lib",
@@ -42,8 +40,7 @@ ext.VMWARE_CONF = [
         // The vertx lang-groovy-xxx*.jar is in here and MUST MATCH the
         // the mod version you use if you are doing a custom vertx build.
         // this is the version that gets placed in your $VERTX_MODS directory
-        addedLibs           : "$rootDir/shared/common/added_libs",
-        groovyLangModVersion: "2.1M6-SNAPSHOT"
+        addedLibs           : "$rootDir/shared/common/added_libs"
     ]
 ]
 

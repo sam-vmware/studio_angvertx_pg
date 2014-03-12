@@ -42,7 +42,7 @@ vamiApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', functi
         if (eb.readyState() != vertx.EventBus.OPEN) {
             $timeout(function () {
                 callback();
-            }, 3000);
+            }, 1000);
         } else {
             callback();
         }

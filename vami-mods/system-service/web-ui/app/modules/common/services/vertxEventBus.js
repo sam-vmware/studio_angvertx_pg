@@ -42,7 +42,7 @@ systemApp.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', func
         if (eb.readyState() != vertx.EventBus.OPEN) {
             $timeout(function () {
                 callback();
-            }, 3000);
+            }, 1000);
         } else {
             callback();
         }

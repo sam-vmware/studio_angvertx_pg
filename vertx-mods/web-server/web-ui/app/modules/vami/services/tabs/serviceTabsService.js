@@ -81,7 +81,7 @@ vamiApp.lazy.factory('serviceTabsService', ['$q', '$log', '$sce', '$rootScope', 
                             tabsList.push(newTabEntry);
                         });
                     });
-                }, 2000);
+                }, 1000);
             }, function (e) {
                 $log.error(ME + " Failed to make request for all existing services: " + e.message);
             })
@@ -108,7 +108,7 @@ vamiApp.lazy.factory('serviceTabsService', ['$q', '$log', '$sce', '$rootScope', 
                     }
                     tabsList.push(newTab);
                 });
-            }, 2000);
+            }, 1000);
         });
 
         return {
