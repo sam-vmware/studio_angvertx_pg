@@ -71,6 +71,10 @@ class ResourceEnabled {
         [result: ERROR, cause: cause]
     }
 
+    public Map ERROR_RESPONSE(Map errorData) {
+        [result: ERROR, errorData: errorData]
+    }
+
     /** Ok with no data
      * @return
      */

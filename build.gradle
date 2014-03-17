@@ -6,16 +6,16 @@ configurations.all {
 
         // force certain versions of dependencies (including transitive)
         //  *append new forced modules:
-        force 'org.codehaus.groovy:groovy-all:2.2.1'
+        force "org.codehaus.groovy:groovy-all:$groovyVersion"
         //  *replace existing forced modules with new ones:
-        forcedModules = ['org.codehaus.groovy:groovy-all:2.2.1']
+        forcedModules = ["org.codehaus.groovy:groovy-all:$groovyVersion"]
 
         // add a dependency resolve rule
         eachDependency { DependencyResolveDetails details ->
             //changing 'groovy-all' into 'groovy':
             if (details.requested.name == 'groovy-all') {
                 //details.useTarget group: details.requested.group, name: 'groovy', version: details.requested.version
-                details.useTarget group: details.requested.group, name: 'groovy-all', version: '2.2.1'
+                details.useTarget group: details.requested.group, name: 'groovy-all', version: "$groovyVersion"
             }
         }
 
@@ -24,10 +24,6 @@ configurations.all {
         // don't cache changing modules at all
         cacheChangingModulesFor 0, 'seconds'
     }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
 }
 
 // Some global conf to share around projects
@@ -43,6 +39,10 @@ ext.VMWARE_CONF = [
         addedLibs           : "$rootDir/shared/common/added_libs"
     ]
 ]
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.10'
+}
 
 task copyWebUI(type: Copy, dependsOn: 'modZip', description: 'Copy static content') {
     if (project.hasProperty('moduleName')) {
@@ -75,7 +75,7 @@ allprojects {
     }
 
     dependencies {
-        compile 'org.codehaus.groovy:groovy-all:2.2.1'
+        compile "org.codehaus.groovy:groovy-all:$groovyVersion"
     }
 }
 

@@ -12,6 +12,8 @@ configurations {
 dependencies {
     provided fileTree(dir: VMWARE_CONF.vertx.libDir, includes: ['*.jar'])
     provided fileTree(dir: VMWARE_CONF.vertx.addedLibs, includes: ['*.jar'])
+    compile "io.vertx:lang-groovy:$groovyLangModVersion"
+    compile "com.jetdrone:yoke:$yokeVersion"
 }
 
 sourceSets {

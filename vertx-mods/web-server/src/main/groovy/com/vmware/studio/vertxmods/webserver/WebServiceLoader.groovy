@@ -3,6 +3,11 @@
  */
 package com.vmware.studio.vertxmods.webserver
 
+import com.jetdrone.vertx.yoke.GYoke
+import com.jetdrone.vertx.yoke.engine.GroovyTemplateEngine
+import com.jetdrone.vertx.yoke.middleware.*
+import com.jetdrone.vertx.yoke.store.GSharedDataSessionStore
+import com.jetdrone.vertx.yoke.util.Utils
 import com.vmware.studio.shared.categories.CommonService
 import com.vmware.studio.shared.mixins.ContextConfig
 import com.vmware.studio.shared.mixins.ResourceEnabled
@@ -44,6 +49,13 @@ class WebServiceLoader extends Verticle implements Service {
         outbound_permitted: [[:]]
     ]
 
+    def httpValues = [
+        nameField: "username",
+        pwdField: "password",
+        sessionStore: "session.store",
+        authAddress: "auth.address"
+    ]
+
     def DEFAULT_PORT = 8080;
     def DEFAULT_ADDRESS = "0.0.0.0";
     def DEFAULT_WEB_ROOT = "web";
@@ -70,7 +82,6 @@ class WebServiceLoader extends Verticle implements Service {
             }
         }
     }
-
 
     def postInitialize() {
     }
@@ -115,13 +126,91 @@ class WebServiceLoader extends Verticle implements Service {
             info "==============================================="
         }
 
-        def server = vertx.createHttpServer()
-/*        def routeMatcher = new RouteMatcher()
-        routeMatcher.get("/") { req ->
-            req.response.sendFile("$baseRoot/$myWebRoot/index.html")
+        def secret = Utils.newHmacSHA256("34tu823-fjej29pfrj24rfj2")
+        def router = new GRouter()
+            .post("/auth/login") { request ->
+            def body = request.formAttributes
+            if (body[httpValues.nameField] == 'user' && body[httpValues.pwdField] == 'pass') {
+                def session = request.createSession()
+                session.putString(httpValues.nameField, body[httpValues.nameField])
+                request.response.end OK_RESPONSE()
+                return
+            }
+            request.response.end ERROR_RESPONSE([
+                error: [
+                    message: "Authentication Failed"
+                ]
+            ])
         }
-        server.requestHandler(routeMatcher.asClosure())*/
-        server.requestHandler { req ->
+        .get("/auth/logout") { request ->
+            request.destroySession()
+            request.response().redirect("/");
+        }
+
+        def secHandler = { request, next ->
+            if (!(request.uri ==~ /^\/com\..+/)) next.handle(null)
+
+            def session = request.get("session");
+            def uname = session?.get(httpValues.nameField)
+            if (!uname) {
+                next.handle(401)
+                return
+            }
+            next.handle(null)
+        }
+
+        def getSessionValue = { request, key ->
+            def session = request.get("session");
+            session?.getString(key)
+        }
+
+        def server = vertx.createHttpServer()
+
+        def sharedDataSessionStore = new GSharedDataSessionStore(vertx.toJavaVertx(), httpValues.sessionStore)
+        new GYoke(this)
+            .engine('html', new GroovyTemplateEngine())
+            .use(new ErrorHandler(true))
+            .use(new CookieParser(secret))
+            .use(new Session(secret))
+            .use(new Logger())
+//            .use(new BridgeSecureHandler(httpValues.authAddress, sharedDataSessionStore))
+//            .use("/static", new Static("."))
+//            .use("/modules", secHandler)
+            .use(new BodyParser())
+            .use(router)
+            .use { request, next ->
+                def file
+                def secure = false
+                switch (request.uri) {
+                    case "/":
+                    case "/?":
+                        file = "$baseRoot/$myWebRoot/index.html"
+                        if (getSessionValue(request, httpValues.nameField)) {
+                            file = "$baseRoot/$myWebRoot/modules/main/views/mainApp.html"
+                        }
+                        break
+                    case ~/^\/com\..+/:
+                        file = "$baseRoot/${request.uri}"
+                        secure = true
+                        break
+                    case "/modules":
+                        secure = true
+                    default:
+                        file = "$baseRoot/$myWebRoot/${request.uri}"
+                }
+                if (secure) {
+                    def uname = getSessionValue(request, httpValues.nameField)
+                    if (!uname) {
+                        //next.handle(401)
+                        //return
+                        request.response().redirect("/");
+                        return
+                    }
+                }
+                request.response.sendFile file
+            }.listen(server)
+
+/*        server.requestHandler { req ->
             def file
             switch (req.uri) {
                 case "/":
@@ -134,8 +223,14 @@ class WebServiceLoader extends Verticle implements Service {
                     file = "$baseRoot/$myWebRoot/${req.uri}"
             }
             req.response.sendFile file
-        }
+        }*/
 
+        def inboundPermitted = [
+            [
+                requires_auth: true
+            ]
+        ]
+//        vertx.createSockJSServer(server).bridge(prefix: '/eventbus', inboundPermitted, [[:]], 5 * 60 * 1000, httpValues.authAddress)
         vertx.createSockJSServer(server).bridge(prefix: '/eventbus', [[:]], [[:]])
         server.listen(port, host)
     }

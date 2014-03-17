@@ -2,4 +2,4 @@ build/classes/main
 build/resources/main
 build/deps
 build/libs
-build/mods/com.vmware~vami-web-server~1.0/lib/common-1.0.jar
+build/mods/com.vmware~vami-web-server~1.0/lib

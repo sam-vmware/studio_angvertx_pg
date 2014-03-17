@@ -15,7 +15,8 @@ var vamiApp = angular.module('vamiApp', [
     'ui.bootstrap.transition',
     'template/modal/backdrop.html',
     'template/modal/window.html',
-    'ui.bootstrap.modal'
+    'ui.bootstrap.modal',
+    'http-auth-interceptor'
 ]).factory('commonService', ['$resource', '$cacheFactory', function ($resource, $cacheFactory) {
     var cache = $cacheFactory('commonService');
     var loadedSuffix = "_isLoaded";
@@ -53,6 +54,7 @@ var vamiApp = angular.module('vamiApp', [
         '$locationProvider', '$injector', '$routeProvider', 'DYNAMIC_RESOURCES', 'COMMON_ROOT', 'VAMI_ROOT',
         function ($controllerProvider, $compileProvider, $filterProvider, $provide, $sceProvider, $rootScopeProvider, $locationProvider,
                   $injector, $routeProvider, DYNAMIC_RESOURCES, COMMON_ROOT, VAMI_ROOT ) {
+            $locationProvider.html5Mode(true);
             $sceProvider.enabled(false); // dealing with max digest attempts
             $rootScopeProvider.digestTtl(10); // dealing with max digest attempts
             $provide.decorator('$exceptionHandler', function ($delegate) {
@@ -82,7 +84,55 @@ var vamiApp = angular.module('vamiApp', [
                 }
             }).otherwise({redirectTo: '/'});
         }
-    ]);
+    ])
+    .controller('loginController', ['$scope', '$http', function loginController($scope, $http) {
+        $scope.formData = {};
+        $scope.login = function () {
+            $http({
+                method: 'POST',
+                url: '/auth/login',
+                data: $.param($scope.formData),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }).success(function (data, status) {
+                if (data == 'true') {
+                    $scope.message = data.message;
+                    authService.loginConfirmed();
+                } else {
+                    alert('Wrong username or password.');
+                    $scope.message = data.message;
+                    $scope.errorName = data.errors.name;
+                }
+            });
+        };
+    }])
+    .directive("mainApplication", function () {
+        return {
+            restrict: "C",
+            link: function (scope, elem, attrs) {
+                elem.removeClass("loading-spinner");
+
+                var login = elem.find("#login-container");
+                var main = elem.find("#vami-app-container");
+
+                login.hide();
+
+                scope.$on("event:auth-loginRequired", function () {
+                    login.slideDown("slow", function () {
+                        main.hide();
+                    });
+                });
+                scope.$on("event:auth-loginConfirmed", function () {
+                    main.show();
+                    login.slideUp();
+                });
+            }
+        }
+    })
+    .run(['$rootScope', function($rootScope) {
+        $rootScope.logout = function () {
+            window.location = '/auth/logout';
+        };
+    }]);
 
 // Start things off, transition to index
 /*vamiApp.run(['$log',
