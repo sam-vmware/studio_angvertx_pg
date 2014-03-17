@@ -14,6 +14,9 @@ import com.vmware.studio.shared.mixins.ResourceEnabled
 import com.vmware.studio.shared.services.Service
 import com.vmware.studio.shared.utils.ClosureScriptAsClass
 import com.vmware.studio.shared.utils.GlobalServiceConfig
+import org.jvnet.libpam.PAM
+import org.jvnet.libpam.PAMException
+import org.jvnet.libpam.UnixUser
 import org.vertx.groovy.core.http.RouteMatcher
 import org.vertx.groovy.platform.Verticle
 
@@ -50,10 +53,10 @@ class WebServiceLoader extends Verticle implements Service {
     ]
 
     def httpValues = [
-        nameField: "username",
-        pwdField: "password",
+        nameField   : "username",
+        pwdField    : "password",
         sessionStore: "session.store",
-        authAddress: "auth.address"
+        authAddress : "auth.address"
     ]
 
     def DEFAULT_PORT = 8080;
@@ -130,17 +133,24 @@ class WebServiceLoader extends Verticle implements Service {
         def router = new GRouter()
             .post("/auth/login") { request ->
             def body = request.formAttributes
-            if (body[httpValues.nameField] == 'user' && body[httpValues.pwdField] == 'pass') {
-                def session = request.createSession()
-                session.putString(httpValues.nameField, body[httpValues.nameField])
-                request.response.end OK_RESPONSE()
-                return
+            String userName = body[httpValues.nameField]
+            String passWord = body[httpValues.pwdField]
+//            if (body[httpValues.nameField] == 'user' && body[httpValues.pwdField] == 'pass') {
+            try {
+                if (userName && passWord) {
+                    UnixUser unixUser = new PAM("sshd").authenticate(userName, passWord);
+                    def session = request.createSession()
+                    session.putString(httpValues.nameField, body[httpValues.nameField])
+                    request.response.end OK_RESPONSE()
+                    return
+                }
+            } catch (PAMException pamException) {
+                request.response.end ERROR_RESPONSE([
+                    error: [
+                        message: "Authentication Failed: ${pamException.message}"
+                    ]
+                ])
             }
-            request.response.end ERROR_RESPONSE([
-                error: [
-                    message: "Authentication Failed"
-                ]
-            ])
         }
         .get("/auth/logout") { request ->
             request.destroySession()
@@ -179,36 +189,36 @@ class WebServiceLoader extends Verticle implements Service {
             .use(new BodyParser())
             .use(router)
             .use { request, next ->
-                def file
-                def secure = false
-                switch (request.uri) {
-                    case "/":
-                    case "/?":
-                        file = "$baseRoot/$myWebRoot/index.html"
-                        if (getSessionValue(request, httpValues.nameField)) {
-                            file = "$baseRoot/$myWebRoot/modules/main/views/mainApp.html"
-                        }
-                        break
-                    case ~/^\/com\..+/:
-                        file = "$baseRoot/${request.uri}"
-                        secure = true
-                        break
-                    case "/modules":
-                        secure = true
-                    default:
-                        file = "$baseRoot/$myWebRoot/${request.uri}"
-                }
-                if (secure) {
-                    def uname = getSessionValue(request, httpValues.nameField)
-                    if (!uname) {
-                        //next.handle(401)
-                        //return
-                        request.response().redirect("/");
-                        return
+            def file
+            def secure = false
+            switch (request.uri) {
+                case "/":
+                case "/?":
+                    file = "$baseRoot/$myWebRoot/index.html"
+                    if (getSessionValue(request, httpValues.nameField)) {
+                        file = "$baseRoot/$myWebRoot/modules/main/views/mainApp.html"
                     }
+                    break
+                case ~/^\/com\..+/:
+                    file = "$baseRoot/${request.uri}"
+                    secure = true
+                    break
+                case "/modules":
+                    secure = true
+                default:
+                    file = "$baseRoot/$myWebRoot/${request.uri}"
+            }
+            if (secure) {
+                def uname = getSessionValue(request, httpValues.nameField)
+                if (!uname) {
+                    //next.handle(401)
+                    //return
+                    request.response().redirect("/");
+                    return
                 }
-                request.response.sendFile file
-            }.listen(server)
+            }
+            request.response.sendFile file
+        }.listen(server)
 
 /*        server.requestHandler { req ->
             def file
