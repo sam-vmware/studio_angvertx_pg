@@ -101,4 +101,8 @@ $ vertx runmod com.vmware~vami-system-service~1.0 -cluster -cluster-host 127.0.0
 
 *NOTE: It is possible to run a [Verticle](http://vertx.io/manual.html#verticle) in your IDE, see Developing [Vert.x Modules with Gradle](http://vertx.io/gradle_dev.html)*
 
+
+#### Manual Test
 If all went well you should see the main page at: [localhost:8080](localhost:8080)
+Authentication is PAM based so assuming you are running on Linux you should be able to login using a valid user
+that can be authenticated through ssh.
