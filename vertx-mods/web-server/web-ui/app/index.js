@@ -26,7 +26,7 @@ angular.element(document).ready(function () {
             return {
                 restrict: "C",
                 link: function (scope, elem, attrs) {
-                    elem.removeClass("loading-spinner");
+//                    elem.removeClass("loading-spinner");
 
                     /*  var login = elem.find("#login-container");
                      var main = elem.find("#vami-app-container");

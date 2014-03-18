@@ -16,12 +16,13 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
-    <link rel="stylesheet" href="bower_components/angular-grid/ng-grid.min.css"/>
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/bower_components/angular-grid/ng-grid.min.css"/>
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="stylesheet" href="/styles/main.css">
     <!-- endbuild -->
     <!--[if lt IE 7]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
@@ -29,8 +30,8 @@
     <![endif]-->
 
     <!--[if lt IE 9]>
-    <script src="bower_components/es5-shim/es5-shim.js"></script>
-    <script src="bower_components/json3/lib/json3.min.js"></script>
+    <script src="/bower_components/es5-shim/es5-shim.js"></script>
+    <script src="/bower_components/json3/lib/json3.min.js"></script>
     <![endif]-->
 
     <style type="text/css">
@@ -49,7 +50,7 @@
     </style>
 </head>
 <body>
-<div id="main-app-container" class="main-application loading-spinner">
+<div id="main-app-container" class="main-application">
     <div id="initializing-panel"></div>
     <div class="content-outer">
         <div class="header">
@@ -97,13 +98,12 @@
 </div>
 <!-- build:js scripts/vendor.js -->
 <!-- bower:js -->
-<script src="bower_components/jquery/jquery.js"></script>
-<script src="bower_components/angular/angular.js"></script>
-<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/bower_components/jquery/jquery.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <!-- endbuild -->
-<script src="scripts/stacktrace.js"></script>
-<script src="scripts/underscore-1.60.min.js"></script>
-<script src="scripts/http-auth-interceptor.js"></script>
-<script src="index.js"></script>
+<script src="/scripts/underscore-1.60.min.js"></script>
+<script src="/scripts/http-auth-interceptor.js"></script>
+<script src="/index.js"></script>
 </body>
 </html>

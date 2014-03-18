@@ -21,12 +21,14 @@
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="stylesheet" href="/styles/main.css">
     <!-- endbuild -->
 
     <!-- Add some ids for storing module route -->
     <link id="MAIN_ROOT" href="/modules/main"/>
     <link id="COMMON_ROOT" href="/modules/common"/>
+    <link id="SCRIPTS_ROOT" href="/scripts"/>
     <link id="VAMI_ROOT" href="/modules/vami"/>
 
     <style type="text/css">
@@ -46,7 +48,7 @@
     </style>
 </head>
 <body>
-<div id="main-app-container" class="main-application loading-spinner">
+<div id="main-app-container" class="main-application">
     <div id="initializing-panel"></div>
     <div class="content-outer">
         <div class="header">
@@ -91,26 +93,12 @@
 <script src="/bower_components/angular-ui-bootstrap/src/modal/modal.js"></script>
 <script src="/bower_components/angular-grid/ng-grid-2.0.7.min.js"></script>
 <!-- endbuild -->
-<script src="/scripts/stacktrace.js"></script>
+
 <script src="/scripts/underscore-1.60.min.js"></script>
 <script src="/scripts/http-auth-interceptor.js"></script>
-<script src="/scripts/sockjs-0.3.min.js"></script>
-<script src="/scripts/vertxbus-2.1.js"></script>
-<!--<script src="modules/main/mainApp.js"></script>-->
+<script src="/modules/common/vamiCommon.js"></script>
 <script src="/modules/vami/vamiApp.js"></script>
-<script src="/modules/common/services/vertxEventBus.js"></script>
-<script src="/modules/common/services/resourceLoaderService.js"></script>
-<!--<script src="modules/vami/services/tabs/serviceTabsService.js"></script>
-<script src="modules/vami/controllers/tabs/serviceTabsController.js"></script>-->
-
-<!-- Now loaded dynamic
-<script src="modules/vami/services/tabs/serviceTabsService.js"></script>
-<script src="modules/vami/controllers/tabs/serviceTabsController.js"></script>
-<script src="modules/vami/controllers/tabs/systemTabController.js"></script>
--->
-
 <script src="/modules/main/mainApp.js"></script>
-<!-- Add your site or application content here -->
 
 </body>
 </html>

@@ -2,9 +2,9 @@
 /**
  * Created by samueldoyle
  */
-systemApp.controller('timeZoneController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
-    'WEB_ROOT', 'systemTabsService',
-    function ($q, $scope, $routeParams, $log, $timeout, $modal, WEB_ROOT, systemTabsService) {
+systemApp.lazy.controller('timeZoneController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
+    'COMMON_ROOT', 'systemTabsService',
+    function ($q, $scope, $routeParams, $log, $timeout, $modal, COMMON_ROOT, systemTabsService) {
 
         var SET_TZ_OP = "Save Settings";
 
@@ -62,7 +62,7 @@ systemApp.controller('timeZoneController', ['$q', '$scope', '$routeParams', '$lo
 
         $scope.open = function (modalData, confirmCB, rejectedCB) {
             var modalInstance = $modal.open({
-                templateUrl: WEB_ROOT + '/modules/common/views/dialog/confirmDialog.html',
+                templateUrl: COMMON_ROOT + '/views/dialog/confirmDialog.html',
                 controller: 'confirmDialogController',
                 resolve: {
                     modalData: function () {

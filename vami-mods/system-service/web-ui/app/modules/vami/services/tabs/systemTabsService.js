@@ -2,8 +2,8 @@
 /**
  * Created by samueldoyle
  */
-systemApp.factory('systemTabsService', ['$q', '$log', '$sce', 'vertxEventBus', 'WEB_ROOT',
-    function systemTabsService($q, $log, $sce, vertxEventBus, WEB_ROOT) {
+systemApp.lazy.factory('systemTabsService', ['$q', '$log', '$sce', 'vertxEventBus', 'VAMI_ROOT',
+    function systemTabsService($q, $log, $sce, vertxEventBus, VAMI_ROOT) {
         var ME = "serviceTabsService";
 
         var SERVICE_INFO = {
@@ -26,12 +26,12 @@ systemApp.factory('systemTabsService', ['$q', '$log', '$sce', 'vertxEventBus', '
 
         var tabsList = [
             {
-                title: "Information", name: "information", active: true,  disabled: false,
-                templ: $sce.trustAsResourceUrl(WEB_ROOT + '/modules/vami/views/tabs/informationTab.html')
+                title: "Information", name: "information", active: true, disabled: false,
+                templ: $sce.trustAsResourceUrl(VAMI_ROOT + '/views/tabs/informationTab.html')
             },
             {
                 title: "Time Zone", name: "timeZone", active: false, disabled: false,
-                templ: $sce.trustAsResourceUrl(WEB_ROOT + '/modules/vami/views/tabs/timeZoneTab.html')
+                templ: $sce.trustAsResourceUrl(VAMI_ROOT + '/views/tabs/timeZoneTab.html')
             }
         ];
 

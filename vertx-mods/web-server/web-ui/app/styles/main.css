@@ -84,17 +84,5 @@ body {
     height: 190px
 }
 
-.loading-spinner div#content-outer {
-    display: none;
-}
-.loading-spinner div#initializing-panel {
-    display: block;
-    background: url(../images/loading.gif) center center no-repeat;
-    position:absolute;
-    top:0;
-    left:0;
-    width: 100%;
-    height: 100%;
-}
 
 

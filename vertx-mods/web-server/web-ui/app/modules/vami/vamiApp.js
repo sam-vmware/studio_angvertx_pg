@@ -2,70 +2,18 @@
 /**
  * Created by samueldoyle
  */
-var vamiApp = angular.module('vamiApp', [
-    'ngCookies',
-    'ngResource',
-    'ngSanitize',
-    'ngRoute',
-    'ngGrid',
-    'template/tabs/tab.html',
-    'template/tabs/tabset.html',
-    'ui.bootstrap.tabs',
-    'ui.bootstrap.buttons',
-    'ui.bootstrap.transition',
-    'template/modal/backdrop.html',
-    'template/modal/window.html',
-    'ui.bootstrap.modal',
-    'http-auth-interceptor'
-]).factory('commonService', ['$resource', '$cacheFactory', function ($resource, $cacheFactory) {
-    var cache = $cacheFactory('commonService');
-    var loadedSuffix = "_isLoaded";
-    return {
-        getResourceLoadedFlag: function (id) {
-            var retVal = false;
-            id += loadedSuffix;
-            var isLoaded = cache.get(id);
-            if (isLoaded) {
-                retVal = true;
-            }
-            return retVal;
-        },
-        setResourceLoadedFlag: function (id) {
-            id += loadedSuffix;
-            cache.put(id, true);
-        },
-        clearResourceLoadedFlag: function (id) {
-            id += loadedSuffix;
-            cache.remove(id);
-        },
-        clearAllResources: function () {
-            cache.removeAll();
-        }
-    };
-}]).constant('MAIN_ROOT', $("#MAIN_ROOT").attr("href"))
+var vamiApp = angular.module('vamiApp', ['vamiCommon']);
+vamiApp.constant('MAIN_ROOT', $("#MAIN_ROOT").attr("href"))
     .constant('COMMON_ROOT', $("#COMMON_ROOT").attr("href"))
     .constant('VAMI_ROOT', $("#VAMI_ROOT").attr("href"))
     .constant('DYNAMIC_RESOURCES', [
-        {name: "confirmDialogController.js", url: $("#COMMON_ROOT").attr("href") + "/controllers/dialog/confirmDialogController.js"},
         {name: "serviceTabsService.js", url: $("#VAMI_ROOT").attr("href") + "/services/tabs/serviceTabsService.js"},
         {name: "serviceTabsController.js", url: $("#VAMI_ROOT").attr("href") + "/controllers/tabs/serviceTabsController.js"},
     ])
     .config(['$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$sceProvider', '$rootScopeProvider',
         '$locationProvider', '$injector', '$routeProvider', 'DYNAMIC_RESOURCES', 'COMMON_ROOT', 'VAMI_ROOT',
-        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $sceProvider, $rootScopeProvider, $locationProvider,
-                  $injector, $routeProvider, DYNAMIC_RESOURCES, COMMON_ROOT, VAMI_ROOT ) {
-            $locationProvider.html5Mode(true);
-            $sceProvider.enabled(false); // dealing with max digest attempts
-            $rootScopeProvider.digestTtl(10); // dealing with max digest attempts
-            $provide.decorator('$exceptionHandler', function ($delegate) {
-                return function (exception, cause) {
-                    $delegate(exception, cause);
-                    var trace = printStackTrace({e: exception});
-                    console.debug("Trace: " + trace.join('\n'));
-                };
-            });
-
-           vamiApp.lazy = {
+        function ($controllerProvider, $compileProvider, $filterProvider, $provide, $sceProvider, $rootScopeProvider, $locationProvider, $injector, $routeProvider, DYNAMIC_RESOURCES, COMMON_ROOT, VAMI_ROOT) {
+            vamiApp.lazy = {
                 controller: $controllerProvider.register,
                 directive: $compileProvider.directive,
                 filter: $filterProvider.register,
@@ -104,39 +52,9 @@ var vamiApp = angular.module('vamiApp', [
                 }
             });
         };
-    }])
-    .directive("mainApplication", function () {
-        return {
-            restrict: "C",
-            link: function (scope, elem, attrs) {
-                elem.removeClass("loading-spinner");
-
-                var login = elem.find("#login-container");
-                var main = elem.find("#vami-app-container");
-
-                login.hide();
-
-                scope.$on("event:auth-loginRequired", function () {
-                    login.slideDown("slow", function () {
-                        main.hide();
-                    });
-                });
-                scope.$on("event:auth-loginConfirmed", function () {
-                    main.show();
-                    login.slideUp();
-                });
-            }
-        }
-    })
-    .run(['$rootScope', function($rootScope) {
-        $rootScope.logout = function () {
-            window.location = '/auth/logout';
-        };
     }]);
 
-// Start things off, transition to index
-/*vamiApp.run(['$log',
- function ($log) {
- $log.debug("Inside vamiApp.run");
- }
- ]);*/
+vamiApp.run(['$q', '$rootScope', '$log', 'resourceLoaderService', 'DYNAMIC_RESOURCES',
+    function ($q, $rootScope, $log, resourceLoaderService, DYNAMIC_RESOURCES) {
+        resourceLoaderService.preloadJSResources(DYNAMIC_RESOURCES);
+    }]);

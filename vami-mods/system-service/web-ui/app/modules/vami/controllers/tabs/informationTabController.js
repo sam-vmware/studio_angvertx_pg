@@ -2,16 +2,16 @@
 /**
  * Created by samueldoyle
  */
-systemApp.controller('informationTabController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
-    'WEB_ROOT', 'systemTabsService',
-    function ($q, $scope, $routeParams, $log, $timeout, $modal, WEB_ROOT, systemTabsService) {
+systemApp.lazy.controller('informationTabController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
+    'COMMON_ROOT', 'systemTabsService',
+    function ($q, $scope, $routeParams, $log, $timeout, $modal, COMMON_ROOT, systemTabsService) {
 
         var REBOOT_OP = "Reboot Operation";
         var SHUTDOWN_OP = "Shutdown Operation";
 
         $scope.open = function (modalData, confirmCB, rejectedCB) {
             var modalInstance = $modal.open({
-                templateUrl: WEB_ROOT + '/modules/common/views/dialog/confirmDialog.html',
+                templateUrl: COMMON_ROOT + '/views/dialog/confirmDialog.html',
                 controller: 'confirmDialogController',
                 resolve: {
                     modalData: function () {
@@ -88,7 +88,7 @@ systemApp.controller('informationTabController', ['$q', '$scope', '$routeParams'
                 $log.debug("Shutdown operation rejected, request will not be sent");
             };
 
-            $scope.open({confirmText:REBOOT_OP}, opConfirmedCB, opRejectedCB);
+            $scope.open({confirmText: REBOOT_OP}, opConfirmedCB, opRejectedCB);
         };
 
         $scope.doShutdown = function () {
@@ -109,7 +109,7 @@ systemApp.controller('informationTabController', ['$q', '$scope', '$routeParams'
                 $log.debug("Shutdown operation rejected, request will not be sent");
             };
 
-            $scope.open({confirmText:SHUTDOWN_OP}, opConfirmedCB, opRejectedCB);
+            $scope.open({confirmText: SHUTDOWN_OP}, opConfirmedCB, opRejectedCB);
         };
 
         // This makes the request through the service layer which ultimately uses the eventbus

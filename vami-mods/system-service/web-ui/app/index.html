@@ -16,16 +16,20 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
-    <link rel="stylesheet" href="bower_components/angular-grid/ng-grid.min.css"/>
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/bower_components/angular-grid/ng-grid.min.css"/>
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css({.tmp,app}) styles/main.css -->
+    <link rel="stylesheet" href="styles/common.css">
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
 
     <!-- Add some ids for storing module route -->
     <link id="WEB_ROOT" href="/com.vmware~vami-system-service~1.0/app"/>
+    <link id="SCRIPTS_ROOT" href="/com.vmware~vami-system-service~1.0/app/scripts"/>
+    <link id="COMMON_ROOT" href="/com.vmware~vami-system-service~1.0/app/modules/common"/>
+    <link id="VAMI_ROOT" href="/com.vmware~vami-system-service~1.0/app/modules/vami"/>
     <style type="text/css">
         body, html {
             margin: 0;
@@ -69,38 +73,28 @@
 </div>
 
 <!--[if lt IE 9]>
-<script src="bower_components/es5-shim/es5-shim.js"></script>
-<script src="bower_components/json3/lib/json3.min.js"></script>
+<script src="/bower_components/es5-shim/es5-shim.js"></script>
+<script src="/bower_components/json3/lib/json3.min.js"></script>
 <![endif]-->
 
 <!-- build:js scripts/vendor.js -->
 <!-- bower:js -->
-<script src="bower_components/jquery/jquery.js"></script>
-<script src="bower_components/angular/angular.js"></script>
-<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-<script src="bower_components/angular-resource/angular-resource.js"></script>
-<script src="bower_components/angular-cookies/angular-cookies.js"></script>
-<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script src="bower_components/angular-route/angular-route.js"></script>
-<script src="bower_components/angular-ui-bootstrap/src/tabs/tabs.js"></script>
-<script src="bower_components/angular-ui-bootstrap/src/buttons/buttons.js"></script>
-<script src="bower_components/angular-ui-bootstrap/src/transition/transition.js"></script>
-<script src="bower_components/angular-ui-bootstrap/src/modal/modal.js"></script>
-<script src="bower_components/angular-grid/ng-grid-2.0.7.min.js"></script>
+<script src="/bower_components/jquery/jquery.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/bower_components/angular-resource/angular-resource.js"></script>
+<script src="/bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="/bower_components/angular-route/angular-route.js"></script>
+<script src="/bower_components/angular-ui-bootstrap/src/tabs/tabs.js"></script>
+<script src="/bower_components/angular-ui-bootstrap/src/buttons/buttons.js"></script>
+<script src="/bower_components/angular-ui-bootstrap/src/transition/transition.js"></script>
+<script src="/bower_components/angular-ui-bootstrap/src/modal/modal.js"></script>
+<script src="/bower_components/angular-grid/ng-grid-2.0.7.min.js"></script>
 <!-- endbuild -->
-<script src="scripts/stacktrace.js"></script>
-<script src="scripts/underscore-1.60.min.js"></script>
-<script src="scripts/sockjs-0.3.min.js"></script>
-<script src="scripts/vertxbus-2.1.js"></script>
+<script src="/scripts/underscore-1.60.min.js"></script>
+<script src="/scripts/http-auth-interceptor.js"></script>
+<script src="modules/common/vamiCommon.js"></script>
 <script src="modules/vami/systemApp.js"></script>
-<script src="modules/vami/services/tabs/systemTabsService.js"></script>
-<script src="modules/vami/controllers/tabs/systemTabsController.js"></script>
-<script src="modules/vami/controllers/tabs/informationTabController.js"></script>
-<script src="modules/vami/controllers/tabs/timeZoneController.js"></script>
-<script src="modules/common/services/vertxEventBus.js"></script>
-<script src="modules/common/services/resourceLoaderService.js"></script>
-<script src="modules/common/controllers/dialog/confirmDialogController.js"></script>
-
-<script src="scripts/app.js"></script>
 </body>
 </html>
