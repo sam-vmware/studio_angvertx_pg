@@ -42,6 +42,15 @@ angular.element(document).ready(function () {
         }
     });
 
+    _.mixin({
+        arrayObjectIndexOf: function (array, value, property) {
+            for (var i = 0, len = array.length; i < len; i++) {
+                if (array[i][property] === value) return i;
+            }
+            return -1;
+        }
+    });
+
     angular.module("template/tabs/tab.html", []).run(["$templateCache", function ($templateCache) {
         $templateCache.put("template/tabs/tab.html",
                 '<li ng-class="{active: active, disabled: disabled}">' +
