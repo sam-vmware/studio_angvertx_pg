@@ -3,13 +3,14 @@
  * Created by samueldoyle
  * This is an angularservice to wrap the vertx eventbus
  */
-vamiCommon.lazy.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', 'eventServices', 'VERTX_SEND_EVENT', 'VERTX_RESPONSE_EVENT',
-    function ($rootScope, $q, $log, $timeout, eventServices, VERTX_SEND_EVENT, VERTX_RESPONSE_EVENT) {
+vamiCommon.lazy.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout', '$cookieStore', '$cookies', 'eventServices', 'VERTX_SEND_EVENT', 'VERTX_RESPONSE_EVENT',
+    function ($rootScope, $q, $log, $timeout, $cookieStore, $cookies, eventServices, VERTX_SEND_EVENT, VERTX_RESPONSE_EVENT) {
         // This is work in progress for replacing the eb plugin
         var serverURL = location.protocol + '//' + location.hostname + ':' + (location.port || 80);
         var ebPath = '/eventbus';
         var reconnectEnabled = true;
         var reconnectInterval = 10000;
+        var sessionCookieKEY = "sessionID" ; // for linking eventbus authentication with what we set on PAM auth
         var eb = null;
 
         function closeEBConnection() {
@@ -21,11 +22,15 @@ vamiCommon.lazy.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout'
         }
 
         // Added cb since connection may not be fully opened
-        function openEBConnection(callback) {
+        function openEBConnection(options, callback) {
+            options = options || {};
             if (!eb) {
                 var connectURL = serverURL + ebPath;
                 $log.info("Creating EB, serverURL: " + connectURL);
                 eb = new vertx.EventBus(connectURL);
+                if (options.sessionID) {
+                   eb.sessionID = options.sessionID;
+                }
                 eb.onopen = function () {
                     $log.debug("EventBus Connected");
                 };
@@ -62,6 +67,14 @@ vamiCommon.lazy.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout'
             return "id: " + uid + " " + msg;
         }
 
+        function addEBSessionID(options) {
+            options = options || {};
+            var sessionIDFromCookie = $cookies.sessionID;
+            return _.extend({
+                sessionID: sessionIDFromCookie
+            }, options);
+        }
+
         /**
          * Sends a message point to point
          * @param address - The eventbus address
@@ -73,7 +86,9 @@ vamiCommon.lazy.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout'
             $log.debug(makeIDMsg(transID, "sending address -> " + address + " msg ->" + JSON.stringify(jsonMsg)));
             var deferred = $q.defer();
             try {
-                openEBConnection(function () {
+                var options = addEBSessionID();
+                $log.debug("sessionID from Cookie Value: " + options.sessionID);
+                openEBConnection(options, function () {
                     eventServices.broadCastEvent(VERTX_SEND_EVENT);
                     eb.send(address, jsonMsg, function (reply) {
                         if (!reply.result === "ok") {
@@ -112,7 +127,9 @@ vamiCommon.lazy.factory('vertxEventBus', ['$rootScope', '$q', '$log', '$timeout'
             $log.debug(makeIDMsg(transID, "subscribing to address -> " + address));
             var deferred = $q.defer();
             try {
-                openEBConnection(function () {
+                var options = addEBSessionID();
+                $log.debug("sessionID from Cookie Value: " + options.sessionID);
+                openEBConnection(options, function () {
                     eb.registerHandler(address, msgReceivedCB);
                     deferred.resolve();
                 });

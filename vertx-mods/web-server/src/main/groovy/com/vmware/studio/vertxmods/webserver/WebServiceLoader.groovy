@@ -6,19 +6,20 @@ package com.vmware.studio.vertxmods.webserver
 import com.jetdrone.vertx.yoke.GYoke
 import com.jetdrone.vertx.yoke.engine.GroovyTemplateEngine
 import com.jetdrone.vertx.yoke.middleware.*
-import com.jetdrone.vertx.yoke.store.GSharedDataSessionStore
-import com.jetdrone.vertx.yoke.util.Utils
 import com.vmware.studio.shared.categories.CommonService
 import com.vmware.studio.shared.mixins.ContextConfig
 import com.vmware.studio.shared.mixins.ResourceEnabled
 import com.vmware.studio.shared.services.Service
 import com.vmware.studio.shared.utils.ClosureScriptAsClass
 import com.vmware.studio.shared.utils.GlobalServiceConfig
+import com.vmware.studio.shared.utils.SessionUtils
 import org.jvnet.libpam.PAM
 import org.jvnet.libpam.PAMException
 import org.jvnet.libpam.UnixUser
 import org.vertx.groovy.core.http.RouteMatcher
 import org.vertx.groovy.platform.Verticle
+import org.vertx.java.core.json.JsonObject
+import org.vertx.java.core.sockjs.EventBusBridgeHook
 
 @Mixin([ResourceEnabled, ContextConfig, CommonService])
 class WebServiceLoader extends Verticle implements Service {
@@ -50,13 +51,6 @@ class WebServiceLoader extends Verticle implements Service {
         bridge            : true,
         inbound_permitted : [[:]],
         outbound_permitted: [[:]]
-    ]
-
-    def httpValues = [
-        nameField   : "username",
-        pwdField    : "password",
-        sessionStore: "session.store",
-        authAddress : "auth.address"
     ]
 
     def DEFAULT_PORT = 8080;
@@ -129,19 +123,27 @@ class WebServiceLoader extends Verticle implements Service {
             info "==============================================="
         }
 
-        def secret = Utils.newHmacSHA256("34tu823-fjej29pfrj24rfj2")
+        def secret = SessionUtils.instance.generateNewSecret()
         def router = new GRouter()
             .post("/auth/login") { request ->
             def body = request.formAttributes
-            String userName = body[httpValues.nameField]
-            String passWord = body[httpValues.pwdField]
-//            if (body[httpValues.nameField] == 'user' && body[httpValues.pwdField] == 'pass') {
+            String userName = body[SessionUtils.instance.httpValues.nameField]
+            String passWord = body[SessionUtils.instance.httpValues.pwdField]
             try {
                 if (userName && passWord) {
                     UnixUser unixUser = new PAM("sshd").authenticate(userName, passWord);
-                    def session = request.createSession()
-                    session.putString(httpValues.nameField, body[httpValues.nameField])
+
+                    // Create and initialize the new session
+                    def nameField = SessionUtils.instance.httpValues.nameField
+                    def bridgeAuthField = SessionUtils.instance.eventBusValues.bridgeAuthField
+                    def session = SessionUtils.instance.createAndInitGYokeSession(request, new JsonObject([(nameField): body[nameField]]))
+                    def newSessionID = session.getString(bridgeAuthField)
+                    def sessionIDCooke = SessionUtils.instance.createSessionIDCookie(newSessionID)
+
+                    // Set the sessionID cookie so we can use it in eventbus requests
+                    request.response.addCookie(sessionIDCooke)
                     request.response.end OK_RESPONSE()
+
                     return
                 }
             } catch (PAMException pamException) {
@@ -160,8 +162,8 @@ class WebServiceLoader extends Verticle implements Service {
         def secHandler = { request, next ->
             if (!(request.uri ==~ /^\/com\..+/)) next.handle(null)
 
-            def session = request.get("session");
-            def uname = session?.get(httpValues.nameField)
+            def session = request.getString(SessionUtils.instance.httpValues.requestSessionField);
+            def uname = session?.getString(SessionUtils.instance.httpValues.nameField)
             if (!uname) {
                 next.handle(401)
                 return
@@ -170,20 +172,18 @@ class WebServiceLoader extends Verticle implements Service {
         }
 
         def getSessionValue = { request, key ->
-            def session = request.get("session");
+            def session = request.getString(SessionUtils.instance.httpValues.requestSessionField);
             session?.getString(key)
         }
 
         def server = vertx.createHttpServer()
-
-        def sharedDataSessionStore = new GSharedDataSessionStore(vertx.toJavaVertx(), httpValues.sessionStore)
         new GYoke(this)
             .engine('html', new GroovyTemplateEngine())
             .use(new ErrorHandler(true))
             .use(new CookieParser(secret))
             .use(new Session(secret))
             .use(new Logger())
-//            .use(new BridgeSecureHandler(httpValues.authAddress, sharedDataSessionStore))
+//            .use(new BridgeSecureHandler(SessionUtils.instance.eventBusValues.authAddress, sharedDataSessionStore))
 //            .use("/static", new Static("."))
 //            .use("/modules", secHandler)
             .use(new BodyParser())
@@ -195,7 +195,7 @@ class WebServiceLoader extends Verticle implements Service {
                 case "/":
                 case "/?":
                     file = "$baseRoot/$myWebRoot/index.html"
-                    if (getSessionValue(request, httpValues.nameField)) {
+                    if (SessionUtils.instance.isAuthenticated(request)) {
                         file = "$baseRoot/$myWebRoot/modules/main/views/mainApp.html"
                     }
                     break
@@ -209,8 +209,7 @@ class WebServiceLoader extends Verticle implements Service {
                     file = "$baseRoot/$myWebRoot/${request.uri}"
             }
             if (secure) {
-                def uname = getSessionValue(request, httpValues.nameField)
-                if (!uname) {
+                if (!SessionUtils.instance.isAuthenticated(request)) {
                     //next.handle(401)
                     //return
                     request.response().redirect("/");
@@ -235,13 +234,21 @@ class WebServiceLoader extends Verticle implements Service {
             req.response.sendFile file
         }*/
 
-        def inboundPermitted = [
-            [
-                requires_auth: true
-            ]
-        ]
-//        vertx.createSockJSServer(server).bridge(prefix: '/eventbus', inboundPermitted, [[:]], 5 * 60 * 1000, httpValues.authAddress)
-        vertx.createSockJSServer(server).bridge(prefix: '/eventbus', [[:]], [[:]])
+        def config = [prefix: "/eventbus"]
+        def inboundPermitted = [[
+            address_re   : ".*",
+            requires_auth: true
+        ]]
+        def outboundPermitted = [[:]]
+        def authTimeout = SessionUtils.instance.eventBusValues.authTimeout
+        def authAddress = SessionUtils.instance.eventBusValues.authAddress
+
+        SessionUtils.instance.startSecureBridgeHandler(vertx)
+
+        vertx.createSockJSServer(server)
+            .bridge(config, inboundPermitted, outboundPermitted, authTimeout, authAddress)
+            .setHook(SessionUtils.instance.createEventBridgeHook())
+
         server.listen(port, host)
     }
 
