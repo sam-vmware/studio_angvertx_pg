@@ -22,9 +22,9 @@ pushd vami-mods/content-resolver/
 vertx create-module-link com.vmware~vami-content-resolver~1.0
 popd
 
-pushd vertx-mods/web-server/
+pushd vami-mods/web-server/
 vertx create-module-link com.vmware~vami-web-server~1.0
 pushd "$VERTX_MODS/com.vmware~vami-web-server~1.0"
-ln -s $SRC_ROOT/vertx-mods/web-server/web-ui/app
+ln -s $SRC_ROOT/vami-mods/web-server/web-ui/app
 popd
 popd

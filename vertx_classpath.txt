@@ -22,10 +22,10 @@ vami-mods/system-service/build/libs
 
 
 # web-server
-vertx-mods/web-server/build/classes/main
-vertx-mods/web-server/build/resources/main
-vertx-mods/web-server/build/deps
-vertx-mods/web-server/build/libs
+vami-mods/web-server/build/classes/main
+vami-mods/web-server/build/resources/main
+vami-mods/web-server/build/deps
+vami-mods/web-server/build/libs
 
 # main
 main/app/build/classes/main

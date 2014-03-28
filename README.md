@@ -56,7 +56,7 @@ Tests are integration at the moment and per module, since we use Gradle. You run
 # Run all the tests
 $ ./gradlew test
 # Or ruch each modules individually
-$ ./gradlew vertx-mods:web-server:test -i
+$ ./gradlew vami-mods:web-server:test -i
 $ ./gradlew vami-mods:content-resolver:test -i
 $ ./gradlew vami-mods:system-service:test -i
 ```
@@ -81,7 +81,7 @@ You probably want to run one in each terminal
 # First need to use vertx module-link to link our local repo source modules to be used by vertx
 # If you have done this a few times you may want to remove an existing link if it is already there
 # vertx doesn't provide a way to relink
-$ cd vertx-mods/web-server
+$ cd vami-mods/web-server
 $ vertx create-module-link com.vmware~vami-web-server~1.0
 $ cd vami-mods/content-resolver
 $ vertx create-module-link com.vmware~vami-content-resolver~1.0
