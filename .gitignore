@@ -29,7 +29,7 @@ dist
 .jshintrc
 .travis.yml
 Gruntfile.js
-bower_components
+#bower_components
 karma-e2e.conf.js
 karma.conf.js
 package.json
