@@ -1,0 +1,86 @@
+/**
+ * Created by samueldoyle
+ * For some methods to be used during the build process
+ * TODO: ATM this adds closures to the VMWARE_CONF properties should be a plugin or something for utility methods, change later
+ */
+import groovy.swing.SwingBuilder
+import java.awt.BorderLayout
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+/**
+ * Collects user input via swing dialog for scaffold app
+ * @param app
+ */
+VMWARE_CONF.promptNewAppProperties = { app ->
+    new SwingBuilder().edt {
+        lookAndFeel 'nimbus'
+        dialog(modal: true,
+            title: 'Project Properties',
+            alwaysOnTop: true,
+            resizable: true, // Don't allow the user to resize the dialog
+            locationRelativeTo: null, // Place dialog in center of the screen
+            pack: true, // We need to pack the dialog (so it will take the size of it's children)
+            show: true // Let's show it
+        ) {
+            borderLayout(vgap: 5)
+            panel(constraints: BorderLayout.CENTER,
+                border: compoundBorder([emptyBorder(10), titledBorder('Enter New Application Properties:')])) {
+                tableLayout {
+                    tr {
+                        td {
+                            label 'Mod Owner:'
+                        }
+                        td {
+                            textField id: 'modOwnerField', columns: 20, text: app.modOwner
+                        }
+                    }
+                    tr {
+                        td {
+                            label 'Mod Name:'
+                        }
+                        td {
+                            textField id: 'modNameField', columns: 20, text: app.modName
+                        }
+                    }
+                }
+            }
+
+            panel(constraints: BorderLayout.SOUTH) {
+                button text: 'Build', actionPerformed: {
+                    app.doBuild = true
+                    dispose()
+                }
+                button text: 'Cancel', actionPerformed: {
+                    dispose()
+                }
+            }
+
+            // Binding of textfield's to app object.
+            bean app,
+                modOwner: bind { modOwnerField.text },
+                modName: bind { modNameField.text }
+        }
+    }
+}
+
+/**
+ * Generates a target dir for output, simply increments a number to add to the outputdir if it exists already
+ * @param genDirBase - the base dir to check and increment if exists e.g. /tmp/foo-bar-service
+ * @return - A file representing the chosen directory
+ */
+VMWARE_CONF.genAppOutDir = { genDirBase ->
+    def genDirInc = 0, targetOutDir
+    while (true) {
+        targetOutDir = new File("${genDirBase}-${genDirInc}")
+        if (targetOutDir.exists()) {
+            println "INFO: Generated service directory/fle: ${targetOutDir.absolutePath} already exists."
+            genDirInc++
+            continue
+        }
+        break
+    }
+
+    targetOutDir
+}

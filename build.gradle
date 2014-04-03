@@ -1,3 +1,26 @@
+import groovy.beans.Bindable
+import org.apache.tools.ant.filters.ReplaceTokens
+
+// Some global conf to share around projects
+ext.VMWARE_CONF = [
+    vertx: [
+        // Change this to the lib directory of where your Vert.x build lib directory is
+        libDir   : "${System.env.VERTX_HOME}/lib",
+        // Additional jar dependencies
+        // !! IMPORTANT !!
+        // The vertx lang-groovy-xxx*.jar is in here and MUST MATCH the
+        // the mod version you use if you are doing a custom vertx build.
+        // this is the version that gets placed in your $VERTX_MODS directory
+        addedLibs: "$rootDir/shared/common/added_libs"
+    ]
+]
+
+apply from: "$rootDir/gradle/vmware_methods.gradle"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.10'
+}
+
 configurations.all {
     resolutionStrategy {
         // fail eagerly on version conflict (includes transitive dependencies)
@@ -26,33 +49,11 @@ configurations.all {
     }
 }
 
-// Some global conf to share around projects
-ext.VMWARE_CONF = [
-    vertx            : [
-        // Change this to the lib directory of where your Vert.x build lib directory is
-        libDir              : "${System.env.VERTX_HOME}/lib",
-        // Additional jar dependencies
-        // !! IMPORTANT !!
-        // The vertx lang-groovy-xxx*.jar is in here and MUST MATCH the
-        // the mod version you use if you are doing a custom vertx build.
-        // this is the version that gets placed in your $VERTX_MODS directory
-        addedLibs           : "$rootDir/shared/common/added_libs"
-    ]
-]
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
-}
-
-task copyWebUI(type: Copy, dependsOn: 'modZip', description: 'Copy static content') {
-    if (project.hasProperty('moduleName')) {
-        from 'web-ui/app'
-        into "build/mods/$moduleName"
-        outputs.upToDateWhen { false }
+/*
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(':createApp')) {
     }
 }
-
-/*
 tasks.whenTaskAdded { task ->
     if (task.name == 'modZip') {
         task.dependsOn copyWebUI
@@ -81,20 +82,84 @@ allprojects {
 
 subprojects {
     afterEvaluate { project ->
-    /*  def modZipTask = project.tasks.findByPath('modZip')
-        if (modZipTask) {
-            println "Project: ${project.name} has modZipTask: $modZipTask"
-            project.task(name: copyWebUI, type: Copy, dependsOn: modZipTask) << {
-                from("web-ui/app")
-                into("build/mods/$moduleName")
-                outputs.upToDateWhen { false }
-            }
-        }*/
+        /*  def modZipTask = project.tasks.findByPath('modZip')
+            if (modZipTask) {
+                println "Project: ${project.name} has modZipTask: $modZipTask"
+                project.task(name: copyWebUI, type: Copy, dependsOn: modZipTask) << {
+                    from("web-ui/app")
+                    into("build/mods/$moduleName")
+                    outputs.upToDateWhen { false }
+                }
+            }*/
         // Inject test configuration into all subprojects
         test {
             // See http://www.gradle.org/docs/current/dsl/org.gradle.api.tasks.testing.Test.html for more settings
             systemProperty 'env', 'test'
         }
+    }
+}
+
+/************************** TASKS **************************/
+
+/*task copyWebUI(type: Copy, dependsOn: 'modZip', description: 'Copy static content') {
+    if (project.hasProperty('moduleName')) {
+        from 'web-ui/app'
+        into "build/mods/$moduleName"
+        outputs.upToDateWhen { false }
+    }
+}*/
+
+@Bindable
+public class AppProperties {
+    String modOwner, modName
+    boolean doBuild = false
+
+    String toString() { "app[modOwner=$modOwner,modName=$modName,doBuild=$doBuild]" }
+}
+
+task createApp << {
+    // Some default values for sample
+    def
+        scaffoldDir = "$rootDir/scaffolding",
+        copyDirBase = "$scaffoldDir/scaffold-service",
+        replaceTokens = [:]
+
+    File copyDirBaseDir = new File(copyDirBase)
+    if (!copyDirBaseDir.exists() || !copyDirBaseDir.isDirectory()) {
+        println "ERROR: Missing scaffold-service directory, expected location --> ${copyDirBaseDir.absolutePath}"
+        System.exit(1)
+    }
+
+    def app = new AppProperties(modOwner: 'com.mycompany', modName: 'my-test-service')
+    VMWARE_CONF.promptNewAppProperties(app)
+    println "\nINFO: App collected values: $app\n"
+
+    def genDirBase = "$scaffoldDir/scaffold-${app.modName}"
+    File targetOutDir = VMWARE_CONF.genAppOutDir(genDirBase)
+
+    replaceTokens = [
+        modName : app.modName,
+        modOwner: app.modOwner
+    ]
+
+    if (app.doBuild) {
+        def copyTaskName = "createApp-${app.modName}"
+        println "INFO: Creating Copy Task: $copyTaskName"
+        copy {
+            from(copyDirBase) {
+                exclude '**/gradle.properties', '**/mod.json'
+            }
+            from(copyDirBase) {
+                include '**/gradle.properties'
+                include '**/mod.json'
+                filter(ReplaceTokens, tokens: replaceTokens)
+            }
+            into targetOutDir.absolutePath
+            includeEmptyDirs = true
+        }
+        println "INFO: App Generated --> ${targetOutDir.absolutePath}"
+    } else {
+        println "INFO: Scaffolding Cancelled"
     }
 }
 
