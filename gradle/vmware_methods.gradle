@@ -4,6 +4,8 @@
  * TODO: ATM this adds closures to the VMWARE_CONF properties should be a plugin or something for utility methods, change later
  */
 import groovy.swing.SwingBuilder
+import org.apache.tools.ant.filters.ReplaceTokens
+
 import java.awt.BorderLayout
 
 apply plugin: 'java'
@@ -83,4 +85,30 @@ VMWARE_CONF.genAppOutDir = { genDirBase ->
     }
 
     targetOutDir
+}
+
+/**
+ * Outputs a scaffolded app based on provided properties
+ * @param props - required properties to output the scaffold
+ */
+VMWARE_CONF.scaffoldApp = { props ->
+    copy {
+        from(props.copyDirBase) {
+            exclude '**/gradle.properties', '**/mod.json', '**/index.html'
+        }
+        // this filter is for replacing the vertx modname and modowner for the module, this is provided through
+        // the user input
+        from(props.copyDirBase) {
+            include '**/gradle.properties'
+            include '**/mod.json'
+            include '**/index.html'
+            filter(ReplaceTokens, tokens: props.replaceTokens)
+        }
+        into props.targetOutDir.absolutePath
+        includeEmptyDirs = true
+    }
+
+    //def webUIDir = "${props.targetOutDir.absolutePath}/web-ui"
+
+    println "INFO: App Generated --> ${props.targetOutDir.absolutePath}"
 }

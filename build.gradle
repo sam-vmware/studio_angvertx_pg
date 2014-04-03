@@ -119,10 +119,8 @@ public class AppProperties {
 
 task createApp << {
     // Some default values for sample
-    def
-        scaffoldDir = "$rootDir/scaffolding",
-        copyDirBase = "$scaffoldDir/scaffold-service",
-        replaceTokens = [:]
+    def scaffoldDir = "$rootDir/scaffolding"
+    def copyDirBase = "$scaffoldDir/scaffold-service"
 
     File copyDirBaseDir = new File(copyDirBase)
     if (!copyDirBaseDir.exists() || !copyDirBaseDir.isDirectory()) {
@@ -130,37 +128,33 @@ task createApp << {
         System.exit(1)
     }
 
+    // SwingBuilder generated dialog to gather required properties
     def app = new AppProperties(modOwner: 'com.mycompany', modName: 'my-test-service')
     VMWARE_CONF.promptNewAppProperties(app)
     println "\nINFO: App collected values: $app\n"
 
+    // Get a directory to output the scaffold app
     def genDirBase = "$scaffoldDir/scaffold-${app.modName}"
     File targetOutDir = VMWARE_CONF.genAppOutDir(genDirBase)
 
-    replaceTokens = [
+    def replaceTokens = [
         modName : app.modName,
         modOwner: app.modOwner
     ]
+    // All the properties needed
+    def scaffoldProperties = [
+        app          : app,
+        copyDirBase  : copyDirBase,
+        targetOutDir : targetOutDir,
+        replaceTokens: replaceTokens
+    ]
 
+    // If ok selected from the properties gui scaffold the app
     if (app.doBuild) {
-        def copyTaskName = "createApp-${app.modName}"
-        println "INFO: Creating Copy Task: $copyTaskName"
-        copy {
-            from(copyDirBase) {
-                exclude '**/gradle.properties', '**/mod.json'
-            }
-            from(copyDirBase) {
-                include '**/gradle.properties'
-                include '**/mod.json'
-                filter(ReplaceTokens, tokens: replaceTokens)
-            }
-            into targetOutDir.absolutePath
-            includeEmptyDirs = true
-        }
-        println "INFO: App Generated --> ${targetOutDir.absolutePath}"
-    } else {
-        println "INFO: Scaffolding Cancelled"
+        VMWARE_CONF.scaffoldApp(scaffoldProperties)
     }
+
+    System.exit(0)
 }
 
 task(console, dependsOn: 'classes', type: Exec) {
