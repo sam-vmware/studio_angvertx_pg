@@ -8,8 +8,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 import java.awt.BorderLayout
 
-apply plugin: 'java'
-apply plugin: 'groovy'
+apply plugin: "java"
+apply plugin: "groovy"
 
 /**
  * Collects user input via swing dialog for scaffold app
@@ -17,9 +17,9 @@ apply plugin: 'groovy'
  */
 VMWARE_CONF.promptNewAppProperties = { app ->
     new SwingBuilder().edt {
-        lookAndFeel 'nimbus'
+        lookAndFeel "nimbus"
         dialog(modal: true,
-            title: 'Project Properties',
+            title: "Project Properties",
             alwaysOnTop: true,
             resizable: true, // Don't allow the user to resize the dialog
             locationRelativeTo: null, // Place dialog in center of the screen
@@ -28,33 +28,34 @@ VMWARE_CONF.promptNewAppProperties = { app ->
         ) {
             borderLayout(vgap: 5)
             panel(constraints: BorderLayout.CENTER,
-                border: compoundBorder([emptyBorder(10), titledBorder('Enter New Application Properties:')])) {
+                border: compoundBorder([emptyBorder(10), titledBorder("Enter New Application Properties:")])) {
                 tableLayout {
                     tr {
                         td {
-                            label 'Mod Owner:'
+                            label "Mod Owner ('com.' will be prefixed):"
                         }
                         td {
-                            textField id: 'modOwnerField', columns: 20, text: app.modOwner
+                            textField id: "modOwnerField", columns: 20, text: app.modOwner
                         }
                     }
                     tr {
                         td {
-                            label 'Mod Name:'
+                            label "Mod Name:"
                         }
                         td {
-                            textField id: 'modNameField', columns: 20, text: app.modName
+                            textField id: "modNameField", columns: 20, text: app.modName
                         }
                     }
                 }
             }
 
             panel(constraints: BorderLayout.SOUTH) {
-                button text: 'Build', actionPerformed: {
+                button text: "Build", actionPerformed: {
                     app.doBuild = true
+                    app.modOwner = "com.${app.modOwner}"
                     dispose()
                 }
-                button text: 'Cancel', actionPerformed: {
+                button text: "Cancel", actionPerformed: {
                     dispose()
                 }
             }
@@ -73,11 +74,14 @@ VMWARE_CONF.promptNewAppProperties = { app ->
  * @return - A file representing the chosen directory
  */
 VMWARE_CONF.genAppOutDir = { genDirBase ->
-    def genDirInc = 0, targetOutDir
+    def genDirInc = -1, targetOutDir, first = true
     while (true) {
-        targetOutDir = new File("${genDirBase}-${genDirInc}")
+        if (first) {
+            targetOutDir = new File("${genDirBase}")
+        } else {
+            targetOutDir = new File("${genDirBase}.${genDirInc}")
+        }
         if (targetOutDir.exists()) {
-            println "INFO: Generated service directory/fle: ${targetOutDir.absolutePath} already exists."
             genDirInc++
             continue
         }
@@ -92,23 +96,52 @@ VMWARE_CONF.genAppOutDir = { genDirBase ->
  * @param props - required properties to output the scaffold
  */
 VMWARE_CONF.scaffoldApp = { props ->
+    def scaffoldSvcDir = "$props.scaffoldDir/scaffold-service",
+        scaffoldRscDir = "$props.scaffoldDir/scaffold-resources"
+
     copy {
-        from(props.copyDirBase) {
-            exclude '**/gradle.properties', '**/mod.json', '**/index.html'
+        from(scaffoldSvcDir) {
+            exclude "**/gradle.properties", "**/mod.json", "**/index.html"
         }
         // this filter is for replacing the vertx modname and modowner for the module, this is provided through
         // the user input
-        from(props.copyDirBase) {
-            include '**/gradle.properties'
-            include '**/mod.json'
-            include '**/index.html'
+        from(scaffoldSvcDir) {
+            include "**/gradle.properties"
+            include "**/mod.json"
+            include "**/index.html"
             filter(ReplaceTokens, tokens: props.replaceTokens)
         }
         into props.targetOutDir.absolutePath
         includeEmptyDirs = true
     }
 
-    //def webUIDir = "${props.targetOutDir.absolutePath}/web-ui"
+    def webUiDir = "$props.targetOutDir.absolutePath/web-ui",
+        modDir = "$webUiDir/app/modules",
+        srcDir = "$props.targetOutDir.absolutePath/src",
+        groovyDir = "$srcDir/main/groovy"
+
+    // Create a custom mod dir alongside common
+    File scaffModDir = new File(modDir, props.replaceTokens.modName)
+    assert scaffModDir.mkdirs()
+    ["controllers", "services", "views"].each {
+        assert new File(scaffModDir, it).mkdirs()
+    }
+
+    copy {
+        from(scaffoldRscDir) {
+            rename { String fileName ->
+                fileName.replace("scaffold", props.replaceTokens.modName)
+            }
+            filter(ReplaceTokens, tokens: props.replaceTokens)
+        }
+        into scaffModDir.absolutePath
+    }
+
+    // Create groovy src directory structure
+    def modOwnerDirs = props.replaceTokens.modOwner.replaceAll(/\./, "/")
+    File groovyModDirs = new File("$groovyDir/$modOwnerDirs")
+    assert groovyModDirs.mkdirs()
+
 
     println "INFO: App Generated --> ${props.targetOutDir.absolutePath}"
 }
