@@ -4,14 +4,34 @@
  * TODO: ATM this adds closures to the VMWARE_CONF properties should be a plugin or something for utility methods, change later
  */
 import groovy.swing.SwingBuilder
-import org.apache.tools.ant.filters.ReplaceTokens
 import java.awt.*
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.google.guava:guava:$guavaVersion"
+        classpath "org.apache.commons:commons-lang3:$commonsLangVersion"
+    }
+}
 
 /**
  * Collects user input via swing dialog for scaffold app
  * @param app
  */
 VMWARE_CONF.promptNewAppProperties = { app ->
+
+    def modFieldConverter = { modField ->
+        modField.toLowerCase()
+    }
+
+    def modFieldValidator = { modField ->
+        modField ==~ /.*?[\.a-zA-Z].*?/
+    }
+
     new SwingBuilder().edt {
         lookAndFeel "nimbus"
         dialog(modal: true,
@@ -31,7 +51,11 @@ VMWARE_CONF.promptNewAppProperties = { app ->
                             label "Mod Owner ('com.' will be prefixed):"
                         }
                         td {
-                            textField id: "modOwnerField", columns: 20, text: app.modOwner
+                            textField id: "modOwnerField", columns: 20, text:bind(
+                                validator: modFieldValidator,
+                                converter: modFieldConverter,
+                                target:app, targetProperty:'modOwner'
+                            )
                         }
                     }
                     tr {
@@ -39,7 +63,11 @@ VMWARE_CONF.promptNewAppProperties = { app ->
                             label "Mod Name:"
                         }
                         td {
-                            textField id: "modNameField", columns: 20, text: app.modName
+                            textField id: "modNameField", columns: 20, text:bind(
+                                validator: modFieldValidator,
+                                converter: modFieldConverter,
+                                target:app, targetProperty:'modName'
+                            )
                         }
                     }
                 }
@@ -55,11 +83,6 @@ VMWARE_CONF.promptNewAppProperties = { app ->
                     dispose()
                 }
             }
-
-            // Binding of textfield's to app object.
-            bean app,
-                modOwner: bind { modOwnerField.text },
-                modName: bind { modNameField.text }
         }
     }
 }

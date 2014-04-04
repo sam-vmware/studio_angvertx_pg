@@ -75,7 +75,7 @@ buildscript {
 
     dependencies {
         classpath "com.google.guava:guava:$guavaVersion"
-        classpath "org.apache.commons:commons-lang3:3.3.1"
+        classpath "org.apache.commons:commons-lang3:$commonsLangVersion"
     }
 }
 
@@ -137,6 +137,7 @@ public class AppProperties {
 task createApp << {
     // Some default values for sample
     def scaffoldDir = "$rootDir/scaffolding"
+    def genDirBase = "$scaffoldDir/generated"
     def copyDirBase = "$scaffoldDir/scaffold-service"
 
     File copyDirBaseDir = new File(copyDirBase)
@@ -151,17 +152,20 @@ task createApp << {
     println "\nINFO: App collected values: $app\n"
 
     // Get a directory to output the scaffold app
-    def genDirBase = "$scaffoldDir/scaffold-${app.modName}"
-    File targetOutDir = VMWARE_CONF.genAppOutDir(genDirBase)
+    String genDirOut = "$genDirBase/scaffold-${app.modName}"
+    File targetOutDir = VMWARE_CONF.genAppOutDir(genDirOut)
 
-    def convertedModName = CharMatcher.JAVA_LETTER.retainFrom(app.modName)
+    // def convertedModName = CharMatcher.JAVA_LETTER.retainFrom(app.modName)
+    // def convertedModOwner = CharMatcher.JAVA_LETTER.retainFrom(app.modOwner)
+    String convertedModName = app.modName
+    String convertedModOwner = app.modOwner
     String serviceBaseName = "${WordUtils.capitalize(convertedModName)}"
     String serviceName = "${serviceBaseName}Service"
     String serviceHelperName = "${serviceName}Helper"
 
     def replaceTokens = [
         modName         : convertedModName,
-        modOwner        : app.modOwner,
+        modOwner        : convertedModOwner,
         serviceName: serviceName,
         serviceHelperName: serviceHelperName
     ]
