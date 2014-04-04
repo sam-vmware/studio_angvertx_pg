@@ -1,5 +1,10 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+
+import com.google.common.base.CharMatcher
 import groovy.beans.Bindable
-import org.apache.tools.ant.filters.ReplaceTokens
+import org.apache.commons.lang3.text.*
 
 // Some global conf to share around projects
 ext.VMWARE_CONF = [
@@ -18,7 +23,7 @@ ext.VMWARE_CONF = [
 apply from: "$rootDir/gradle/vmware_methods.gradle"
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
+    gradleVersion = '1.11'
 }
 
 configurations.all {
@@ -63,8 +68,19 @@ configure(subprojects.findAll {it.tasks.findByPath('modZip')}) {
 }
 */
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.google.guava:guava:$guavaVersion"
+        classpath "org.apache.commons:commons-lang3:3.3.1"
+    }
+}
+
 allprojects {
-    //apply plugin: 'java'
+    apply plugin: 'java'
     apply plugin: 'groovy'
     sourceCompatibility = '1.7'
     targetCompatibility = '1.7'
@@ -138,15 +154,23 @@ task createApp << {
     def genDirBase = "$scaffoldDir/scaffold-${app.modName}"
     File targetOutDir = VMWARE_CONF.genAppOutDir(genDirBase)
 
+    def convertedModName = CharMatcher.JAVA_LETTER.retainFrom(app.modName)
+    String serviceBaseName = "${WordUtils.capitalize(convertedModName)}"
+    String serviceName = "${serviceBaseName}Service"
+    String serviceHelperName = "${serviceName}Helper"
+
     def replaceTokens = [
-        modName : app.modName,
-        modOwner: app.modOwner
+        modName         : convertedModName,
+        modOwner        : app.modOwner,
+        serviceName: serviceName,
+        serviceHelperName: serviceHelperName
     ]
     // All the properties needed
     def scaffoldProperties = [
         app          : app,
         scaffoldDir  : scaffoldDir,
         targetOutDir : targetOutDir,
+        serviceBaseName: serviceBaseName,
         replaceTokens: replaceTokens
     ]
 
@@ -154,8 +178,6 @@ task createApp << {
     if (app.doBuild) {
         VMWARE_CONF.scaffoldApp(scaffoldProperties)
     }
-
-    System.exit(0)
 }
 
 task(console, dependsOn: 'classes', type: Exec) {

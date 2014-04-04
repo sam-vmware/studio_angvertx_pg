@@ -6,6 +6,15 @@
     function ($q, $log, $sce, vertxEventBus, APP_ROOT) {
         var ME = "@modName@Service";
 
+        var SERVICE_INFO = {
+            common: {
+                newServiceAnnounceChannel: "vami.newServiceAnnounceChannel"
+            },
+            @serviceName@: {
+                address: "@modName@.@serviceName@"
+            }
+        };
+
         function fetchServerContent(options) {
             // Important! This returns a promise
             var svcName = options.serviceName;

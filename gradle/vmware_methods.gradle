@@ -5,11 +5,7 @@
  */
 import groovy.swing.SwingBuilder
 import org.apache.tools.ant.filters.ReplaceTokens
-
-import java.awt.BorderLayout
-
-apply plugin: "java"
-apply plugin: "groovy"
+import java.awt.*
 
 /**
  * Collects user input via swing dialog for scaffold app
@@ -97,7 +93,9 @@ VMWARE_CONF.genAppOutDir = { genDirBase ->
  */
 VMWARE_CONF.scaffoldApp = { props ->
     def scaffoldSvcDir = "$props.scaffoldDir/scaffold-service",
-        scaffoldRscDir = "$props.scaffoldDir/scaffold-resources"
+        scaffoldRscDir = "$props.scaffoldDir/scaffold-artifacts/scaffold-resources",
+        scaffoldSrcDir = "$props.scaffoldDir/scaffold-artifacts/scaffold-src",
+        scaffoldGroovySrcDir = "$scaffoldSrcDir/groovy"
 
     copy {
         from(scaffoldSvcDir) {
@@ -138,9 +136,21 @@ VMWARE_CONF.scaffoldApp = { props ->
     }
 
     // Create groovy src directory structure
-    def modOwnerDirs = props.replaceTokens.modOwner.replaceAll(/\./, "/")
-    File groovyModDirs = new File("$groovyDir/$modOwnerDirs")
-    assert groovyModDirs.mkdirs()
+    def groovySrcOut = props.replaceTokens.modOwner.replaceAll(/\./, "/")
+    File groovySrcDirs = new File("$groovyDir/$groovySrcOut")
+    assert groovySrcDirs.mkdirs()
+    File groovyHelpersDirs = new File(groovySrcDirs, "helpers")
+    assert groovyHelpersDirs.mkdir()
+
+    copy {
+        from(scaffoldGroovySrcDir) {
+            rename { String fileName ->
+                fileName.replace("Scaffold", props.serviceBaseName)
+            }
+            filter(ReplaceTokens, tokens: props.replaceTokens)
+        }
+        into groovySrcDirs.absolutePath
+    }
 
 
     println "INFO: App Generated --> ${props.targetOutDir.absolutePath}"

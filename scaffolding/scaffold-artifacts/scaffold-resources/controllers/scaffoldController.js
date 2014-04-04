@@ -7,7 +7,7 @@
     function ($q, $scope, $routeParams, $log, $timeout, $modal, COMMON_ROOT, @modName@Service) {
 
         var getMessage = {
-            type: "HelloWorldSystem",
+            type: "HelloWorld",
             operation: "sayHello"
         };
 
@@ -17,7 +17,7 @@
         // It is p2p so will wait on response with potential timeout
         $scope.getContent = function () {
             serviceRequest({
-                serviceName: "@modName@",
+                serviceName: "@serviceName@",
                 jsonMsg: getMessage
             }, function (reply) {
                 if ($scope.contents) $scope.contents.length = 0;
