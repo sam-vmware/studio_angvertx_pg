@@ -21,15 +21,15 @@
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="styles/common.css">
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="/@modOwner@~@modName@~@buildVersion@/app/styles/common.css">
+    <link rel="stylesheet" href="/@modOwner@~@modName@~@buildVersion@/app/styles/main.css">
     <!-- endbuild -->
 
     <!-- Add some ids for storing module route -->
-    <link id="WEB_ROOT" href="/@modOwner@~@modName@~1.0/app"/>
-    <link id="SCRIPTS_ROOT" href="/@modOwner@~@modName@~1.0/app/scripts"/>
-    <link id="COMMON_ROOT" href="/@modOwner@~@modName@~1.0/app/modules/common"/>
-    <link id="APP_ROOT" href="/@modOwner@~@modName@~1.0/app/modules/@modName@"/>
+    <link id="WEB_ROOT" href="/@modOwner@~@modName@~@buildVersion@/app"/>
+    <link id="SCRIPTS_ROOT" href="/@modOwner@~@modName@~@buildVersion@/app/scripts"/>
+    <link id="COMMON_ROOT" href="/@modOwner@~@modName@~@buildVersion@/app/modules/common"/>
+    <link id="APP_ROOT" href="/@modOwner@~@modName@~@buildVersion@/app/modules/@modName@"/>
     <style type="text/css">
         body, html {
             margin: 0;
@@ -96,5 +96,7 @@
 <script src="/scripts/http-auth-interceptor.js"></script>
 <script src="modules/common/vamiCommon.js"></script>
 <script src="modules/@modName@/@modName@App.js"></script>
+<!--<script src="modules/@modName@/services/tabs/tabsService.js"></script>
+<script src="modules/@modName@/controllers/tabs/tabsController.js"></script>-->
 </body>
 </html>

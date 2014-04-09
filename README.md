@@ -107,3 +107,37 @@ If all went well you should see the main page at: [localhost:8080](localhost:808
 
 Authentication is PAM based so assuming you are running on Linux you should be able to login using a valid user
 that can be authenticated through ssh.
+
+#### Scaffolding
+To quickly generate a scaffolded app which produces a working sample application and structure use the createApp task
+```bash
+./gradlew createApp
+```
+A swing dialog is presented which you enter two fields a modowner and modname
+* The modowner is like a Maven group (com. is automatically prefixed) e.g. **foo.bar** would produce **com.foo.bar**
+* The modname is the name of the module e.g. **pop** 
+
+*For more on Vert.x Module Naming Convention see: http://vertx.io/mods_manual.html*
+
+The scaffolded module will be output to: scaffolding/generated/scaffold-(your modname)
+##### Building
+To build the scaffold modify the settings.gradle to include this as a project
+```bash
+include 'shared:common'
+include 'vami-mods', 'vami-mods:system-service', 'vami-mods:content-resolver', 'vami-mods:web-server'
+
+// example for a scaffolded app. In this case input for modname was pop
+//include 'scaffolding:generated:scaffold-pop'
+```
+Now **./gradlew assemble** will pick this up and generate it as a Vert.x mod.
+##### Running the Scaffold
+This is the same as any of the other modules. You would repeat the same steps for this module as was described in the previous Running section for example if you named the mod pop:
+
+```bash
+$ cd scaffolding/generated/scaffold-pop
+$ vertx create-module-link vertx create-module-link com.foo.bar~pop~1.0
+$ cd $VERTX_MODS/com.foo.bar~pop~1.0
+$ ln -s $SRC_ROOT/scaffolding/generated/scaffold-pop/web-ui/app
+$ vertx runmod com.foo.bar~pop~1.0 -cluster -cluster-host 127.0.0.1 -cluster-port 9002
+```
+Once again take a look at the **modlink** script in the project root directory to see an example

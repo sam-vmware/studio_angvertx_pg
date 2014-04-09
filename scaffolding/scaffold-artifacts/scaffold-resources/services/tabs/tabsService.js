@@ -1,10 +1,10 @@
 'use strict';
 /**
- * Scaffold Service
+ * Created by samueldoyle
  */
-@modName@App.lazy.factory('@modName@Service', ['$q', '$log', '$sce', 'vertxEventBus', 'APP_ROOT',
+@modName@App.lazy.factory('tabsService', ['$q', '$log', '$sce', 'vertxEventBus', 'APP_ROOT',
     function ($q, $log, $sce, vertxEventBus, APP_ROOT) {
-        var ME = "@modName@Service";
+        var ME = "tabsService";
 
         var SERVICE_INFO = {
             common: {
@@ -14,6 +14,17 @@
                 address: "@modName@.@serviceName@"
             }
         };
+
+        var tabsList = [
+            {
+                title: "First Tab of @serviceName@", name: "@serviceName@", active: true, disabled: false,
+                templ: $sce.trustAsResourceUrl(APP_ROOT + '/views/tabs/@modName@TabView.html')
+            }
+        ];
+
+        function getTabs(options) {
+            return tabsList;
+        }
 
         function fetchServerContent(options) {
             // Important! This returns a promise
@@ -32,6 +43,10 @@
                 // returns promise
                 var promise = fetchServerContent(options);
                 return promise
+            },
+            getTabs: function (options) {
+                return getTabs(options)
             }
         }
+
     }]);

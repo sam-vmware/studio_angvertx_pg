@@ -1,2 +1,2 @@
 find . -type d -name build -and -not -path '*/web-ui*' | xargs rm -fr
-./gradlew clean
+./gradlew clean --no-daemon

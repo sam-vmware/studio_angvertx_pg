@@ -1,9 +1,4 @@
-apply plugin: 'java'
-apply plugin: 'groovy'
-
-
 import com.google.common.base.CharMatcher
-import groovy.beans.Bindable
 import org.apache.commons.lang3.text.*
 
 // Some global conf to share around projects
@@ -23,7 +18,7 @@ ext.VMWARE_CONF = [
 apply from: "$rootDir/gradle/vmware_methods.gradle"
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+    gradleVersion = buildGradleVersion
 }
 
 configurations.all {
@@ -74,6 +69,7 @@ buildscript {
     }
 
     dependencies {
+        classpath "org.codehaus.groovy:groovy-all:$groovyVersion"
         classpath "com.google.guava:guava:$guavaVersion"
         classpath "org.apache.commons:commons-lang3:$commonsLangVersion"
     }
@@ -82,10 +78,11 @@ buildscript {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'groovy'
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
-    group = 'com.vmware.studio'
-    version = '1.0'
+
+    sourceCompatibility = buildSourceCompatibility
+    buildTargetCompatibility = targetCompatibility
+    group = buildGroup
+    version = buildVersion
 
     repositories {
         mavenCentral()
@@ -126,15 +123,13 @@ subprojects {
     }
 }*/
 
-@Bindable
-public class AppProperties {
-    String modOwner, modName
-    boolean doBuild = false
-
-    String toString() { "app[modOwner=$modOwner,modName=$modName,doBuild=$doBuild]" }
-}
-
 task createApp << {
+    file("$rootDir/gradle.properties").withReader { reader ->
+        def theProps = new Properties()
+        theProps.load(reader)
+        properties.putAll(theProps)
+    }
+
     // Some default values for sample
     def scaffoldDir = "$rootDir/scaffolding"
     def genDirBase = "$scaffoldDir/generated"
@@ -147,39 +142,38 @@ task createApp << {
     }
 
     // SwingBuilder generated dialog to gather required properties
-    def app = new AppProperties(modOwner: 'mycompany', modName: 'my-test-service')
-    VMWARE_CONF.promptNewAppProperties(app)
+    def app = VMWARE_CONF.promptNewAppProperties()
     println "\nINFO: App collected values: $app\n"
 
     // Get a directory to output the scaffold app
-    String genDirOut = "$genDirBase/scaffold-${app.modName}"
-    File targetOutDir = VMWARE_CONF.genAppOutDir(genDirOut)
+    String genDirOut = "$genDirBase/scaffold-$app.modName"
+    String targetOutDir = VMWARE_CONF.genAppOutDir(genDirOut)
+    println "DEBUG: targetOutDir : $targetOutDir"
 
     // def convertedModName = CharMatcher.JAVA_LETTER.retainFrom(app.modName)
     // def convertedModOwner = CharMatcher.JAVA_LETTER.retainFrom(app.modOwner)
-    String convertedModName = app.modName
-    String convertedModOwner = app.modOwner
-    String serviceBaseName = "${WordUtils.capitalize(convertedModName)}"
+    String serviceBaseName = "${WordUtils.capitalize(app.modName)}"
     String serviceName = "${serviceBaseName}Service"
     String serviceHelperName = "${serviceName}Helper"
 
     def replaceTokens = [
-        modName         : convertedModName,
-        modOwner        : convertedModOwner,
-        serviceName: serviceName,
-        serviceHelperName: serviceHelperName
+        modName         : app.modName as String,
+        modOwner        : app.modOwner as String,
+        buildVersion    : buildVersion,
+        serviceName: serviceName as String,
+        serviceHelperName: serviceHelperName as String
     ]
     // All the properties needed
     def scaffoldProperties = [
-        app          : app,
-        scaffoldDir  : scaffoldDir,
-        targetOutDir : targetOutDir,
-        serviceBaseName: serviceBaseName,
+        scaffoldDir  : scaffoldDir as String,
+        targetOutDir : targetOutDir as String,
+        serviceBaseName: serviceBaseName as String,
         replaceTokens: replaceTokens
     ]
 
     // If ok selected from the properties gui scaffold the app
     if (app.doBuild) {
+        println "DEBUG: Using scaffoldProperties : $scaffoldProperties"
         VMWARE_CONF.scaffoldApp(scaffoldProperties)
     }
 }

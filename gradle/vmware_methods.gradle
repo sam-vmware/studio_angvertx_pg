@@ -3,6 +3,10 @@
  * For some methods to be used during the build process
  * TODO: ATM this adds closures to the VMWARE_CONF properties should be a plugin or something for utility methods, change later
  */
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+import groovy.beans.Bindable
 import groovy.swing.SwingBuilder
 import java.awt.*
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -13,17 +17,33 @@ buildscript {
     }
 
     dependencies {
+        classpath "org.codehaus.groovy:groovy-all:$groovyVersion"
         classpath "com.google.guava:guava:$guavaVersion"
         classpath "org.apache.commons:commons-lang3:$commonsLangVersion"
     }
+}
+
+dependencies {
+    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    compile "com.google.guava:guava:$guavaVersion"
+    compile "org.apache.commons:commons-lang3:$commonsLangVersion"
+}
+
+@Bindable
+public class AppProperties {
+    String modOwner, modName
+    boolean doBuild = false
+
+    String toString() { "app[modOwner=$modOwner,modName=$modName,doBuild=$doBuild]" }
 }
 
 /**
  * Collects user input via swing dialog for scaffold app
  * @param app
  */
-VMWARE_CONF.promptNewAppProperties = { app ->
+VMWARE_CONF.promptNewAppProperties = {
 
+    def returnValues = [:]
     def modFieldConverter = { modField ->
         modField.toLowerCase()
     }
@@ -32,8 +52,9 @@ VMWARE_CONF.promptNewAppProperties = { app ->
         modField ==~ /.*?[\.a-zA-Z].*?/
     }
 
+    def app = new AppProperties(modOwner: 'mycompany', modName: 'my-test-service')
     new SwingBuilder().edt {
-        lookAndFeel "nimbus"
+
         dialog(modal: true,
             title: "Project Properties",
             alwaysOnTop: true,
@@ -75,8 +96,9 @@ VMWARE_CONF.promptNewAppProperties = { app ->
 
             panel(constraints: BorderLayout.SOUTH) {
                 button text: "Build", actionPerformed: {
-                    app.doBuild = true
-                    app.modOwner = "com.${app.modOwner}"
+                    returnValues.doBuild = true
+                    returnValues.modOwner = "com.${app.modOwner}"
+                    returnValues.modName = app.modName
                     dispose()
                 }
                 button text: "Cancel", actionPerformed: {
@@ -85,6 +107,8 @@ VMWARE_CONF.promptNewAppProperties = { app ->
             }
         }
     }
+
+    returnValues
 }
 
 /**
@@ -96,11 +120,11 @@ VMWARE_CONF.genAppOutDir = { genDirBase ->
     def genDirInc = -1, targetOutDir, first = true
     while (true) {
         if (first) {
-            targetOutDir = new File("${genDirBase}")
+            targetOutDir = "$genDirBase"
         } else {
-            targetOutDir = new File("${genDirBase}.${genDirInc}")
+            targetOutDir = "$genDirBase.$genDirInc"
         }
-        if (targetOutDir.exists()) {
+        if (new File(targetOutDir).exists()) {
             genDirInc++
             continue
         }
@@ -110,71 +134,113 @@ VMWARE_CONF.genAppOutDir = { genDirBase ->
     targetOutDir
 }
 
+def createDirs = { File targetDirs ->
+    println "DEBUG: Making dirs: ${targetDirs.absolutePath}"
+    if (targetDirs.exists()) {
+        println "DEBUG: ${targetDirs.absolutePath} exists already"
+    } else if (!targetDirs.mkdirs()) {
+        throw new StopActionException("Failed to created dirs: ${targetDirs.absolutePath}")
+    }
+}
+
 /**
  * Outputs a scaffolded app based on provided properties
  * @param props - required properties to output the scaffold
  */
 VMWARE_CONF.scaffoldApp = { props ->
-    def scaffoldSvcDir = "$props.scaffoldDir/scaffold-service",
-        scaffoldRscDir = "$props.scaffoldDir/scaffold-artifacts/scaffold-resources",
-        scaffoldSrcDir = "$props.scaffoldDir/scaffold-artifacts/scaffold-src",
-        scaffoldGroovySrcDir = "$scaffoldSrcDir/groovy"
 
+    def opts = [
+        scaffoldSvcDir:"${props.scaffoldDir}/scaffold-service",
+        scaffoldRscDir:"${props.scaffoldDir}/scaffold-artifacts/scaffold-resources",
+        scaffoldSrcDir:"${props.scaffoldDir}/scaffold-artifacts/scaffold-src",
+        groovySrcOut:"${props.replaceTokens.modOwner.replaceAll(/\./, "/")}",
+        targetOutDir:new File(props.targetOutDir)
+    ]
+    opts << [
+        scaffoldGroovySrcDir:"${opts.scaffoldSrcDir}/groovy",
+        webUiDir:"${opts.targetOutDir.absolutePath}/web-ui",
+        appDir:"${opts.targetOutDir.absolutePath}/web-ui/app",
+        modDir:"${opts.targetOutDir.absolutePath}/web-ui/app/modules",
+        srcDir:"${opts.targetOutDir.absolutePath}/src",
+        groovyDir:"${opts.targetOutDir.absolutePath}/src/main/groovy",
+        resourceDir:"${opts.targetOutDir.absolutePath}/src/main/resources",
+    ]
+    opts << [
+        groovySrcDirs:new File("${opts.groovyDir}/${opts.groovySrcOut}"),
+        scaffModDir:new File(opts.modDir, props.replaceTokens.modName)
+    ]
+    opts << [
+        groovyHelpersDirs:new File(opts.groovySrcDirs, "helpers")
+    ]
+
+    println "\n==== DEBUG: Using options ====\n"
+    opts.sort{it.key}.each{ k,v ->
+        println "$k : $v"
+    }
+    println "\n=============================\n"
+
+    // Create Dirs
+    createDirs(opts.targetOutDir)
+    createDirs(opts.scaffModDir)
+    ["controllers", "services", "views"].each { String dir ->
+        createDirs(new File(opts.scaffModDir, dir))
+    }
+    createDirs(opts.groovySrcDirs)
+    createDirs(opts.groovyHelpersDirs)
+
+    // Copy
+    println "DEBUG: Copy ${opts.scaffoldSvcDir} --> ${opts.targetOutDir.absolutePath}"
     copy {
-        from(scaffoldSvcDir) {
-            exclude "**/gradle.properties", "**/mod.json", "**/index.html"
+        from(opts.scaffoldSvcDir) {
+            exclude "**/gradle.properties", "**/mod.json", "**/vertx_classpath.txt"
         }
-        // this filter is for replacing the vertx modname and modowner for the module, this is provided through
-        // the user input
-        from(scaffoldSvcDir) {
-            include "**/gradle.properties"
-            include "**/mod.json"
-            include "**/index.html"
+        from(opts.scaffoldSvcDir) {
+            include "**/gradle.properties", "**/mod.json", "**/vertx_classpath.txt"
             filter(ReplaceTokens, tokens: props.replaceTokens)
         }
-        into props.targetOutDir.absolutePath
+        into opts.targetOutDir.absolutePath
         includeEmptyDirs = true
     }
 
-    def webUiDir = "$props.targetOutDir.absolutePath/web-ui",
-        modDir = "$webUiDir/app/modules",
-        srcDir = "$props.targetOutDir.absolutePath/src",
-        groovyDir = "$srcDir/main/groovy"
-
-    // Create a custom mod dir alongside common
-    File scaffModDir = new File(modDir, props.replaceTokens.modName)
-    assert scaffModDir.mkdirs()
-    ["controllers", "services", "views"].each {
-        assert new File(scaffModDir, it).mkdirs()
-    }
-
+    println "DEBUG: Copy ${opts.scaffoldRscDir} --> ${opts.scaffModDir.absolutePath}"
     copy {
-        from(scaffoldRscDir) {
+        from(opts.scaffoldRscDir) {
+            exclude "**/index.html"
             rename { String fileName ->
                 fileName.replace("scaffold", props.replaceTokens.modName)
             }
             filter(ReplaceTokens, tokens: props.replaceTokens)
         }
-        into scaffModDir.absolutePath
+        into opts.scaffModDir.absolutePath
+        includeEmptyDirs = true
     }
 
-    // Create groovy src directory structure
-    def groovySrcOut = props.replaceTokens.modOwner.replaceAll(/\./, "/")
-    File groovySrcDirs = new File("$groovyDir/$groovySrcOut")
-    assert groovySrcDirs.mkdirs()
-    File groovyHelpersDirs = new File(groovySrcDirs, "helpers")
-    assert groovyHelpersDirs.mkdir()
-
+    println "DEBUG: Copy ${opts.scaffoldRscDir}/index.html --> ${opts.appDir}"
     copy {
-        from(scaffoldGroovySrcDir) {
+        from "${opts.scaffoldRscDir}/index.html"
+        filter(ReplaceTokens, tokens: props.replaceTokens)
+        into opts.appDir
+    }
+
+    println "DEBUG: Copy ${opts.scaffoldGroovySrcDir} --> ${opts.groovySrcDirs.absolutePath}"
+    copy {
+        from(opts.scaffoldGroovySrcDir) {
             rename { String fileName ->
                 fileName.replace("Scaffold", props.serviceBaseName)
             }
             filter(ReplaceTokens, tokens: props.replaceTokens)
         }
-        into groovySrcDirs.absolutePath
+        into opts.groovySrcDirs.absolutePath
+        includeEmptyDirs = true
     }
 
+    // symlink resource/app to web-ui/app
+    println "DEBUG: linking from $opts.resourceDir to ../../../web-ui/app"
+    exec {
+        workingDir opts.resourceDir
+        commandLine 'ln', '-s', '../../../web-ui/app'
+        ignoreExitValue true
+    }
 
-    println "INFO: App Generated --> ${props.targetOutDir.absolutePath}"
+    println "INFO: App Generated --> ${opts.targetOutDir.absolutePath}"
 }

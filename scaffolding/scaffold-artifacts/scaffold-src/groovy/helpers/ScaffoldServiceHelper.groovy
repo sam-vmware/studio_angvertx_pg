@@ -1,21 +1,35 @@
 package @modOwner@.helpers
 
-import com.vmware.studio.shared.mixins.ResourceEnabled
-import com.vmware.studio.shared.services.messaging.BaseMessageHandler
 import groovy.util.logging.Log
+import com.vmware.studio.shared.services.messaging.BaseMessageHandler
+import com.vmware.studio.shared.categories.CommonService
+import com.vmware.studio.shared.mixins.ContextConfig
+import com.vmware.studio.shared.mixins.MessageHandlerRegistry
+import com.vmware.studio.shared.mixins.ResourceEnabled
+import com.vmware.studio.shared.services.Service
+import com.vmware.studio.shared.services.messaging.MessageValidator
+import com.vmware.studio.shared.services.messaging.types.GlobalMsgTypes
+import com.vmware.studio.shared.utils.ClosureScriptAsClass
+import com.vmware.studio.shared.utils.GlobalServiceConfig
+import org.vertx.groovy.core.eventbus.Message
+import org.vertx.groovy.platform.Verticle
 
 /**
  * ScaffoldServiceHelper
  */
 @Log(value = "LOGGER")
-@Mixin(ResourceEnabled)
+@Mixin([ResourceEnabled])
 class @serviceHelperName@ extends BaseMessageHandler {
 
-    public static final String ME = "@serviceHelperName@"
+    public static final String MY_TYPE = "HelloWorld"
+
+    @serviceHelperName@(String myType = MY_TYPE) {
+        super(myType)
+    }
 
     def sayHello(Map message) {
         LOGGER.info "Saying Hello!"
-        OK_RESPONSE("Hello From Vert.x Service $ME !!")
+        OK_RESPONSE("Hello From Vert.x Service @serviceName@ !!" as String)
     }
 
     /***** Implementations Below *****/

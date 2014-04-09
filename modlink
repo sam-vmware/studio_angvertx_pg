@@ -28,3 +28,11 @@ pushd "$VERTX_MODS/com.vmware~vami-web-server~1.0"
 ln -s $SRC_ROOT/vami-mods/web-server/web-ui/app
 popd
 popd
+
+# For generated mods example, in this case pop was selected modname
+# pushd scaffolding/generated/scaffold-pop
+# vertx create-module-link com.foo.bar~pop~1.0
+# pushd "$VERTX_MODS/com.foo.bar~pop~1.0"
+# ln -s $SRC_ROOT/scaffolding/generated/scaffold-pop/web-ui/app
+# popd
+# popd

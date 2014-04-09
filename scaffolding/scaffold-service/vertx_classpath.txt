@@ -1,0 +1,5 @@
+build/classes/main
+build/resources/main
+build/deps
+build/libs
+build/mods/@modOwner@~@modName@~@buildVersion@/lib

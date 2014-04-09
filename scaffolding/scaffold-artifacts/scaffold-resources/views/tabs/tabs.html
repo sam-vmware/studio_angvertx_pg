@@ -1,0 +1,10 @@
+<!-- Created by samueldoyle -->
+<div id="tabsController" ng-controller="tabsController">
+    <tabset>
+        <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disabled="tab.disabled"></tab>
+    </tabset>
+
+    <div id="content" ng-if="getActive().templ != null">
+        <div ng-include src="getActive().templ"></div>
+    </div>
+</div>

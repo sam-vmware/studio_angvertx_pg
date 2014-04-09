@@ -1,2 +1,5 @@
 include 'shared:common'
 include 'vami-mods', 'vami-mods:system-service', 'vami-mods:content-resolver', 'vami-mods:web-server'
+
+// example for a scaffolded app. In this case input for modname was pop
+//include 'scaffolding:generated:scaffold-pop'

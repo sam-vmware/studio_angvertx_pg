@@ -2,9 +2,9 @@
 /**
  * Scaffold Controller
  */
-@modName@App.lazy.controller('@modName@Controller', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
-    'COMMON_ROOT', '@modName@Service',
-    function ($q, $scope, $routeParams, $log, $timeout, $modal, COMMON_ROOT, @modName@Service) {
+@modName@App.lazy.controller('@modName@TabController', ['$q', '$scope', '$routeParams', '$log', '$timeout', '$modal',
+    'COMMON_ROOT', 'tabsService',
+    function ($q, $scope, $routeParams, $log, $timeout, $modal, COMMON_ROOT, tabsService) {
 
         var getMessage = {
             type: "HelloWorld",
@@ -34,7 +34,7 @@
             //  serviceName: "system",
             //  jsonMsg: testGetSystemInformation
             // }
-            @modName@Service.sendRequest(options).then(function (reply) {
+            tabsService.sendRequest(options).then(function (reply) {
                 var timer = $timeout(function () {
                     $scope.$apply(function () {
                         if (scopeApplyCallback) {

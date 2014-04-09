@@ -1,5 +1,5 @@
 {
-  "main":"groovy:@modOwner@.service.@serviceName@",
+  "main":"groovy:@modOwner@.@serviceName@",
   "description":"Scaffold Service",
   "licenses": ["The Apache Software License Version 2.0"],
   "author": "",

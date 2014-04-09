@@ -159,8 +159,11 @@ class @serviceName@ extends Verticle implements Service {
                 webRootDir: "",
                 indexFile : "index.html"
             ],
+            type     : "ResourceRequestHandler",
+            operation: "addNewService"
         ]
-        resourceSvcRegistrationMsg.data.webRootDir = myWebRootDir
+
+        resourceSvcRegistrationMsg.data.webRootDir = myWebRootDir as String
 
         if (CURRENT_ENVIRONMENT != "test") {
             container.logger.info "Sending new service registration message to: $globalResourceAddress, data: $resourceSvcRegistrationMsg"

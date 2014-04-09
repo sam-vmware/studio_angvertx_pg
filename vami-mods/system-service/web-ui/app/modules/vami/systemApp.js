@@ -30,15 +30,20 @@ var systemApp = angular.module('systemApp', [
             };
 
             $routeProvider.when('/', {
-                templateUrl: VAMI_ROOT + '/views/tabs/systemTabs.html'
+                templateUrl: VAMI_ROOT + '/views/tabs/systemTabs.html',
+                resolve: {
+                    resources:function(resourceLoaderService, SYSTEM_DYNAMIC_RESOURCES) {
+                        return resourceLoaderService.preloadJSResources(SYSTEM_DYNAMIC_RESOURCES);
+                    }
+                }
             }).otherwise({redirectTo: '/'});
         }
     ]);
 
-systemApp.run(['$q', '$rootScope', '$log', 'resourceLoaderService', 'SYSTEM_DYNAMIC_RESOURCES',
+/*systemApp.run(['$q', '$rootScope', '$log', 'resourceLoaderService', 'SYSTEM_DYNAMIC_RESOURCES',
     function ($q, $rootScope, $log, resourceLoaderService, SYSTEM_DYNAMIC_RESOURCES) {
         resourceLoaderService.preloadJSResources(SYSTEM_DYNAMIC_RESOURCES);
-    }]);
+    }]);*/
 
 angular.element(document).ready(function () {
     angular.bootstrap(document.getElementById('systemAppContainer'), ['systemApp']);
