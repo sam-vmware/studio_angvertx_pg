@@ -10,8 +10,7 @@ import groovy.util.logging.Log
  */
 @Log(value = "LOGGER")
 @CompileStatic
-//@Singleton(strict = false, lazy = false)
-@Singleton(lazy = false)
+@Singleton(strict = false, lazy = false)
 class OSSupport {
     def final ME = OSSupport.class.name
 
