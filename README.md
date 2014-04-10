@@ -109,13 +109,15 @@ Authentication is **PAM** based so assuming you are running on Linux you should 
 that can be authenticated through ssh.
 
 #### Scaffolding
-To quickly generate a scaffolded app which produces a working sample application and structure use the createApp task
+To quickly generate a scaffolded mod which produces a working sample application and structure use the createApp task
 ```bash
-./gradlew createApp
+./gradlew createMod
 ```
 A swing dialog is presented which you enter two fields a modowner and modname
-* The modowner is like a Maven group (com. is automatically prefixed) e.g. **foo.bar** would produce **com.foo.bar**
-* The modname is the name of the module e.g. **pop** 
+* **modowner** is like a Maven group (com. is automatically prefixed) e.g. **foo.bar** would produce **com.foo.bar**
+* **modname** is the name of the module e.g. **pop** 
+* **mainTabName** will be the title of the your modules initial tab when the service is loaded
+* **helloMessageField** is the message returned from your Vert.x module in response to the request sent on page load
 
 *For more on Vert.x Module Naming Convention see: http://vertx.io/mods_manual.html*
 

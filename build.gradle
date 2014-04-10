@@ -123,7 +123,7 @@ subprojects {
     }
 }*/
 
-task createApp << {
+task createMod << {
     file("$rootDir/gradle.properties").withReader { reader ->
         def theProps = new Properties()
         theProps.load(reader)
@@ -142,23 +142,24 @@ task createApp << {
     }
 
     // SwingBuilder generated dialog to gather required properties
-    def app = VMWARE_CONF.promptNewAppProperties()
-    println "\nINFO: App collected values: $app\n"
+    def modProperties = VMWARE_CONF.promptNewModuleProperties()
+    println "\nDEBUG: modProperties collected values: $modProperties\n"
 
-    // Get a directory to output the scaffold app
-    String genDirOut = "$genDirBase/scaffold-$app.modName"
-    String targetOutDir = VMWARE_CONF.genAppOutDir(genDirOut)
-    println "DEBUG: targetOutDir : $targetOutDir"
+    // Get a directory to output the scaffold modProperties
+    String genDirOut = "$genDirBase/scaffold-$modProperties.modName"
+    String targetOutDir = VMWARE_CONF.genModOutDir(genDirOut)
 
     // def convertedModName = CharMatcher.JAVA_LETTER.retainFrom(app.modName)
     // def convertedModOwner = CharMatcher.JAVA_LETTER.retainFrom(app.modOwner)
-    String serviceBaseName = "${WordUtils.capitalize(app.modName)}"
+    String serviceBaseName = "${WordUtils.capitalize(modProperties.modName)}"
     String serviceName = "${serviceBaseName}Service"
     String serviceHelperName = "${serviceName}Helper"
 
     def replaceTokens = [
-        modName         : app.modName as String,
-        modOwner        : app.modOwner as String,
+        modName         : modProperties.modName as String,
+        modOwner        : modProperties.modOwner as String,
+        mainTabName     : modProperties.mainTabName as String,
+        helloMessage    : modProperties.helloMessage as String,
         buildVersion    : buildVersion,
         serviceName: serviceName as String,
         serviceHelperName: serviceHelperName as String
@@ -171,10 +172,10 @@ task createApp << {
         replaceTokens: replaceTokens
     ]
 
-    // If ok selected from the properties gui scaffold the app
-    if (app.doBuild) {
+    // If ok selected from the properties gui scaffold the modProperties
+    if (modProperties.doBuild) {
         println "DEBUG: Using scaffoldProperties : $scaffoldProperties"
-        VMWARE_CONF.scaffoldApp(scaffoldProperties)
+        VMWARE_CONF.scaffoldMod(scaffoldProperties)
     }
 }
 

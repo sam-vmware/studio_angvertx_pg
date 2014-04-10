@@ -8,6 +8,8 @@ apply plugin: 'groovy'
 
 import groovy.beans.Bindable
 import groovy.swing.SwingBuilder
+import groovy.transform.ToString
+
 import java.awt.*
 import org.apache.tools.ant.filters.ReplaceTokens
 
@@ -30,33 +32,34 @@ dependencies {
 }
 
 @Bindable
-public class AppProperties {
-    String modOwner, modName
+@ToString
+public class ModProperties {
+    String modOwner, modName, mainTabName, helloMessage
     boolean doBuild = false
-
-    String toString() { "app[modOwner=$modOwner,modName=$modName,doBuild=$doBuild]" }
 }
 
 /**
- * Collects user input via swing dialog for scaffold app
- * @param app
+ * Collects user input via swing dialog for scaffold mod
+ * @param mod
  */
-VMWARE_CONF.promptNewAppProperties = {
+VMWARE_CONF.promptNewModuleProperties = {
 
-    def returnValues = [:]
-    def modFieldConverter = { modField ->
-        modField.toLowerCase()
+    def modFieldConverter = { modFieldText ->
+        modFieldText.toLowerCase()
     }
 
-    def modFieldValidator = { modField ->
-        modField ==~ /.*?[\.a-zA-Z].*?/
+    def modFieldValidator = { modFieldText ->
+        modFieldText ==~  /[\.a-zA-Z]+/
     }
 
-    def app = new AppProperties(modOwner: 'mycompany', modName: 'my-test-service')
+    def modProperties =
+        new ModProperties(modOwner: "mycompany", modName: "my-test-service", mainTabName: "First Tab",
+                          helloMessage: "Hello from my generated service!!")
+
     new SwingBuilder().edt {
-
+        lookAndFeel 'system'
         dialog(modal: true,
-            title: "Project Properties",
+            title: "Module Properties",
             alwaysOnTop: true,
             resizable: true, // Don't allow the user to resize the dialog
             locationRelativeTo: null, // Place dialog in center of the screen
@@ -65,30 +68,60 @@ VMWARE_CONF.promptNewAppProperties = {
         ) {
             borderLayout(vgap: 5)
             panel(constraints: BorderLayout.CENTER,
-                border: compoundBorder([emptyBorder(10), titledBorder("Enter New Application Properties:")])) {
+                border: compoundBorder([emptyBorder(10), titledBorder("Enter New Module Properties:")])) {
                 tableLayout {
                     tr {
                         td {
-                            label "Mod Owner ('com.' will be prefixed):"
+                            label "Module Owner ('com.' will be prefixed):"
                         }
                         td {
-                            textField id: "modOwnerField", columns: 20, text:bind(
-                                validator: modFieldValidator,
-                                converter: modFieldConverter,
-                                target:app, targetProperty:'modOwner'
-                            )
+                            textField modProperties.modOwner, id: "modOwnerField", columns: 30
+/*                            textField id: "modOwnerField", columns: 30, text:bind(
+                                    validator: modFieldValidator,
+                                    converter: modFieldConverter,
+                                    target: modProperties,
+                                    targetProperty: "modOwner"
+                                )*/
                         }
                     }
                     tr {
                         td {
-                            label "Mod Name:"
+                            label "Module Name:"
                         }
                         td {
-                            textField id: "modNameField", columns: 20, text:bind(
-                                validator: modFieldValidator,
-                                converter: modFieldConverter,
-                                target:app, targetProperty:'modName'
-                            )
+                            textField modProperties.modName, id: "modNameField", columns: 30
+/*                            textField id: "modNameField", columns: 30, text:bind(
+                                    validator: modFieldValidator,
+                                    converter: modFieldConverter,
+                                    target: modProperties,
+                                    targetProperty: "modName"
+                                )*/
+                        }
+                    }
+                    tr {
+                        td {
+                            label "Main Tab Name:"
+                        }
+                        td {
+                            textField modProperties.mainTabName, id: "mainTabNameField", columns: 30
+/*                            textField id: "mainTabNameField", columns: 30, text:bind(
+                                    validator: { mainTabNameFieldText -> mainTabNameFieldText.length() < 30 },
+                                    target: modProperties,
+                                    targetProperty: "mainTabName"
+                                )*/
+                        }
+                    }
+                    tr {
+                        td {
+                            label "Hello From Service Message:"
+                        }
+                        td {
+                            textField modProperties.helloMessage, id: "helloMessageField", columns: 30
+/*                            textField id: "helloMessageField", columns: 30, text:bind(
+                                    validator: { helloMessageFieldText -> helloMessageFieldText.length() < 80 },
+                                    target: modProperties,
+                                    targetProperty: "helloMessage"
+                                )*/
                         }
                     }
                 }
@@ -96,19 +129,24 @@ VMWARE_CONF.promptNewAppProperties = {
 
             panel(constraints: BorderLayout.SOUTH) {
                 button text: "Build", actionPerformed: {
-                    returnValues.doBuild = true
-                    returnValues.modOwner = "com.${app.modOwner}"
-                    returnValues.modName = app.modName
+                    modProperties.doBuild = true
+                    modProperties.modOwner = "com.${modProperties.modOwner}"
                     dispose()
                 }
                 button text: "Cancel", actionPerformed: {
                     dispose()
                 }
             }
+
+            bean modProperties,
+                modOwner: bind { modOwnerField.text },
+                modName: bind { modNameField.text },
+                mainTabName: bind { mainTabNameField.text },
+                helloMessage: bind { helloMessageField.text }
         }
     }
 
-    returnValues
+    modProperties
 }
 
 /**
@@ -116,7 +154,7 @@ VMWARE_CONF.promptNewAppProperties = {
  * @param genDirBase - the base dir to check and increment if exists e.g. /tmp/foo-bar-service
  * @return - A file representing the chosen directory
  */
-VMWARE_CONF.genAppOutDir = { genDirBase ->
+VMWARE_CONF.genModOutDir = { genDirBase ->
     def genDirInc = -1, targetOutDir, first = true
     while (true) {
         if (first) {
@@ -144,10 +182,10 @@ def createDirs = { File targetDirs ->
 }
 
 /**
- * Outputs a scaffolded app based on provided properties
+ * Outputs a scaffolded  modbased on provided properties
  * @param props - required properties to output the scaffold
  */
-VMWARE_CONF.scaffoldApp = { props ->
+VMWARE_CONF.scaffoldMod = { props ->
 
     def opts = [
         scaffoldSvcDir:"${props.scaffoldDir}/scaffold-service",

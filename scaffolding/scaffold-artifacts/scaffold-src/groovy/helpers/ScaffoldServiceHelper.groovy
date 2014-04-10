@@ -29,7 +29,7 @@ class @serviceHelperName@ extends BaseMessageHandler {
 
     def sayHello(Map message) {
         LOGGER.info "Saying Hello!"
-        OK_RESPONSE("Hello From Vert.x Service @serviceName@ !!" as String)
+        OK_RESPONSE("@helloMessage@" as String)
     }
 
     /***** Implementations Below *****/

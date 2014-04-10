@@ -17,7 +17,7 @@
 
         var tabsList = [
             {
-                title: "First Tab of @serviceName@", name: "@serviceName@", active: true, disabled: false,
+                title: "@mainTabName@", name: "mainTab", active: true, disabled: false,
                 templ: $sce.trustAsResourceUrl(APP_ROOT + '/views/tabs/@modName@TabView.html')
             }
         ];

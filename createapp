@@ -1,2 +1,0 @@
-# ./gradlew createApp --no-daemon --rerun-tasks --recompile-scripts --stacktrace
-./gradlew createApp --no-daemon --stacktrace

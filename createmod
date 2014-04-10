@@ -1,0 +1,2 @@
+# ./gradlew createMod --no-daemon --rerun-tasks --recompile-scripts --stacktrace
+./gradlew createMod --no-daemon --stacktrace
