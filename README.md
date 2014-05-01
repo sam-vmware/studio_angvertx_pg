@@ -28,7 +28,8 @@ $ vi $VERTX_HOME/conf/cluster.xml
 # 2. Change mod-lang-groovy version
 $ vi $VERTX_HOME/conf/langs.properties
 # Use this value
-# groovy=io.vertx~lang-groovy~2.1RC1:org.vertx.groovy.platform.impl.GroovyVerticleFactory
+# Keep this in sync with whatever the version is of Vert.x. Once you have built Vert.x you can get a copy from
+# vertx/build/<vert.x-XXXXX>/conf
 # 3. Change repos.txt and remove local repo
 # avoid picking up any of your stale builds
 $ vi $VERTX_HOME/conf/repos.txt
