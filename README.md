@@ -51,8 +51,12 @@ For **clean**
 ```bash
 $ ./gradlew clean
 ```
-#### Testing
-Tests are integration at the moment and per module, since we use Gradle. You run tests as in a normal Gradle fashion.
+#### ~~Testing~~
+
+Tests are broke atm due to PAM integration.
+BTW PAM requires either Linux or OSX with ssh enabled to work
+
+~~Tests are integration at the moment and per module, since we use Gradle. You run tests as in a normal Gradle fashion.~~
 ``` bash
 # Run all the tests
 $ ./gradlew test
@@ -61,7 +65,7 @@ $ ./gradlew vami-mods:web-server:test -i
 $ ./gradlew vami-mods:content-resolver:test -i
 $ ./gradlew vami-mods:system-service:test -i
 ```
-Build results found in each of the modules directories.
+~~Build results found in each of the modules directories.~~
 ```bash
 ls -1 ./vami-mods/system-service/build/reports/tests
 classes
